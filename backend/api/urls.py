@@ -1,0 +1,32 @@
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import (
+    ServiceViewSet, EventViewSet, ExpenseViewSet, QuoteViewSet, MessageViewSet,
+    CurrentUserView, UserListView, CreateUserView, UpdateProfileView, AdminUserDetailView,
+    EventImageViewSet, TeamMemberViewSet, TravelRateViewSet,
+    TwoFactorLoginView, TwoFactorSetupView, TwoFactorVerifySetupView, TwoFactorDisableView
+)
+
+router = DefaultRouter()
+router.register(r'services', ServiceViewSet)
+router.register(r'events', EventViewSet)
+router.register(r'expenses', ExpenseViewSet)
+router.register(r'quotes', QuoteViewSet)
+router.register(r'messages', MessageViewSet)
+router.register(r'event-images', EventImageViewSet)
+router.register(r'team-members', TeamMemberViewSet)
+router.register(r'travel_rates', TravelRateViewSet)
+
+urlpatterns = [
+    path('', include(router.urls)),
+    path('auth/me/', CurrentUserView.as_view(), name='current-user'),
+    path('auth/profile/', UpdateProfileView.as_view(), name='update-profile'),
+    path('auth/users/', UserListView.as_view(), name='user-list'),
+    path('auth/users/create/', CreateUserView.as_view(), name='user-create'),
+    path('auth/users/<int:pk>/', AdminUserDetailView.as_view(), name='admin-user-detail'),
+    path('auth/2fa/login/', TwoFactorLoginView.as_view(), name='two-factor-login'),
+    path('auth/2fa/setup/', TwoFactorSetupView.as_view(), name='two-factor-setup'),
+    path('auth/2fa/verify-setup/', TwoFactorVerifySetupView.as_view(), name='two-factor-verify-setup'),
+    path('auth/2fa/disable/', TwoFactorDisableView.as_view(), name='two-factor-disable'),
+]
+

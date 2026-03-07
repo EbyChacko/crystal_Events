@@ -1,0 +1,48 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
+
+@theme {
+  --color-deep-teal: #012d2d;
+  --color-mustard-gold: #EEC059;
+  --color-dark-gray: #333333;
+  --color-off-white: #f5f8f8;
+  --color-background-dark: #0f2323;
+  --color-neutral-teal: #1a3a3a;
+  --color-emerald-green: #10B981;
+  --color-burnt-orange: #C2410C;
+  --color-gallery-dark: #061f1f;
+  --color-bright-teal: #00C1C1;
+  --color-midnight-teal: #0D1F23;
+  --color-jungle-green: #012F2F;
+
+  --font-sans: "Manrope", sans-serif;
+  --font-serif: "Times New Roman", Times, serif;
+}
+
+body {
+  background-color: var(--color-off-white);
+  color: var(--color-deep-teal);
+  font-family: var(--font-sans);
+}
+
+.masonry-grid {
+  columns: 1;
+  column-gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .masonry-grid {
+    columns: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry-grid {
+    columns: 3;
+  }
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+}

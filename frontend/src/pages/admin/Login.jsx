@@ -1,0 +1,160 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+
+const Login = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [requires2FA, setRequires2FA] = useState(false);
+    const [userId, setUserId] = useState(null);
+    const [otp, setOtp] = useState('');
+    const { addToast } = useToast();
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const { login, verifyLogin2FA, user } = useAuth();
+
+    // If already logged in, redirect
+    useEffect(() => {
+        if (user) {
+            navigate('/admin/dashboard', { replace: true });
+        }
+    }, [user, navigate]);
+
+    if (user) return null;
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            if (requires2FA) {
+                await verifyLogin2FA(userId, otp);
+                navigate('/admin/dashboard');
+            } else {
+                const result = await login(username, password);
+                if (result.requires2FA) {
+                    setRequires2FA(true);
+                    setUserId(result.userId);
+                } else {
+                    navigate('/admin/dashboard');
+                }
+            }
+        } catch (err) {
+            if (err.response?.status === 401) {
+                addToast('Invalid credentials or OTP.', 'error');
+            } else if (err.response?.data?.error) {
+                addToast(err.response.data.error, 'error');
+            } else if (err.response?.data?.non_field_errors) {
+                addToast(err.response.data.non_field_errors[0], 'error');
+            } else {
+                addToast('Something went wrong. Please try again.', 'error');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1a1a] via-[#0d2424] to-[#0a1a1a] px-4">
+            {/* Background decoration */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-mustard-gold/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-deep-teal/20 rounded-full blur-3xl" />
+            </div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="relative w-full max-w-md"
+            >
+                {/* Logo */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-white tracking-tight">
+                        Crystal <span className="text-mustard-gold">Events</span>
+                    </h1>
+                    <p className="text-gray-500 mt-2 text-sm uppercase tracking-widest">Admin Portal</p>
+                </div>
+
+                {/* Login Card */}
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl">
+                    <h2 className="text-xl font-bold text-white mb-1">Welcome Back</h2>
+                    <p className="text-gray-500 text-sm mb-6">
+                        {requires2FA ? 'Enter your 2FA code to continue' : 'Sign in to your admin account'}
+                    </p>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        {!requires2FA ? (
+                            <>
+                                <div>
+                                    <label className="block text-gray-400 text-sm font-medium mb-2">Username</label>
+                                    <input
+                                        type="text"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 text-white px-4 py-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                        placeholder="Enter your username"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-400 text-sm font-medium mb-2">Password</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="w-full bg-white/5 border border-white/10 text-white px-4 py-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all pr-12"
+                                            placeholder="Enter your password"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                                        >
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div>
+                                <label className="block text-gray-400 text-sm font-medium mb-2">Authentication Code</label>
+                                <input
+                                    type="text"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
+                                    className="w-full bg-white/5 border border-white/10 text-white px-4 py-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all tracking-widest text-center text-lg"
+                                    placeholder="000000"
+                                    maxLength={6}
+                                    required
+                                />
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                        >
+                            <LogIn size={18} />
+                            <span>{loading ? 'Signing in...' : 'Sign In'}</span>
+                        </button>
+                    </form>
+                </div>
+
+                <p className="text-center text-gray-600 text-xs mt-6">
+                    Crystal Events © {new Date().getFullYear()}
+                </p>
+            </motion.div>
+        </div>
+    );
+};
+
+export default Login;
