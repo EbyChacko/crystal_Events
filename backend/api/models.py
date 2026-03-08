@@ -47,6 +47,7 @@ class Event(models.Model):
     # Venue & schedule
     event_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
+    hall_available_from = models.DateTimeField(null=True, blank=True)
     venue = models.CharField(max_length=255)
     venue_address = models.TextField(blank=True, default='')
 

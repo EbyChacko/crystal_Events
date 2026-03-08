@@ -35,13 +35,14 @@ const EventForm = ({ onClose, onSuccess }) => {
     const [services, setServices] = useState([]);
     const [travelRates, setTravelRates] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+    const [includeQuote, setIncludeQuote] = useState(false);
     const { addToast } = useToast();
 
     const emptyItem = { service: '', minimum_amount: '', quoted_amount: '', comment: '' };
     const initialFormData = {
         event_name: '', event_type: 'other', description: '',
         client_name: '', client_email: '', client_phone: '', client_address: '',
-        event_date: '', end_date: '', venue: '', venue_address: '', distance_from_ballinasloe: '',
+        event_date: '', end_date: '', hall_available_from: '', venue: '', venue_address: '', distance_from_ballinasloe: '',
         guest_count: '', budget: '', status: 'enquiry', assigned_to: '',
         discount_percentage: '0', notes: '', event_notes: '',
         items: [{ ...emptyItem }],
@@ -117,10 +118,13 @@ const EventForm = ({ onClose, onSuccess }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const validItems = formData.items.filter(item => item.service && item.quoted_amount);
-        if (validItems.length === 0) {
-            addToast('Please add at least one service with an amount for the quote.', 'error');
-            return;
+
+        if (includeQuote) {
+            const validItems = formData.items.filter(item => item.service && item.quoted_amount);
+            if (validItems.length === 0) {
+                addToast('Please add at least one service with an amount for the quote.', 'error');
+                return;
+            }
         }
 
         setSubmitting(true);
@@ -145,30 +149,36 @@ const EventForm = ({ onClose, onSuccess }) => {
             if (formData.assigned_to) eventPayload.assigned_to = formData.assigned_to;
             if (formData.guest_count) eventPayload.guest_count = parseInt(formData.guest_count);
             if (formData.end_date) eventPayload.end_date = formData.end_date;
+            if (formData.hall_available_from) eventPayload.hall_available_from = formData.hall_available_from;
 
             const evRes = await api.post('/events/', eventPayload);
             const newEventId = evRes.data.id;
 
-            const quotePayload = {
-                event: newEventId,
-                client_name: formData.client_name,
-                client_email: formData.client_email,
-                client_phone: formData.client_phone,
-                client_address: formData.client_address,
-                travel_cost: liveTravelCost,
-                discount_percentage: parseFloat(formData.discount_percentage) || 0,
-                status: formData.status === 'enquiry' ? 'draft' : 'sent',
-                notes: formData.notes,
-                items: validItems.map(item => ({
-                    service: parseInt(item.service),
-                    minimum_amount: parseFloat(item.minimum_amount),
-                    quoted_amount: parseFloat(item.quoted_amount),
-                    comment: item.comment,
-                })),
-            };
+            if (includeQuote) {
+                const validItems = formData.items.filter(item => item.service && item.quoted_amount);
+                const quotePayload = {
+                    event: newEventId,
+                    client_name: formData.client_name,
+                    client_email: formData.client_email,
+                    client_phone: formData.client_phone,
+                    client_address: formData.client_address,
+                    travel_cost: liveTravelCost,
+                    discount_percentage: parseFloat(formData.discount_percentage) || 0,
+                    status: formData.status === 'enquiry' ? 'draft' : 'sent',
+                    notes: formData.notes,
+                    items: validItems.map(item => ({
+                        service: parseInt(item.service),
+                        minimum_amount: parseFloat(item.minimum_amount),
+                        quoted_amount: parseFloat(item.quoted_amount),
+                        comment: item.comment,
+                    })),
+                };
+                await api.post('/quotes/', quotePayload);
+                addToast(`Event "${formData.event_name}" and linked quote created successfully!`, 'success');
+            } else {
+                addToast(`Event "${formData.event_name}" created successfully!`, 'success');
+            }
 
-            await api.post('/quotes/', quotePayload);
-            addToast(`Event "${formData.event_name}" and linked quote created successfully!`, 'success');
             onSuccess();
         } catch (err) {
             const d = err.response?.data;
@@ -258,7 +268,7 @@ const EventForm = ({ onClose, onSuccess }) => {
 
                     {/* Venue & Schedule */}
                     <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Venue & Schedule</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
                         <div>
                             <label className="block text-gray-400 text-sm font-medium mb-2">Event Date & Time *</label>
                             <input type="datetime-local" name="event_date" value={formData.event_date} onChange={handleChange}
@@ -270,6 +280,11 @@ const EventForm = ({ onClose, onSuccess }) => {
                                 className={inputClass} />
                         </div>
                         <div>
+                            <label className="block text-gray-400 text-sm font-medium mb-2">Hall Available From</label>
+                            <input type="datetime-local" name="hall_available_from" value={formData.hall_available_from} onChange={handleChange}
+                                className={inputClass} />
+                        </div>
+                        <div className="md:col-span-2">
                             <label className="block text-gray-400 text-sm font-medium mb-2">Venue *</label>
                             <input type="text" name="venue" value={formData.venue} onChange={handleChange}
                                 className={inputClass} placeholder="Grand Ballroom" required />
@@ -279,7 +294,7 @@ const EventForm = ({ onClose, onSuccess }) => {
                             <input type="number" name="distance_from_ballinasloe" value={formData.distance_from_ballinasloe} onChange={handleChange}
                                 className={inputClass} placeholder="from Ballinasloe" min="0" step="0.1" />
                         </div>
-                        <div className="lg:col-span-4">
+                        <div className="md:col-span-3">
                             <label className="block text-gray-400 text-sm font-medium mb-2">Venue Address</label>
                             <input type="text" name="venue_address" value={formData.venue_address} onChange={handleChange}
                                 className={inputClass} placeholder="Full venue address..." />
@@ -326,153 +341,175 @@ const EventForm = ({ onClose, onSuccess }) => {
                             className={inputClass} placeholder="Any specific requirements, thoughts, or internal notes purely for staff visibility..." />
                     </div>
 
-                    {/* Quote & Services */}
+                    {/* Quote & Services — toggleable */}
                     <div className="border-t border-white/10 pt-6 mt-6 mb-4">
-                        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Quote & Services</h3>
+                        {/* Toggle header */}
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Quote & Services</h3>
+                                <p className="text-xs text-gray-600 mt-1">Attach a quote with services and pricing to this event</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIncludeQuote(v => !v)}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${includeQuote ? 'bg-mustard-gold' : 'bg-white/10'
+                                    }`}
+                                aria-checked={includeQuote}
+                                role="switch"
+                            >
+                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${includeQuote ? 'translate-x-6' : 'translate-x-1'
+                                    }`} />
+                            </button>
+                        </div>
 
-                        <div className="space-y-3 mb-6">
-                            {formData.items.map((item, index) => (
-                                <div key={index} className="bg-white/[0.03] border border-white/5 rounded-xl p-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-                                        <div className="md:col-span-11 grid grid-cols-1 md:grid-cols-12 gap-4">
-                                            <div className="md:col-span-5">
-                                                <label className="block text-gray-400 text-xs font-medium mb-1.5">Service *</label>
-                                                <select value={item.service}
-                                                    onChange={(e) => handleItemChange(index, 'service', e.target.value)}
-                                                    className={selectClass} required>
-                                                    <option value="" className="bg-gray-900">Select a service</option>
-                                                    {services.map(s => (
-                                                        <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            {(() => {
-                                                const selectedService = services.find(s => s.id === parseInt(item.service)) || null;
-                                                const isSpecialRequirement = selectedService && selectedService.name === 'Special Requirement';
-                                                return isSpecialRequirement ? (
-                                                    <>
-                                                        <div className="md:col-span-12 mt-2">
-                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Description (Optional)</label>
-                                                            <textarea value={item.comment}
-                                                                onChange={(e) => handleItemChange(index, 'comment', e.target.value)}
-                                                                className={inputClass} placeholder="Details for this special requirement..." rows="2" />
-                                                        </div>
-                                                        <div className="md:col-span-4 mt-2">
-                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Amount (€) *</label>
-                                                            <input type="number" value={item.quoted_amount}
-                                                                onChange={(e) => handleItemChange(index, 'quoted_amount', e.target.value)}
-                                                                className={inputClass} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} required />
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <div className="md:col-span-3">
-                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Min Amount (€)</label>
-                                                            <input type="number" value={item.minimum_amount}
-                                                                className={disabledInputClass} disabled readOnly
-                                                                placeholder="Auto-filled" />
-                                                        </div>
-                                                        <div className="md:col-span-4">
-                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Quoted Amount (€) *</label>
-                                                            <input type="number" value={item.quoted_amount}
-                                                                onChange={(e) => handleItemChange(index, 'quoted_amount', e.target.value)}
-                                                                className={inputClass} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} required />
-                                                        </div>
-                                                        <div className="md:col-span-12 mt-2">
-                                                            <input type="text" value={item.comment}
-                                                                onChange={(e) => handleItemChange(index, 'comment', e.target.value)}
-                                                                className={inputClass} placeholder="Add a comment or note for this specific service..." />
-                                                        </div>
-                                                    </>
-                                                );
-                                            })()}
-                                        </div>
-                                        <div className="md:col-span-1 flex flex-col justify-center items-center space-y-2 mt-6">
-                                            {formData.items.length > 1 && (
-                                                <button type="button" onClick={() => removeItem(index)}
-                                                    className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors" title="Remove Service">
-                                                    <MinusCircle size={20} />
-                                                </button>
-                                            )}
-                                            {index === formData.items.length - 1 && (
-                                                <button type="button" onClick={addItem}
-                                                    disabled={!item.service}
-                                                    className="p-2 text-mustard-gold hover:text-yellow-400 hover:bg-mustard-gold/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-mustard-gold/5" title="Add another service">
-                                                    <Plus size={20} />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {liveTravelCost > 0 && (
-                                <div className="bg-white/[0.03] border border-mustard-gold/30 rounded-xl p-4 mt-3">
-                                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                                        <div className="md:col-span-11">
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <p className="text-mustard-gold text-sm font-bold">Travel Expense</p>
-                                                    <p className="text-xs text-gray-400 mt-1">Calculated based on {formData.distance_from_ballinasloe} km distance</p>
+                        {includeQuote && (
+                            <>
+                                <div className="space-y-3 mb-6">
+                                    {formData.items.map((item, index) => (
+                                        <div key={index} className="bg-white/[0.03] border border-white/5 rounded-xl p-4">
+                                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                                                <div className="md:col-span-11 grid grid-cols-1 md:grid-cols-12 gap-4">
+                                                    <div className="md:col-span-5">
+                                                        <label className="block text-gray-400 text-xs font-medium mb-1.5">Service *</label>
+                                                        <select value={item.service}
+                                                            onChange={(e) => handleItemChange(index, 'service', e.target.value)}
+                                                            className={selectClass}>
+                                                            <option value="" className="bg-gray-900">Select a service</option>
+                                                            {services.map(s => (
+                                                                <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    {(() => {
+                                                        const selectedService = services.find(s => s.id === parseInt(item.service)) || null;
+                                                        const isSpecialRequirement = selectedService && selectedService.name === 'Special Requirement';
+                                                        return isSpecialRequirement ? (
+                                                            <>
+                                                                <div className="md:col-span-12 mt-2">
+                                                                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Description (Optional)</label>
+                                                                    <textarea value={item.comment}
+                                                                        onChange={(e) => handleItemChange(index, 'comment', e.target.value)}
+                                                                        className={inputClass} placeholder="Details for this special requirement..." rows="2" />
+                                                                </div>
+                                                                <div className="md:col-span-4 mt-2">
+                                                                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Amount (€) *</label>
+                                                                    <input type="number" value={item.quoted_amount}
+                                                                        onChange={(e) => handleItemChange(index, 'quoted_amount', e.target.value)}
+                                                                        className={inputClass} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} />
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div className="md:col-span-3">
+                                                                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Min Amount (€)</label>
+                                                                    <input type="number" value={item.minimum_amount}
+                                                                        className={disabledInputClass} disabled readOnly
+                                                                        placeholder="Auto-filled" />
+                                                                </div>
+                                                                <div className="md:col-span-4">
+                                                                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Quoted Amount (€) *</label>
+                                                                    <input type="number" value={item.quoted_amount}
+                                                                        onChange={(e) => handleItemChange(index, 'quoted_amount', e.target.value)}
+                                                                        className={inputClass} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} />
+                                                                </div>
+                                                                <div className="md:col-span-12 mt-2">
+                                                                    <input type="text" value={item.comment}
+                                                                        onChange={(e) => handleItemChange(index, 'comment', e.target.value)}
+                                                                        className={inputClass} placeholder="Add a comment or note for this specific service..." />
+                                                                </div>
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </div>
-                                                <p className="font-bold text-white">€{liveTravelCost.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                                <div className="md:col-span-1 flex flex-col justify-center items-center space-y-2 mt-6">
+                                                    {formData.items.length > 1 && (
+                                                        <button type="button" onClick={() => removeItem(index)}
+                                                            className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors" title="Remove Service">
+                                                            <MinusCircle size={20} />
+                                                        </button>
+                                                    )}
+                                                    {index === formData.items.length - 1 && (
+                                                        <button type="button" onClick={addItem}
+                                                            disabled={!item.service}
+                                                            className="p-2 text-mustard-gold hover:text-yellow-400 hover:bg-mustard-gold/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-mustard-gold/5" title="Add another service">
+                                                            <Plus size={20} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
+                                        </div>
+                                    ))}
+
+                                    {liveTravelCost > 0 && (
+                                        <div className="bg-white/[0.03] border border-mustard-gold/30 rounded-xl p-4 mt-3">
+                                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                                                <div className="md:col-span-11">
+                                                    <div className="flex justify-between items-center">
+                                                        <div>
+                                                            <p className="text-mustard-gold text-sm font-bold">Travel Expense</p>
+                                                            <p className="text-xs text-gray-400 mt-1">Calculated based on {formData.distance_from_ballinasloe} km distance</p>
+                                                        </div>
+                                                        <p className="font-bold text-white">€{liveTravelCost.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">
+                                            <Percent size={14} className="inline mr-1" />Discount (%)
+                                        </label>
+                                        <input type="number" name="discount_percentage" value={formData.discount_percentage}
+                                            onChange={handleChange}
+                                            className={inputClass} placeholder="0" step="0.01" min="0" max="100" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Quote Notes</label>
+                                        <input type="text" name="notes" value={formData.notes} onChange={handleChange}
+                                            className={inputClass} placeholder="Optional notes for the quote..." />
+                                    </div>
+                                </div>
+
+                                {/* Live Totals Preview */}
+                                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-6">
+                                    <div className="flex flex-col items-end space-y-2">
+                                        <div className="flex items-center space-x-8">
+                                            <span className="text-sm text-gray-400">Subtotal:</span>
+                                            <span className="text-sm font-medium text-white w-28 text-right">
+                                                €{liveSubtotal.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                        {liveDiscountPct > 0 && (
+                                            <div className="flex items-center space-x-8">
+                                                <span className="text-sm text-gray-400">Discount ({liveDiscountPct}%):</span>
+                                                <span className="text-sm font-medium text-red-400 w-28 text-right">
+                                                    -€{liveDiscountAmt.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center space-x-8 pt-2 border-t border-white/10">
+                                            <span className="text-sm font-semibold text-mustard-gold">Total Target Budget:</span>
+                                            <span className="text-lg font-bold text-white w-28 text-right">
+                                                €{liveTotal.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
-                            )}
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-                            <div>
-                                <label className="block text-gray-400 text-sm font-medium mb-2">
-                                    <Percent size={14} className="inline mr-1" />Discount (%)
-                                </label>
-                                <input type="number" name="discount_percentage" value={formData.discount_percentage}
-                                    onChange={handleChange}
-                                    className={inputClass} placeholder="0" step="0.01" min="0" max="100" />
-                            </div>
-                            <div>
-                                <label className="block text-gray-400 text-sm font-medium mb-2">Quote Notes</label>
-                                <input type="text" name="notes" value={formData.notes} onChange={handleChange}
-                                    className={inputClass} placeholder="Optional notes for the quote..." />
-                            </div>
-                        </div>
-
-                        {/* Live Totals Preview */}
-                        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-6">
-                            <div className="flex flex-col items-end space-y-2">
-                                <div className="flex items-center space-x-8">
-                                    <span className="text-sm text-gray-400">Subtotal:</span>
-                                    <span className="text-sm font-medium text-white w-28 text-right">
-                                        €{liveSubtotal.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                                {liveDiscountPct > 0 && (
-                                    <div className="flex items-center space-x-8">
-                                        <span className="text-sm text-gray-400">Discount ({liveDiscountPct}%):</span>
-                                        <span className="text-sm font-medium text-red-400 w-28 text-right">
-                                            -€{liveDiscountAmt.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                        </span>
-                                    </div>
-                                )}
-                                <div className="flex items-center space-x-8 pt-2 border-t border-white/10">
-                                    <span className="text-sm font-semibold text-mustard-gold">Total Target Budget:</span>
-                                    <span className="text-lg font-bold text-white w-28 text-right">
-                                        €{liveTotal.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                            </>
+                        )}
                     </div>
+
 
                     <button type="submit" disabled={submitting}
                         className="w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                        {submitting ? 'Creating Event...' : 'Create Event & Quote'}
+                        {submitting ? 'Creating...' : includeQuote ? 'Create Event & Quote' : 'Create Event'}
                     </button>
                 </form>
             </motion.div>
-        </div>
+        </div >
     );
 };
 

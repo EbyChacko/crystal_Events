@@ -59,6 +59,7 @@ class EventViewSet(viewsets.ModelViewSet):
             'client_address': event.client_address,
             'event_date': event.event_date.isoformat() if event.event_date else None,
             'end_date': event.end_date.isoformat() if event.end_date else None,
+            'hall_available_from': event.hall_available_from.isoformat() if event.hall_available_from else None,
             'venue': event.venue,
             'venue_address': event.venue_address,
             'guest_count': event.guest_count,
@@ -458,6 +459,267 @@ class EventViewSet(viewsets.ModelViewSet):
         staff = User.objects.filter(is_staff=True).values('id', 'first_name', 'last_name', 'username')
         return Response(list(staff))
 
+    @action(detail=True, methods=['get'], url_path='notes/pdf')
+    def notes_pdf(self, request, pk=None):
+        """Generate a staff-only PDF containing the event's internal notes and linked quote summary."""
+        import io
+        import os
+        from django.conf import settings
+        from django.http import HttpResponse, HttpResponseForbidden
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib import colors
+        from reportlab.lib.units import mm
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+        from reportlab.pdfgen import canvas as rl_canvas
+        from PIL import Image as PilImage
+        from rest_framework_simplejwt.authentication import JWTAuthentication
+        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
+        # ── Auth ──────────────────────────────────────────────────────────
+        token_str = request.query_params.get('token')
+        if token_str:
+            try:
+                jwt_auth = JWTAuthentication()
+                validated = jwt_auth.get_validated_token(token_str)
+                request.user = jwt_auth.get_user(validated)
+            except (InvalidToken, TokenError):
+                return HttpResponseForbidden('Invalid token')
+
+        if not request.user or not request.user.is_authenticated:
+            return HttpResponseForbidden('Authentication required')
+        if not request.user.is_staff:
+            return HttpResponseForbidden('Staff access only')
+
+        event = self.get_object()
+
+        # ── Logo ──────────────────────────────────────────────────────────
+        base_dir = settings.BASE_DIR
+        logo_path = os.path.join(base_dir.parent, 'frontend', 'src', 'assets', 'images', 'logo.png')
+        colored_logo_buffer = None
+        if os.path.exists(logo_path):
+            try:
+                img = PilImage.open(logo_path).convert('RGBA')
+                alpha = img.split()[-1]
+                solid_color = PilImage.new('RGBA', img.size, (1, 45, 45, 255))
+                colored_logo = PilImage.composite(solid_color, PilImage.new('RGBA', img.size, (255, 255, 255, 0)), alpha)
+                colored_logo_buffer = io.BytesIO()
+                colored_logo.save(colored_logo_buffer, format='PNG')
+                colored_logo_buffer.seek(0)
+            except Exception as e:
+                print(f'Error processing logo: {e}')
+
+        # ── NumberedCanvas for "Page X / Y" ───────────────────────────────
+        class NumberedCanvas(rl_canvas.Canvas):
+            def __init__(self, *args, **kwargs):
+                rl_canvas.Canvas.__init__(self, *args, **kwargs)
+                self._saved_page_states = []
+
+            def showPage(self):
+                self._saved_page_states.append(dict(self.__dict__))
+                self._startPage()
+
+            def save(self):
+                num_pages = len(self._saved_page_states)
+                for state in self._saved_page_states:
+                    self.__dict__.update(state)
+                    self._draw_page_number(num_pages)
+                    rl_canvas.Canvas.showPage(self)
+                rl_canvas.Canvas.save(self)
+
+            def _draw_page_number(self, page_count):
+                # Watermark
+                if colored_logo_buffer:
+                    from reportlab.lib.utils import ImageReader
+                    self.saveState()
+                    self.setFillAlpha(0.05)
+                    pw, ph = A4
+                    lw = lh = 150 * mm
+                    colored_logo_buffer.seek(0)
+                    self.drawImage(ImageReader(colored_logo_buffer),
+                                   (pw - lw) / 2, (ph - lh) / 2 - 20 * mm,
+                                   width=lw, height=lh, mask='auto', preserveAspectRatio=True)
+                    self.restoreState()
+                # Page number bottom-right
+                self.saveState()
+                self.setFont('Helvetica', 8)
+                self.setFillColor(colors.HexColor('#999999'))
+                self.drawRightString(A4[0] - 20 * mm, 12 * mm,
+                                     f'Page {self._pageNumber} / {page_count}')
+                self.restoreState()
+
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4,
+            rightMargin=20*mm, leftMargin=20*mm,
+            topMargin=20*mm, bottomMargin=28*mm   # extra bottom for page number
+        )
+        styles = getSampleStyleSheet()
+        elems = []
+
+        # ── Styles ────────────────────────────────────────────────────────
+        title_style = ParagraphStyle(
+            'NTitleStyle', parent=styles['Heading1'], fontName='Helvetica-Bold', fontSize=24,
+            textColor=colors.HexColor('#012d2d'), alignment=0, spaceAfter=8
+        )
+        subtitle_style = ParagraphStyle(
+            'NSubtitleStyle', parent=styles['Normal'], fontName='Helvetica', fontSize=10,
+            textColor=colors.HexColor('#666666'), alignment=0, spaceAfter=4
+        )
+        section_heading_style = ParagraphStyle(
+            'NSecHead', parent=styles['Heading3'], fontName='Helvetica-Bold', fontSize=11,
+            textColor=colors.HexColor('#012d2d'), spaceAfter=6, spaceBefore=14
+        )
+        notes_style = ParagraphStyle(
+            'NNotes', parent=styles['Normal'], fontName='Helvetica', fontSize=10,
+            textColor=colors.HexColor('#222222'), leading=15, spaceAfter=4
+        )
+        footer_style = ParagraphStyle(
+            'NFooter', parent=styles['Normal'], fontSize=8,
+            textColor=colors.HexColor('#999999'), alignment=TA_CENTER
+        )
+        desc_style = ParagraphStyle(
+            'NDesc', parent=styles['Normal'], fontName='Helvetica', fontSize=8,
+            textColor=colors.HexColor('#555555'), leading=11
+        )
+
+        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="20">EVENTS</font>'
+
+        # ── Header ────────────────────────────────────────────────────────
+        if colored_logo_buffer:
+            colored_logo_buffer.seek(0)
+            logo = Image(colored_logo_buffer, width=25*mm, height=25*mm)
+            header_text = [
+                Paragraph(brand_title, title_style),
+                Spacer(1, 4),
+                Paragraph('Ballinasloe, Galway, Ireland | Redhill, London, UK', subtitle_style),
+                Paragraph('info@crystaleventsie.com | IE: +353 892331060 / +353 894173337 | UK: +44 7436586579', subtitle_style),
+            ]
+            header_data = [[logo, header_text]]
+            header_table = Table(header_data, colWidths=[35*mm, 150*mm])
+            header_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ]))
+            elems.append(header_table)
+        else:
+            elems.append(Paragraph(brand_title, title_style))
+            elems.append(Spacer(1, 4))
+            elems.append(Paragraph('Ballinasloe, Galway, Ireland | Redhill, London, UK', subtitle_style))
+            elems.append(Paragraph('info@crystaleventsie.com | IE: +353 892331060 / +353 894173337 | UK: +44 7436586579', subtitle_style))
+
+        elems.append(HRFlowable(width='100%', thickness=1, color=colors.HexColor('#EEC059'), spaceAfter=12, spaceBefore=2))
+
+        # Staff badge
+        badge_style = ParagraphStyle(
+            'NBadge', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9,
+            textColor=colors.HexColor('#7a4f00'), alignment=0
+        )
+        badge_table = Table([[Paragraph('⚠  STAFF INTERNAL DOCUMENT — NOT FOR CLIENT DISTRIBUTION', badge_style)]],
+                            colWidths=[170*mm])
+        badge_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#fff8e5')),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor('#EEC059')),
+        ]))
+        elems.append(badge_table)
+        elems.append(Spacer(1, 10))
+
+        # ── Event Overview (no email, date + venue bolded) ─────────────────
+        elems.append(Paragraph('Event Overview', section_heading_style))
+        ev_date_str = event.event_date.strftime('%d %B %Y, %H:%M') if event.event_date else '—'
+        ev_venue = event.venue or '—'
+        ev_data = [
+            ['Event Name:', event.event_name or '—', 'Type:', event.get_event_type_display()],
+            ['Client:', event.client_name or '—', 'Phone:', event.client_phone or '—'],
+            ['Date:', Paragraph(f'<b>{ev_date_str}</b>', ParagraphStyle('bold9', fontSize=9, fontName='Helvetica-Bold', textColor=colors.HexColor('#012d2d'))),
+             'Venue:', Paragraph(f'<b>{ev_venue}</b>', ParagraphStyle('bold9v', fontSize=9, fontName='Helvetica-Bold', textColor=colors.HexColor('#012d2d')))],
+        ]
+
+        ev_table = Table(ev_data, colWidths=[30*mm, 60*mm, 25*mm, 55*mm])
+        ev_table.setStyle(TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#888888')),
+            ('TEXTCOLOR', (2, 0), (2, -1), colors.HexColor('#888888')),
+            ('TEXTCOLOR', (1, 0), (1, -1), colors.HexColor('#222222')),
+            ('TEXTCOLOR', (3, 0), (3, -1), colors.HexColor('#222222')),
+            ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),   # event name bold
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.white, colors.HexColor('#f8f8f8')]),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        elems.append(ev_table)
+
+        # ── Quote Summary (FIRST — no amounts, with descriptions) ──────────
+        quote = event.quotes.filter(status='accepted').first() or event.quotes.order_by('-created_at').first()
+        if quote:
+            elems.append(Spacer(1, 6))
+            elems.append(Paragraph('Services', section_heading_style))
+
+            svc_header = [['#', 'Service', 'Service Notes']]
+            svc_rows = []
+            for i, item in enumerate(quote.items.select_related('service').all(), 1):
+                desc = item.comment if item.comment and item.comment.strip() else '—'
+                svc_rows.append([
+                    str(i),
+                    Paragraph(f'<b>{item.service.name}</b>', ParagraphStyle('svcname', fontSize=9, fontName='Helvetica-Bold')),
+                    Paragraph(desc, desc_style),
+                ])
+
+            svc_data = svc_header + svc_rows
+            svc_table = Table(svc_data, colWidths=[12*mm, 58*mm, 100*mm])
+            svc_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#012d2d')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                ('TOPPADDING', (0, 0), (-1, 0), 8),
+                ('FONTSIZE', (0, 1), (-1, -1), 9),
+                ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#333333')),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 7),
+                ('TOPPADDING', (0, 1), (-1, -1), 7),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f8f8')]),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LINEBELOW', (0, 0), (-1, 0), 1, colors.HexColor('#012d2d')),
+                ('GRID', (0, 0), (-1, -1), 0.25, colors.HexColor('#e0e0e0')),
+            ]))
+            elems.append(svc_table)
+
+        # ── Internal Notes (AFTER quote) ──────────────────────────────────
+        elems.append(Spacer(1, 6))
+        elems.append(Paragraph('Internal Notes', section_heading_style))
+        if event.notes:
+            note_lines = event.notes.replace('\r\n', '\n').split('\n')
+            for line in note_lines:
+                elems.append(Paragraph(line if line.strip() else '&nbsp;', notes_style))
+        else:
+            elems.append(Paragraph('<i>No internal notes recorded.</i>', notes_style))
+
+        # ── Footer line ───────────────────────────────────────────────────
+        elems.append(Spacer(1, 18))
+        elems.append(HRFlowable(width='100%', thickness=0.5, color=colors.HexColor('#cccccc'), spaceAfter=6))
+        printed_by = self._user_display(request.user)
+        from django.utils import timezone as tz
+        printed_at = tz.now().strftime('%d %B %Y, %H:%M UTC')
+        elems.append(Paragraph(
+            f'CRYSTAL EVENTS | Internal Document | Printed by: {printed_by} on {printed_at}',
+            footer_style
+        ))
+
+        doc.build(elems, canvasmaker=NumberedCanvas)
+
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        safe_name = event.event_name.replace(' ', '_')
+        response['Content-Disposition'] = f'inline; filename="Notes_{safe_name}.pdf"'
+        return response
+
 class ExpenseViewSet(viewsets.ModelViewSet):
     queryset = Expense.objects.all()
     serializer_class = ExpenseSerializer
@@ -714,6 +976,9 @@ class QuoteViewSet(viewsets.ModelViewSet):
                 ['Event:', event.event_name, 'Event Date:', ev_date],
                 ['Venue:', event.venue or '—', 'Type:', event.get_event_type_display()],
             ]
+            if event.hall_available_from:
+                hall_str = event.hall_available_from.strftime('%d %B %Y, %H:%M')
+                ev_data.append(['Hall Available From:', hall_str, '', ''])
             ev_table = Table(ev_data, colWidths=[80, 155, 75, 120])
             ev_table.setStyle(TableStyle([
                 ('FONTSIZE', (0, 0), (-1, -1), 9),
