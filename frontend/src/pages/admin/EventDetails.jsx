@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Calendar as CalendarIcon, Save, AlertCircle, CheckCircle, MapPin, Pencil, X, ArrowLeft,
@@ -67,6 +67,7 @@ const getQuoteStatusLabel = (status) => QUOTE_STATUS_OPTIONS.find(s => s.value =
 const EventDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const { addToast } = useToast();
 
@@ -99,8 +100,8 @@ const EventDetails = () => {
         discount_percentage: '0', status: 'draft', notes: '',
         items: [{ ...emptyQuoteItem }],
     });
-    const originalQuoteFormData = useRef({});
-    const isQuoteDirty = JSON.stringify(quoteFormData) !== JSON.stringify(originalQuoteFormData.current);
+    const [isQuoteDirty, setIsQuoteDirty] = useState(false);
+    const originalQuoteData = useRef(null);
 
     // Payment state
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -194,14 +195,22 @@ const EventDetails = () => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                if (showEditModal) setShowEditModal(false);
-                if (showQuoteForm) setShowQuoteForm(false);
+            if (e.key === 'Escape' && showEditModal) {
+                setShowEditModal(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [showEditModal, showQuoteForm]);
+    }, [showEditModal]);
+
+    // Check if we navigated here specifically to edit the quote
+    useEffect(() => {
+        if (eventQuote && location.search.includes('action=edit-quote')) {
+            openEditQuote();
+            // Clear the query parameter so it doesn't reopen on refresh
+            navigate(location.pathname, { replace: true });
+        }
+    }, [eventQuote, location.search, navigate]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -382,34 +391,44 @@ const EventDetails = () => {
 
     // ── Quote Handlers ───────────────────────────────────────────────
     const openCreateQuote = () => {
-        const initial = {
+        const initialData = {
             discount_percentage: '0', status: 'draft', notes: '',
             items: [{ ...emptyQuoteItem }],
         };
-        setQuoteFormData(initial);
-        originalQuoteFormData.current = initial;
+        setQuoteFormData(initialData);
+        originalQuoteData.current = initialData;
+        setIsQuoteDirty(false);
         setEditingQuote(false);
         setShowQuoteForm(true);
     };
 
     const openEditQuote = () => {
         if (!eventQuote) return;
-        const initial = {
-            discount_percentage: String(eventQuote.discount_percentage ?? '0'),
+        const initialData = {
+            discount_percentage: eventQuote.discount_percentage || '0',
             status: eventQuote.status,
             notes: eventQuote.notes || '',
             items: eventQuote.items.map(item => ({
-                service: String(item.service),      // convert to string so select value matches HTML option values
-                minimum_amount: String(item.minimum_amount ?? ''),
-                quoted_amount: String(item.quoted_amount ?? ''),
+                service: item.service,
+                minimum_amount: item.minimum_amount,
+                quoted_amount: item.quoted_amount,
                 comment: item.comment || '',
             })),
         };
-        setQuoteFormData(initial);
-        originalQuoteFormData.current = initial;
+        setQuoteFormData(initialData);
+        originalQuoteData.current = initialData;
+        setIsQuoteDirty(false);
         setEditingQuote(true);
         setShowQuoteForm(true);
     };
+
+    // Deep compare quote data for change detection
+    useEffect(() => {
+        if (showQuoteForm && editingQuote && originalQuoteData.current) {
+            const isDirty = JSON.stringify(quoteFormData) !== JSON.stringify(originalQuoteData.current);
+            setIsQuoteDirty(isDirty);
+        }
+    }, [quoteFormData, showQuoteForm, editingQuote]);
 
     const handleQuoteItemChange = (index, field, value) => {
         const updated = [...quoteFormData.items];
@@ -1268,8 +1287,207 @@ const EventDetails = () => {
                         </div>
                     )
                 }
-
             </div >
+
+            {/* Quote Create/Edit Form Modal */}
+            <AnimatePresence>
+                {showQuoteForm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 min-h-screen">
+                        {/* Scrollable Container wrapper to prevent backdrop-blur cutoff issues */}
+                        <div className="fixed inset-0 w-full h-full overflow-y-auto">
+                            {/* Full document backdrop */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 bg-black/60 backdrop-blur-sm min-h-screen"
+                                onClick={() => setShowQuoteForm(false)}
+                            />
+
+                            {/* Centered Modal Content */}
+                            <div className="flex min-h-full items-center justify-center p-4 py-10 pointer-events-none">
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.95, opacity: 0 }}
+                                    className="relative w-full max-w-5xl bg-[#0b1015] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl pointer-events-auto"
+                                >
+                                    <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
+                                        <div className="flex items-center space-x-2">
+                                            <FileText size={22} className="text-mustard-gold" />
+                                            <span>{editingQuote ? 'Edit Quote' : 'Create Quote'}</span>
+                                        </div>
+                                        <button type="button" onClick={() => setShowQuoteForm(false)} className="text-gray-400 hover:text-white transition-colors">
+                                            <X size={24} />
+                                        </button>
+                                    </h2>
+                                    <form onSubmit={handleQuoteSubmit}>
+                                        {/* Services */}
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Services</h3>
+                                        </div>
+                                        <div className="space-y-3 mb-6">
+                                            {quoteFormData.items.map((item, index) => (
+                                                <div key={index} className="bg-white/[0.03] border border-white/5 rounded-xl p-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                                                        <div className="md:col-span-11 grid grid-cols-1 md:grid-cols-12 gap-4">
+                                                            <div className="md:col-span-5">
+                                                                <label className="block text-gray-400 text-xs font-medium mb-1.5">Service *</label>
+                                                                <select value={item.service}
+                                                                    onChange={(e) => handleQuoteItemChange(index, 'service', e.target.value)}
+                                                                    className={selectClass} required>
+                                                                    <option value="" className="bg-gray-900">Select a service</option>
+                                                                    {services.map(s => (
+                                                                        <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                            {(() => {
+                                                                const selectedService = services.find(s => s.id === parseInt(item.service)) || null;
+                                                                const isSpecialRequirement = selectedService && selectedService.name === 'Special Requirement';
+                                                                return isSpecialRequirement ? (
+                                                                    <>
+                                                                        <div className="md:col-span-12 mt-2">
+                                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Description (Required) *</label>
+                                                                            <textarea value={item.comment}
+                                                                                onChange={(e) => handleQuoteItemChange(index, 'comment', e.target.value)}
+                                                                                className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 placeholder-gray-600 transition-all" placeholder="Details for this special requirement..." rows="2" required />
+                                                                        </div>
+                                                                        <div className="md:col-span-4 mt-2">
+                                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Amount (€) *</label>
+                                                                            <input type="number" value={item.quoted_amount}
+                                                                                onChange={(e) => handleQuoteItemChange(index, 'quoted_amount', e.target.value)}
+                                                                                className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} required />
+                                                                        </div>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <div className="md:col-span-3">
+                                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Min Amount (€)</label>
+                                                                            <input type="number" value={item.minimum_amount}
+                                                                                className="w-full bg-white/[0.02] border border-white/5 text-gray-500 px-4 py-3 rounded-xl cursor-not-allowed"
+                                                                                disabled readOnly placeholder="Auto-filled" />
+                                                                        </div>
+                                                                        <div className="md:col-span-4">
+                                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Quoted Amount (€) *</label>
+                                                                            <input type="number" value={item.quoted_amount}
+                                                                                onChange={(e) => handleQuoteItemChange(index, 'quoted_amount', e.target.value)}
+                                                                                className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} required />
+                                                                        </div>
+                                                                        <div className="md:col-span-12 mt-2">
+                                                                            <input type="text" value={item.comment}
+                                                                                onChange={(e) => handleQuoteItemChange(index, 'comment', e.target.value)}
+                                                                                className={selectClass.replace('cursor-pointer', '')} placeholder="Add a comment or note for this specific service..." />
+                                                                        </div>
+                                                                    </>
+                                                                );
+                                                            })()}
+                                                        </div>
+                                                        <div className="md:col-span-1 flex flex-col justify-center items-center space-y-2 mt-6">
+                                                            {quoteFormData.items.length > 1 && (
+                                                                <button type="button" onClick={() => removeQuoteItem(index)}
+                                                                    className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors" title="Remove Service">
+                                                                    <MinusCircle size={20} />
+                                                                </button>
+                                                            )}
+                                                            {index === quoteFormData.items.length - 1 && (
+                                                                <button type="button" onClick={addQuoteItem}
+                                                                    disabled={!item.service}
+                                                                    className="p-2 text-mustard-gold hover:text-yellow-400 hover:bg-mustard-gold/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-mustard-gold/5" title="Add another service">
+                                                                    <Plus size={20} />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                            {quoteTravelCost > 0 && (
+                                                <div className="bg-white/[0.03] border border-mustard-gold/30 rounded-xl p-4 mt-3">
+                                                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                                                        <div className="md:col-span-11">
+                                                            <div className="flex justify-between items-center">
+                                                                <div>
+                                                                    <p className="text-mustard-gold text-sm font-bold">Travel Expense</p>
+                                                                    <p className="text-xs text-gray-400 mt-1">Calculated based on {event.distance_from_ballinasloe} km distance</p>
+                                                                </div>
+                                                                <p className="font-bold text-white">€{quoteTravelCost.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Quote Details */}
+                                        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 border-t border-white/10 pt-6">Quote Details</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
+                                            <div>
+                                                <label className="block text-gray-400 text-sm font-medium mb-2">
+                                                    <Percent size={14} className="inline mr-1" />Discount (%)
+                                                </label>
+                                                <input type="number" value={quoteFormData.discount_percentage}
+                                                    onChange={(e) => setQuoteFormData({ ...quoteFormData, discount_percentage: e.target.value })}
+                                                    className={selectClass.replace('cursor-pointer', '')} placeholder="0" step="0.01" min="0" max="100" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-gray-400 text-sm font-medium mb-2">Status</label>
+                                                <select value={quoteFormData.status}
+                                                    onChange={(e) => setQuoteFormData({ ...quoteFormData, status: e.target.value })}
+                                                    className={selectClass}>
+                                                    {QUOTE_STATUS_OPTIONS.map(s => (
+                                                        <option key={s.value} value={s.value} className="bg-gray-900">{s.label}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-gray-400 text-sm font-medium mb-2">Notes</label>
+                                                <input type="text" value={quoteFormData.notes}
+                                                    onChange={(e) => setQuoteFormData({ ...quoteFormData, notes: e.target.value })}
+                                                    className={selectClass.replace('cursor-pointer', '')} placeholder="Optional notes..." />
+                                            </div>
+                                        </div>
+
+                                        {/* Live Totals */}
+                                        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-6">
+                                            <div className="flex flex-col items-end space-y-2">
+                                                <div className="flex items-center space-x-8">
+                                                    <span className="text-sm text-gray-400">Subtotal:</span>
+                                                    <span className="text-sm font-medium text-white w-28 text-right">
+                                                        €{quoteSubtotal.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </span>
+                                                </div>
+                                                {quoteDiscountPct > 0 && (
+                                                    <div className="flex items-center space-x-8">
+                                                        <span className="text-sm text-gray-400">Discount ({quoteDiscountPct}%):</span>
+                                                        <span className="text-sm font-medium text-red-400 w-28 text-right">
+                                                            -€{quoteDiscountAmt.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center space-x-8 pt-2 border-t border-white/10">
+                                                    <span className="text-sm font-semibold text-mustard-gold">Total:</span>
+                                                    <span className="text-lg font-bold text-white w-28 text-right">
+                                                        €{quoteTotal.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-8 pt-6 border-t border-white/10 flex items-center space-x-4">
+                                            <button type="submit" disabled={quoteSubmitting || (editingQuote && !isQuoteDirty)}
+                                                className="w-full flex justify-center items-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-6 py-3.5 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <Save size={18} />
+                                                <span>{quoteSubmitting ? 'Saving...' : editingQuote ? (!isQuoteDirty ? 'No Changes' : 'Update Quote') : 'Create Quote'}</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </motion.div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* ── Payment Section ──────────────────────────────────────── */}
             {
@@ -1746,204 +1964,6 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                             ) : null}
                         </div>
                     </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Quote Create/Edit Modal */}
-            <AnimatePresence>
-                {showQuoteForm && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={() => setShowQuoteForm(false)}
-                        />
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-5xl bg-[#0b1015] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
-                        >
-                            <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                    <FileText size={22} className="text-mustard-gold" />
-                                    <span>{editingQuote ? 'Edit Quote' : 'Create Quote'}</span>
-                                </div>
-                                <button type="button" onClick={() => setShowQuoteForm(false)} className="text-gray-400 hover:text-white transition-colors">
-                                    <X size={24} />
-                                </button>
-                            </h2>
-
-                            <form onSubmit={handleQuoteSubmit}>
-                                {/* Services */}
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Services</h3>
-                                </div>
-                                <div className="space-y-3 mb-6">
-                                    {quoteFormData.items.map((item, index) => (
-                                        <div key={index} className="bg-white/[0.03] border border-white/5 rounded-xl p-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-                                                <div className="md:col-span-11 grid grid-cols-1 md:grid-cols-12 gap-4">
-                                                    <div className="md:col-span-5">
-                                                        <label className="block text-gray-400 text-xs font-medium mb-1.5">Service *</label>
-                                                        <select value={item.service}
-                                                            onChange={(e) => handleQuoteItemChange(index, 'service', e.target.value)}
-                                                            className={selectClass} required>
-                                                            <option value="" className="bg-gray-900">Select a service</option>
-                                                            {services.map(s => (
-                                                                <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                    {(() => {
-                                                        const selectedService = services.find(s => s.id === parseInt(item.service)) || null;
-                                                        const isSpecialRequirement = selectedService && selectedService.name === 'Special Requirement';
-                                                        return isSpecialRequirement ? (
-                                                            <>
-                                                                <div className="md:col-span-12 mt-2">
-                                                                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Description (Required) *</label>
-                                                                    <textarea value={item.comment}
-                                                                        onChange={(e) => handleQuoteItemChange(index, 'comment', e.target.value)}
-                                                                        className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 placeholder-gray-600 transition-all" placeholder="Details for this special requirement..." rows="2" required />
-                                                                </div>
-                                                                <div className="md:col-span-4 mt-2">
-                                                                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Amount (€) *</label>
-                                                                    <input type="number" value={item.quoted_amount}
-                                                                        onChange={(e) => handleQuoteItemChange(index, 'quoted_amount', e.target.value)}
-                                                                        className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} required />
-                                                                </div>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <div className="md:col-span-3">
-                                                                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Min Amount (€)</label>
-                                                                    <input type="number" value={item.minimum_amount}
-                                                                        className="w-full bg-white/[0.02] border border-white/5 text-gray-500 px-4 py-3 rounded-xl cursor-not-allowed"
-                                                                        disabled readOnly placeholder="Auto-filled" />
-                                                                </div>
-                                                                <div className="md:col-span-4">
-                                                                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Quoted Amount (€) *</label>
-                                                                    <input type="number" value={item.quoted_amount}
-                                                                        onChange={(e) => handleQuoteItemChange(index, 'quoted_amount', e.target.value)}
-                                                                        className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} required />
-                                                                </div>
-                                                                <div className="md:col-span-12 mt-2">
-                                                                    <input type="text" value={item.comment}
-                                                                        onChange={(e) => handleQuoteItemChange(index, 'comment', e.target.value)}
-                                                                        className={selectClass.replace('cursor-pointer', '')} placeholder="Add a comment or note for this specific service..." />
-                                                                </div>
-                                                            </>
-                                                        );
-                                                    })()}
-                                                </div>
-                                                <div className="md:col-span-1 flex flex-col justify-center items-center space-y-2 mt-6">
-                                                    {quoteFormData.items.length > 1 && (
-                                                        <button type="button" onClick={() => removeQuoteItem(index)}
-                                                            className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors" title="Remove Service">
-                                                            <MinusCircle size={20} />
-                                                        </button>
-                                                    )}
-                                                    {index === quoteFormData.items.length - 1 && (
-                                                        <button type="button" onClick={addQuoteItem}
-                                                            disabled={!item.service}
-                                                            className="p-2 text-mustard-gold hover:text-yellow-400 hover:bg-mustard-gold/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-mustard-gold/5" title="Add another service">
-                                                            <Plus size={20} />
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    {quoteTravelCost > 0 && (
-                                        <div className="bg-white/[0.03] border border-mustard-gold/30 rounded-xl p-4 mt-3">
-                                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                                                <div className="md:col-span-11">
-                                                    <div className="flex justify-between items-center">
-                                                        <div>
-                                                            <p className="text-mustard-gold text-sm font-bold">Travel Expense</p>
-                                                            <p className="text-xs text-gray-400 mt-1">Calculated based on {event.distance_from_ballinasloe} km distance</p>
-                                                        </div>
-                                                        <p className="font-bold text-white">€{quoteTravelCost.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Quote Details */}
-                                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 border-t border-white/10 pt-6">Quote Details</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">
-                                            <Percent size={14} className="inline mr-1" />Discount (%)
-                                        </label>
-                                        <input type="number" value={quoteFormData.discount_percentage}
-                                            onChange={(e) => setQuoteFormData({ ...quoteFormData, discount_percentage: e.target.value })}
-                                            className={selectClass.replace('cursor-pointer', '')} placeholder="0" step="0.01" min="0" max="100" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Status</label>
-                                        <select value={quoteFormData.status}
-                                            onChange={(e) => setQuoteFormData({ ...quoteFormData, status: e.target.value })}
-                                            className={selectClass}>
-                                            {QUOTE_STATUS_OPTIONS.map(s => (
-                                                <option key={s.value} value={s.value} className="bg-gray-900">{s.label}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Notes</label>
-                                        <input type="text" value={quoteFormData.notes}
-                                            onChange={(e) => setQuoteFormData({ ...quoteFormData, notes: e.target.value })}
-                                            className={selectClass.replace('cursor-pointer', '')} placeholder="Optional notes..." />
-                                    </div>
-                                </div>
-
-                                {/* Live Totals */}
-                                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 mb-6">
-                                    <div className="flex flex-col items-end space-y-2">
-                                        <div className="flex items-center space-x-8">
-                                            <span className="text-sm text-gray-400">Subtotal:</span>
-                                            <span className="text-sm font-medium text-white w-28 text-right">
-                                                €{quoteSubtotal.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </span>
-                                        </div>
-                                        {quoteDiscountPct > 0 && (
-                                            <div className="flex items-center space-x-8">
-                                                <span className="text-sm text-gray-400">Discount ({quoteDiscountPct}%):</span>
-                                                <span className="text-sm font-medium text-red-400 w-28 text-right">
-                                                    -€{quoteDiscountAmt.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                </span>
-                                            </div>
-                                        )}
-                                        <div className="flex items-center space-x-8 pt-2 border-t border-white/10">
-                                            <span className="text-sm font-semibold text-mustard-gold">Total:</span>
-                                            <span className="text-lg font-bold text-white w-28 text-right">
-                                                €{quoteTotal.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center space-x-4">
-                                    <button type="submit" disabled={quoteSubmitting || !isQuoteDirty}
-                                        className="flex items-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <Save size={18} />
-                                        <span>{quoteSubmitting ? 'Saving...' : editingQuote ? 'Update Quote' : 'Create Quote'}</span>
-                                    </button>
-                                    <button type="button" onClick={() => setShowQuoteForm(false)}
-                                        className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 rounded-xl hover:bg-white/15 transition-all">
-                                        <X size={18} />
-                                        <span>Cancel</span>
-                                    </button>
-                                </div>
-                            </form>
-                        </motion.div>
-                    </div>
                 )}
             </AnimatePresence>
         </div>

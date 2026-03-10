@@ -87,7 +87,7 @@ const Quotes = () => {
 
     const handleEdit = (quote) => {
         if (quote.event) {
-            navigate(`/admin/events/${quote.event}`);
+            navigate(`/admin/events/${quote.event}?action=edit-quote`);
         } else {
             addToast('Legacy quote editing is not supported in the unified view. Please create a new event-linked quote.', 'info');
         }
@@ -234,7 +234,7 @@ const Quotes = () => {
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
                                     {filteredQuotes.map((q) => (
-                                        <tr key={q.id} className="hover:bg-white/5 transition-colors group">
+                                        <tr key={q.id} onClick={() => q.event && navigate(`/admin/events/${q.event}`)} className="hover:bg-white/5 transition-colors group cursor-pointer">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div>
                                                     <p className="text-sm font-medium text-white">{q.client_name}</p>
@@ -243,7 +243,7 @@ const Quotes = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 {q.event_name ? (
-                                                    <button onClick={() => navigate(`/admin/events/${q.event}`)}
+                                                    <button onClick={(e) => { e.stopPropagation(); navigate(`/admin/events/${q.event}`); }}
                                                         className="text-xs text-mustard-gold hover:text-yellow-300 transition-colors truncate max-w-[140px] block text-left">
                                                         {q.event_name}
                                                     </button>
@@ -272,23 +272,23 @@ const Quotes = () => {
                                                 {deleteConfirmId === q.id ? (
                                                     <div className="flex items-center justify-end space-x-2">
                                                         <span className="text-xs text-red-400">Delete?</span>
-                                                        <button onClick={() => handleDelete(q.id)}
+                                                        <button onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }}
                                                             className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors">Yes</button>
-                                                        <button onClick={() => setDeleteConfirmId(null)}
+                                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }}
                                                             className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/20 transition-colors">No</button>
                                                     </div>
                                                 ) : (
                                                     <div className="flex items-center justify-end space-x-1.5">
-                                                        <button onClick={() => handleDownloadPdf(q.id)}
+                                                        <button onClick={(e) => { e.stopPropagation(); handleDownloadPdf(q.id); }}
                                                             title="Download PDF"
                                                             className="p-1.5 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors">
                                                             <Download size={16} />
                                                         </button>
-                                                        <button onClick={() => handleEdit(q)}
+                                                        <button onClick={(e) => { e.stopPropagation(); handleEdit(q); }}
                                                             className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors">
                                                             <Edit3 size={16} />
                                                         </button>
-                                                        <button onClick={() => setDeleteConfirmId(q.id)}
+                                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(q.id); }}
                                                             className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                                                             <Trash2 size={16} />
                                                         </button>
@@ -304,7 +304,7 @@ const Quotes = () => {
                         {/* Mobile List View (WhatsApp Style) */}
                         <div className="md:hidden divide-y divide-white/5">
                             {filteredQuotes.map((q) => (
-                                <div key={q.id} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
+                                <div key={q.id} onClick={() => q.event && navigate(`/admin/events/${q.event}`)} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative cursor-pointer">
                                     <div className="flex justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-base font-bold text-white truncate">{q.client_name}</h3>
