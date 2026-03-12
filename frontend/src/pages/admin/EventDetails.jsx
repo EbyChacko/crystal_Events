@@ -331,7 +331,9 @@ const EventDetails = () => {
     // ── Payment Handlers ─────────────────────────────────────────────
     const handleOpenPayment = () => {
         const totalAmount = parseFloat(event?.budget || eventQuote?.total || 0);
-        const balance = totalAmount - parseFloat(event?.received_amount || 0);
+        const prevReceived = parseFloat(event?.received_amount || 0);
+        const prevDiscount = parseFloat(event?.payment_discount || 0);
+        const balance = totalAmount - prevReceived - prevDiscount;
         setPaymentData({
             type: 'full',
             discount: '0',
@@ -700,7 +702,9 @@ const EventDetails = () => {
                                         type="button"
                                         onClick={() => {
                                             const totalAmount = parseFloat(event?.budget || eventQuote?.total || 0);
-                                            const bal = totalAmount - parseFloat(event?.received_amount || 0);
+                                            const prevReceived = parseFloat(event?.received_amount || 0);
+                                            const prevDiscount = parseFloat(event?.payment_discount || 0);
+                                            const bal = totalAmount - prevReceived - prevDiscount;
                                             setPaymentData({ ...paymentData, type: 'full', discount: '0', received: bal > 0 ? bal.toFixed(2) : '0' });
                                         }}
                                         className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${paymentData.type === 'full' ? 'bg-mustard-gold text-deep-teal shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
@@ -725,6 +729,12 @@ const EventDetails = () => {
                                         <span className="text-gray-400">Previously Received</span>
                                         <span className="text-white font-medium">€{parseFloat(event?.received_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
+                                    {parseFloat(event?.payment_discount || 0) > 0 && (
+                                        <div className="bg-white/5 p-4 rounded-xl flex justify-between items-center text-sm">
+                                            <span className="text-gray-400">Previously Discounted</span>
+                                            <span className="text-mustard-gold font-medium">€{parseFloat(event?.payment_discount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                    )}
                                     <div>
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Discount Allowed (€)</label>
                                         <input type="number" value={paymentData.discount}
@@ -737,7 +747,9 @@ const EventDetails = () => {
                                                 const updates = { discount: dVal };
                                                 if (paymentData.type === 'full') {
                                                     const totalAmount = parseFloat(event?.budget || eventQuote?.total || 0);
-                                                    const bal = totalAmount - parseFloat(event?.received_amount || 0);
+                                                    const prevReceived = parseFloat(event?.received_amount || 0);
+                                                    const prevDiscount = parseFloat(event?.payment_discount || 0);
+                                                    const bal = totalAmount - prevReceived - prevDiscount;
                                                     const rem = bal - parseFloat(dVal || 0);
                                                     updates.received = rem > 0 ? rem.toFixed(2) : '0';
                                                 }
@@ -757,7 +769,9 @@ const EventDetails = () => {
                                                 const updates = { received: rVal };
                                                 if (paymentData.type === 'full') {
                                                     const totalAmount = parseFloat(event?.budget || eventQuote?.total || 0);
-                                                    const bal = totalAmount - parseFloat(event?.received_amount || 0);
+                                                    const prevReceived = parseFloat(event?.received_amount || 0);
+                                                    const prevDiscount = parseFloat(event?.payment_discount || 0);
+                                                    const bal = totalAmount - prevReceived - prevDiscount;
                                                     const rem = bal - parseFloat(rVal || 0);
                                                     updates.discount = rem > 0 ? rem.toFixed(2) : '0';
                                                 }
@@ -766,7 +780,7 @@ const EventDetails = () => {
                                             className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min="0" required />
                                     </div>
 
-                                    {Number((parseFloat(paymentData.received || 0) + parseFloat(paymentData.discount || 0)).toFixed(2)) > Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0)).toFixed(2)) && (
+                                    {Number((parseFloat(paymentData.received || 0) + parseFloat(paymentData.discount || 0)).toFixed(2)) > Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toFixed(2)) && (
                                         <div className="text-red-400 text-sm font-medium flex items-center gap-2 mt-2 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
                                             <AlertCircle size={16} />
                                             Amount exceeds the balance due.
@@ -776,13 +790,13 @@ const EventDetails = () => {
                                     <div className="pt-4 border-t border-white/10 flex justify-between items-center">
                                         <span className="text-mustard-gold font-semibold">Balance Due</span>
                                         <span className="text-white font-bold text-xl">
-                                            €{Math.max(0, Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0)).toFixed(2))).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            €{Math.max(0, Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toFixed(2))).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center mt-2">
                                         <span className="text-gray-400 font-medium text-sm">Balance After Payment</span>
                                         <span className="text-gray-300 font-semibold text-lg">
-                                            €{Math.max(0, Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - (parseFloat(paymentData.received) || 0) - (parseFloat(paymentData.discount) || 0)).toFixed(2))).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            €{Math.max(0, Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0) - (parseFloat(paymentData.received) || 0) - (parseFloat(paymentData.discount) || 0)).toFixed(2))).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </span>
                                     </div>
                                 </div>
@@ -791,7 +805,7 @@ const EventDetails = () => {
                                         disabled={
                                             paymentSubmitting ||
                                             ((parseFloat(paymentData.received) || 0) <= 0 && (parseFloat(paymentData.discount) || 0) <= 0) ||
-                                            Number((parseFloat(paymentData.received || 0) + parseFloat(paymentData.discount || 0)).toFixed(2)) > Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0)).toFixed(2))
+                                            Number((parseFloat(paymentData.received || 0) + parseFloat(paymentData.discount || 0)).toFixed(2)) > Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toFixed(2))
                                         }
                                         className="flex-1 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-4 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                         {paymentSubmitting ? 'Processing...' : paymentData.type === 'full' ? 'Receive Full Balance' : 'Receive Partial Payment'}
@@ -1093,9 +1107,9 @@ const EventDetails = () => {
                                             className={selectClass.replace('appearance-none cursor-pointer', '')} />
                                     </div>
                                     <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Client Phone</label>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Client Phone *</label>
                                         <input type="text" name="client_phone" value={formData.client_phone} onChange={handleChange}
-                                            className={selectClass.replace('appearance-none cursor-pointer', '')} />
+                                            className={selectClass.replace('appearance-none cursor-pointer', '')} required />
                                     </div>
                                     <div className="md:col-span-3">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Client Address</label>
@@ -1223,10 +1237,24 @@ const EventDetails = () => {
                                 </span>
                             </div>
                             <div className="space-y-2 mb-4">
+                                <div className="hidden md:grid grid-cols-12 gap-4 px-4 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    <div className="col-span-4">Service</div>
+                                    <div className="col-span-5">Special Requirement / Notes</div>
+                                    <div className="col-span-3 text-right">Amount</div>
+                                </div>
                                 {eventQuote.items?.map((item, i) => (
-                                    <div key={i} className="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3">
-                                        <span className="text-sm text-white">{item.service_name === 'Special Requirement' && item.comment ? item.comment : item.service_name}</span>
-                                        <span className="text-sm font-medium text-white">€{parseFloat(item.quoted_amount).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-center bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3">
+                                        <div className="md:col-span-4 text-sm font-medium text-white">
+                                            {item.service_name}
+                                        </div>
+                                        <div className="md:col-span-5 text-sm text-gray-400 flex flex-col sm:flex-row sm:space-x-1">
+                                            <span className="md:hidden font-semibold text-gray-500 text-xs uppercase mb-1 sm:mb-0">Note: </span>
+                                            <span className="break-words">{item.comment || '—'}</span>
+                                        </div>
+                                        <div className="md:col-span-3 text-sm font-medium text-white flex justify-between md:block md:text-right">
+                                            <span className="md:hidden font-semibold text-gray-500 text-xs uppercase">Amount: </span>
+                                            <span>€{parseFloat(item.quoted_amount).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
                                     </div>
                                 ))}
                                 {parseFloat(eventQuote.travel_cost) > 0 && (
@@ -1331,33 +1359,39 @@ const EventDetails = () => {
                                                 <div key={index} className="bg-white/[0.03] border border-white/5 rounded-xl p-4">
                                                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
                                                         <div className="md:col-span-11 grid grid-cols-1 md:grid-cols-12 gap-4">
-                                                            <div className="md:col-span-5">
-                                                                <label className="block text-gray-400 text-xs font-medium mb-1.5">Service *</label>
-                                                                <select value={item.service}
-                                                                    onChange={(e) => handleQuoteItemChange(index, 'service', e.target.value)}
-                                                                    className={selectClass} required>
-                                                                    <option value="" className="bg-gray-900">Select a service</option>
-                                                                    {services.map(s => (
-                                                                        <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>
-                                                                    ))}
-                                                                </select>
-                                                            </div>
+                                                            {(() => {
+                                                                const selectedService = services.find(s => s.id === parseInt(item.service)) || null;
+                                                                const isSpecialRequirement = selectedService && selectedService.name === 'Special Requirement';
+                                                                return (
+                                                                    <div className={isSpecialRequirement ? "md:col-span-8" : "md:col-span-5"}>
+                                                                        <label className="block text-gray-400 text-xs font-medium mb-1.5">Service *</label>
+                                                                        <select value={item.service}
+                                                                            onChange={(e) => handleQuoteItemChange(index, 'service', e.target.value)}
+                                                                            className={selectClass} required>
+                                                                            <option value="" className="bg-gray-900">Select a service</option>
+                                                                            {services.map(s => (
+                                                                                <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                );
+                                                            })()}
                                                             {(() => {
                                                                 const selectedService = services.find(s => s.id === parseInt(item.service)) || null;
                                                                 const isSpecialRequirement = selectedService && selectedService.name === 'Special Requirement';
                                                                 return isSpecialRequirement ? (
                                                                     <>
+                                                                        <div className="md:col-span-4">
+                                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Amount (€) *</label>
+                                                                            <input type="number" value={item.quoted_amount}
+                                                                                onChange={(e) => handleQuoteItemChange(index, 'quoted_amount', e.target.value)}
+                                                                                className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} required />
+                                                                        </div>
                                                                         <div className="md:col-span-12 mt-2">
                                                                             <label className="block text-gray-400 text-xs font-medium mb-1.5">Description (Required) *</label>
                                                                             <textarea value={item.comment}
                                                                                 onChange={(e) => handleQuoteItemChange(index, 'comment', e.target.value)}
                                                                                 className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 placeholder-gray-600 transition-all" placeholder="Details for this special requirement..." rows="2" required />
-                                                                        </div>
-                                                                        <div className="md:col-span-4 mt-2">
-                                                                            <label className="block text-gray-400 text-xs font-medium mb-1.5">Amount (€) *</label>
-                                                                            <input type="number" value={item.quoted_amount}
-                                                                                onChange={(e) => handleQuoteItemChange(index, 'quoted_amount', e.target.value)}
-                                                                                className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min={item.minimum_amount || 0} required />
                                                                         </div>
                                                                     </>
                                                                 ) : (
@@ -1424,7 +1458,7 @@ const EventDetails = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
                                             <div>
                                                 <label className="block text-gray-400 text-sm font-medium mb-2">
-                                                    <Percent size={14} className="inline mr-1" />Discount (%)
+                                                    Discount (%)
                                                 </label>
                                                 <input type="number" value={quoteFormData.discount_percentage}
                                                     onChange={(e) => setQuoteFormData({ ...quoteFormData, discount_percentage: e.target.value })}

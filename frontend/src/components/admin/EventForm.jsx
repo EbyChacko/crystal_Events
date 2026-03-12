@@ -255,9 +255,9 @@ const EventForm = ({ onClose, onSuccess }) => {
                                 className={inputClass} placeholder="john@example.com" />
                         </div>
                         <div>
-                            <label className="block text-gray-400 text-sm font-medium mb-2">Client Phone</label>
+                            <label className="block text-gray-400 text-sm font-medium mb-2">Client Phone *</label>
                             <input type="text" name="client_phone" value={formData.client_phone} onChange={handleChange}
-                                className={inputClass} placeholder="+353 ..." />
+                                className={inputClass} placeholder="+353 ..." required />
                         </div>
                         <div className="md:col-span-3">
                             <label className="block text-gray-400 text-sm font-medium mb-2">Client Address</label>

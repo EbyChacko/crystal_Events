@@ -153,13 +153,14 @@ const Contact = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-bold uppercase tracking-widest text-white/50 mb-2">
-                                    Mobile Number <span className="normal-case font-normal">(Optional — for WhatsApp contact)</span>
+                                    Mobile Number *
                                 </label>
                                 <input
                                     type="tel"
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleChange}
+                                    required
                                     className="w-full bg-background-dark border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-mustard-gold transition-colors text-white placeholder-white/20"
                                     placeholder="+353 89 1234567"
                                 />

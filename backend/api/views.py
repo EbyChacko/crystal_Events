@@ -78,7 +78,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def _user_display(self, user):
         name = f"{user.first_name} {user.last_name}".strip()
-        return f"{name} ({user.username})" if name else user.username
+        return name if name else user.username
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -116,6 +116,23 @@ class EventViewSet(viewsets.ModelViewSet):
             discount = event.payment_discount or 0
             remaining = budget - new_received - discount
             
+            quote_snapshot = []
+            quote_to_use = event.quotes.filter(status='accepted').first() or event.quotes.order_by('-created_at').first()
+            if quote_to_use and quote_to_use.items.exists():
+                for item in quote_to_use.items.all():
+                    quote_snapshot.append({
+                        'service_name': item.service.name,
+                        'comment': item.comment,
+                        'quoted_amount': str(item.quoted_amount)
+                    })
+                travel_cost = float(quote_to_use.travel_cost) if getattr(quote_to_use, 'travel_cost', 0) else 0.0
+                if travel_cost > 0:
+                    quote_snapshot.append({
+                        'service_name': 'Travel Expense',
+                        'comment': '',
+                        'quoted_amount': str(travel_cost)
+                    })
+            
             log_entry = {
                 'timestamp': __import__('django.utils.timezone', fromlist=['now']).now().isoformat(),
                 'action': 'payment_received',
@@ -123,7 +140,9 @@ class EventViewSet(viewsets.ModelViewSet):
                 'amount_received_now': str(amount_now),
                 'total_amount_received': str(new_received),
                 'quoted_amount': str(budget),
+                'discount': str(discount),
                 'remaining_balance': str(remaining),
+                'quote_items_snapshot': quote_snapshot
             }
             current_log.append(log_entry)
         else:
@@ -220,6 +239,10 @@ class EventViewSet(viewsets.ModelViewSet):
             previously_paid = 0
             balance_due = float(event.budget or 0) - amount_paid_now - float(event.payment_discount or 0)
 
+        # Clean up user_name to remove trailing username in parentheses (e.g. "Eby Chacko (eby)" -> "Eby Chacko")
+        import re
+        user_name = re.sub(r'\s*\(.*?\)\s*$', '', user_name)
+
 
         # Setup document
         buffer = io.BytesIO()
@@ -257,7 +280,7 @@ class EventViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 print(f"Error processing logo: {e}")
 
-        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="20">EVENTS</font>'
+        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="24">EVENTS</font>'
         
         if colored_logo_buffer:
             from reportlab.platypus import Image
@@ -285,6 +308,11 @@ class EventViewSet(viewsets.ModelViewSet):
             elems.append(Paragraph('info@crystaleventsie.com | IE: +353 892331060 / +353 894173337 | UK: +44 7436586579', subtitle_style))
 
         elems.append(HRFlowable(width='100%', thickness=1, color=colors.HexColor('#EEC059'), spaceAfter=12, spaceBefore=2))
+
+        # Centered Heading
+        inv_title_style = ParagraphStyle('InvTitle', parent=styles['Normal'], fontSize=16, leading=20, alignment=TA_CENTER, fontName='Helvetica-Bold', textColor=colors.HexColor('#012d2d'))
+        elems.append(Paragraph("INVOICE", inv_title_style))
+        elems.append(Spacer(1, 15))
 
         # Invoice / Receipt Header
         inv_date_str = invoice_date.strftime('%d %B %Y')
@@ -334,24 +362,37 @@ class EventViewSet(viewsets.ModelViewSet):
         # Services Table
         table_data = [['#', 'Service', 'Amount (€)']]
         
-        # Check if an accepted quote exists, otherwise fallback to the most recent quote
-        quote_to_use = event.quotes.filter(status='accepted').first() or event.quotes.order_by('-created_at').first()
+        snapshot_items = target_log.get('quote_items_snapshot') if target_log else None
         
-        if quote_to_use and quote_to_use.items.exists():
-            for i, item in enumerate(quote_to_use.items.all(), 1):
-                service_text = item.service.name
+        if snapshot_items is not None:
+            for i, item_data in enumerate(snapshot_items, 1):
+                service_text = item_data.get('service_name', '')
+                if service_text == 'Special Requirement' and item_data.get('comment'):
+                    service_text = item_data.get('comment')
                     
                 service_col = Paragraph(service_text, ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-                table_data.append([str(i), service_col, f'€{item.quoted_amount:,.2f}'])
+                table_data.append([str(i), service_col, f"€{float(item_data.get('quoted_amount', 0)):,.2f}"])
         else:
-            table_data.append(['1', 'Event Services', f'€{float(event.budget or 0):,.2f}'])
-
-        # We need to grab Travel Cost from the quote if there is one
-        travel_cost = float(quote_to_use.travel_cost) if quote_to_use and getattr(quote_to_use, 'travel_cost', 0) else 0.0
-        
-        if travel_cost > 0:
-            travel_col = Paragraph("Travel Expense", ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-            table_data.append([str(len(table_data)), travel_col, f'€{travel_cost:,.2f}'])
+            # Fallback for old invoices without snapshots
+            quote_to_use = event.quotes.filter(status='accepted').first() or event.quotes.order_by('-created_at').first()
+            
+            if quote_to_use and quote_to_use.items.exists():
+                for i, item in enumerate(quote_to_use.items.all(), 1):
+                    service_text = item.service.name
+                    if item.service.name == 'Special Requirement' and item.comment:
+                        service_text = item.comment
+                        
+                    service_col = Paragraph(service_text, ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
+                    table_data.append([str(i), service_col, f'€{item.quoted_amount:,.2f}'])
+            else:
+                table_data.append(['1', 'Event Services', f'€{float(event.budget or 0):,.2f}'])
+    
+            # We need to grab Travel Cost from the quote if there is one
+            travel_cost = float(quote_to_use.travel_cost) if quote_to_use and getattr(quote_to_use, 'travel_cost', 0) else 0.0
+            
+            if travel_cost > 0:
+                travel_col = Paragraph("Travel Expense", ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
+                table_data.append([str(len(table_data)), travel_col, f'€{travel_cost:,.2f}'])
 
         svc_table = Table(table_data, colWidths=[30, 310, 100])
         svc_table.setStyle(TableStyle([
@@ -375,8 +416,19 @@ class EventViewSet(viewsets.ModelViewSet):
         elems.append(Spacer(1, 10))
 
         # Financial Totals
-        total_project_cost = float(event.budget or 0)
-        discount = float(event.payment_discount or 0)
+        if target_log and 'discount' in target_log:
+            discount = float(target_log.get('discount', 0))
+            total_project_cost = float(target_log.get('quoted_amount', 0))
+        elif target_log and target_log.get('action') == 'payment_received':
+            total_project_cost = float(target_log.get('quoted_amount', event.budget or 0))
+            tot_rec = float(target_log.get('total_amount_received', 0))
+            rem_bal = float(target_log.get('remaining_balance', 0))
+            # Calculate what the discount MUST have been at the time of this payment log
+            discount = total_project_cost - tot_rec - rem_bal
+        else:
+            total_project_cost = float(event.budget or 0)
+            discount = float(event.payment_discount or 0)
+            
         subtotal = total_project_cost - discount
         total_paid = previously_paid + amount_paid_now
 
@@ -425,7 +477,7 @@ class EventViewSet(viewsets.ModelViewSet):
         elems.append(HRFlowable(width='100%', thickness=0.5, color=colors.HexColor('#cccccc'), spaceAfter=8))
         footer_style = ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, textColor=colors.HexColor('#999999'), alignment=TA_CENTER)
         elems.append(Paragraph('CRYSTAL EVENTS | Ballinasloe, Galway, Ireland & Redhill, London, UK | info@crystaleventsie.com', footer_style))
-        elems.append(Paragraph('Thank you for your interest. We look forward to making your event special!', footer_style))
+        elems.append(Paragraph('Thank you for your business! We look forward to working with you again.', footer_style))
 
         # Watermark drawing function
         def draw_watermark(canvas, doc):
@@ -584,7 +636,7 @@ class EventViewSet(viewsets.ModelViewSet):
             textColor=colors.HexColor('#555555'), leading=11
         )
 
-        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="20">EVENTS</font>'
+        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="24">EVENTS</font>'
 
         # ── Header ────────────────────────────────────────────────────────
         if colored_logo_buffer:
@@ -892,7 +944,7 @@ class QuoteViewSet(viewsets.ModelViewSet):
         elems = []
 
         # Formatted title text matching the requested brand style
-        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="20">EVENTS</font>'
+        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="24">EVENTS</font>'
 
         # Company Header with Logo
         header_data = []
@@ -922,6 +974,11 @@ class QuoteViewSet(viewsets.ModelViewSet):
             elems.append(Paragraph('info@crystaleventsie.com | IE: +353 892331060 / +353 894173337 | UK: +44 7436586579', subtitle_style))
 
         elems.append(HRFlowable(width='100%', thickness=1, color=colors.HexColor('#EEC059'), spaceAfter=12, spaceBefore=2))
+
+        # Centered Heading
+        quote_title_style = ParagraphStyle('QuoteTitle', parent=styles['Normal'], fontSize=16, leading=20, alignment=TA_CENTER, fontName='Helvetica-Bold', textColor=colors.HexColor('#012d2d'))
+        elems.append(Paragraph("QUOTE", quote_title_style))
+        elems.append(Spacer(1, 15))
 
         # Quote Details Table
         # We put Quote Number, Quote Date, Quote Status here
@@ -997,6 +1054,9 @@ class QuoteViewSet(viewsets.ModelViewSet):
         table_data = [['#', 'Service', 'Amount (€)']]
         for i, item in enumerate(items, 1):
             service_text = item.service.name
+            if item.service.name == 'Special Requirement' and item.comment:
+                # Replace the generic name with the actual requirement description
+                service_text = item.comment
                 
             service_col = Paragraph(service_text, ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
             table_data.append([str(i), service_col, f'€{item.quoted_amount:,.2f}'])
