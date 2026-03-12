@@ -108,6 +108,11 @@ const EventDetails = () => {
     const [paymentData, setPaymentData] = useState({ type: 'full', discount: '0', received: '' });
     const [paymentSubmitting, setPaymentSubmitting] = useState(false);
 
+    // Refund state
+    const [showRefundModal, setShowRefundModal] = useState(false);
+    const [refundAmount, setRefundAmount] = useState('');
+    const [refundSubmitting, setRefundSubmitting] = useState(false);
+
     // Gallery state
     const [showImageForm, setShowImageForm] = useState(false);
     const [imageUploadType, setImageUploadType] = useState('url');
@@ -195,13 +200,15 @@ const EventDetails = () => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && showEditModal) {
+            if (e.key === 'Escape') {
                 setShowEditModal(false);
+                setShowPaymentModal(false);
+                setShowRefundModal(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [showEditModal]);
+    }, []);
 
     // Check if we navigated here specifically to edit the quote
     useEffect(() => {
@@ -366,6 +373,38 @@ const EventDetails = () => {
             addToast('Failed to process payment.', 'error');
         } finally {
             setPaymentSubmitting(false);
+        }
+    };
+
+    const handleReceiveRefund = async (e) => {
+        e.preventDefault();
+        setRefundSubmitting(true);
+        try {
+            const currentReceived = parseFloat(event?.received_amount || 0);
+            const amtToRefund = parseFloat(refundAmount) || 0;
+
+            if (amtToRefund <= 0) {
+                addToast('Refund amount must be greater than zero.', 'error');
+                setRefundSubmitting(false);
+                return;
+            }
+
+            if (amtToRefund > currentReceived) {
+                addToast(`Refund amount cannot exceed total amount paid (€${currentReceived.toFixed(2)}).`, 'error');
+                setRefundSubmitting(false);
+                return;
+            }
+
+            await api.post(`/events/${id}/refund/`, { amount: amtToRefund });
+            addToast('Refund recorded successfully!', 'success');
+            setShowRefundModal(false);
+            setRefundAmount('');
+            fetchEvent();
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Failed to process refund.';
+            addToast(msg, 'error');
+        } finally {
+            setRefundSubmitting(false);
         }
     };
 
@@ -688,9 +727,13 @@ const EventDetails = () => {
             {/* Receive Payment Modal */}
             <AnimatePresence>
                 {showPaymentModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#0b1015] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            <button type="button" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                                <X size={20} />
+                            </button>
                             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                                 <CheckCircle className="text-emerald-400" size={24} />
                                 Receive Payment
@@ -800,19 +843,15 @@ const EventDetails = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="flex items-center space-x-3">
+                                <div className="mt-6">
                                     <button type="submit"
                                         disabled={
                                             paymentSubmitting ||
                                             ((parseFloat(paymentData.received) || 0) <= 0 && (parseFloat(paymentData.discount) || 0) <= 0) ||
                                             Number((parseFloat(paymentData.received || 0) + parseFloat(paymentData.discount || 0)).toFixed(2)) > Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toFixed(2))
                                         }
-                                        className="flex-1 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-4 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                        className="w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-4 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                         {paymentSubmitting ? 'Processing...' : paymentData.type === 'full' ? 'Receive Full Balance' : 'Receive Partial Payment'}
-                                    </button>
-                                    <button type="button" onClick={() => setShowPaymentModal(false)}
-                                        className="flex-1 bg-white/10 text-white font-bold py-3 px-4 rounded-xl hover:bg-white/20 transition-colors text-sm">
-                                        Cancel
                                     </button>
                                 </div>
                             </form>
@@ -1526,24 +1565,95 @@ const EventDetails = () => {
             {/* ── Payment Section ──────────────────────────────────────── */}
             {
                 event?.status !== 'finished' && !isLocked && (
-                    <div className="bg-emerald-500/5 backdrop-blur-sm border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-                        <div>
+                    <div className="bg-emerald-500/5 backdrop-blur-sm border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 relative overflow-hidden">
+                        <div className="relative z-10 w-full sm:w-auto">
                             <h3 className="text-lg font-bold text-emerald-400 flex items-center space-x-2">
-                                <CheckCircle size={20} />
-                                <span>Receive Payment</span>
+                                <DollarSign size={20} />
+                                <span>Financial Actions</span>
                             </h3>
                             <p className="text-sm text-gray-400 mt-1">
-                                Process a payment for this event quote.
+                                Record a payment or process a refund for this event.
                             </p>
                         </div>
-                        <button type="button" onClick={handleOpenPayment}
-                            className="w-full sm:w-auto flex items-center justify-center space-x-2 text-emerald-400 font-medium bg-emerald-500/20 border border-emerald-500/30 px-6 py-3 rounded-xl hover:opacity-80 hover:bg-emerald-500/30 transition-all text-base md:text-sm">
-                            <CheckCircle size={18} />
-                            <span>Receive Payment</span>
-                        </button>
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto relative z-10">
+                            <button type="button" onClick={() => setShowRefundModal(true)}
+                                className="w-full sm:w-auto flex items-center justify-center space-x-2 text-rose-400 font-medium bg-rose-500/10 border border-rose-500/20 px-5 py-2.5 rounded-xl hover:bg-rose-500/20 transition-all text-base md:text-sm">
+                                <RefreshCw size={16} />
+                                <span>Make Refund</span>
+                            </button>
+                            <button type="button" onClick={handleOpenPayment}
+                                className="w-full sm:w-auto flex items-center justify-center space-x-2 text-emerald-900 font-bold bg-emerald-400 border border-emerald-400 px-6 py-2.5 rounded-xl hover:bg-emerald-300 transition-all text-base md:text-sm shadow-lg shadow-emerald-500/20">
+                                <CheckCircle size={18} />
+                                <span>Receive Payment</span>
+                            </button>
+                        </div>
                     </div>
                 )
             }
+
+            {/* Refund Modal */}
+            <AnimatePresence>
+                {showRefundModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowRefundModal(false); }}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-[#0b1015] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            <button type="button" onClick={() => setShowRefundModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                                <X size={20} />
+                            </button>
+                            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <RefreshCw className="text-rose-400" size={24} />
+                                Make Refund
+                            </h3>
+                            <form onSubmit={handleReceiveRefund}>
+                                <div className="space-y-4 mb-6">
+                                    <div className="bg-white/5 p-4 rounded-xl flex justify-between items-center">
+                                        <span className="text-gray-400">Total Amount Paid</span>
+                                        <span className="text-emerald-400 font-semibold text-lg">€{parseFloat(event?.received_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Refund Amount (€) *</label>
+                                        <input type="number" value={refundAmount}
+                                            onChange={(e) => {
+                                                let val = e.target.value;
+                                                if (val.includes('.')) {
+                                                    const parts = val.split('.');
+                                                    val = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                                                }
+                                                setRefundAmount(val);
+                                            }}
+                                            className={`${selectClass.replace('cursor-pointer', '')} border-rose-500/30 focus:border-rose-500/50 focus:ring-rose-500/50`} 
+                                            placeholder="0.00" step="0.01" min="0.01" max={event?.received_amount || 0} required 
+                                        />
+                                    </div>
+
+                                    {parseFloat(refundAmount || 0) > parseFloat(event?.received_amount || 0) && (
+                                        <div className="text-rose-400 text-sm font-medium flex items-center gap-2 mt-2 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
+                                            <AlertCircle size={16} />
+                                            Refund amount cannot exceed total paid.
+                                        </div>
+                                    )}
+
+                                    <div className="pt-4 border-t border-white/10 flex justify-between items-center text-sm">
+                                        <span className="text-gray-400 font-medium">Paid Amount After Refund</span>
+                                        <span className="text-white font-semibold">
+                                            €{Math.max(0, parseFloat(event?.received_amount || 0) - parseFloat(refundAmount || 0)).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-6">
+                                    <button type="submit" disabled={refundSubmitting || parseFloat(refundAmount || 0) > parseFloat(event?.received_amount || 0)}
+                                        className="w-full px-4 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-400 transition-all shadow-lg shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        {refundSubmitting ? 'Processing...' : 'Confirm Refund'}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* ── Gallery Images Section ──────────────────────────────────────── */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">
@@ -1758,6 +1868,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
     const isCreated = entry.action === 'created';
     const isQuoteAction = entry.action === 'quote_created' || entry.action === 'quote_updated';
     const isPaymentAction = entry.action === 'payment_received';
+    const isRefundAction = entry.action === 'refund_made';
 
     const GRID_FIELDS = [
         { key: 'event_name', label: 'Event Name' },
@@ -1799,6 +1910,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
         if (entry.action === 'quote_created') return 'Quote Created';
         if (entry.action === 'quote_updated') return 'Quote Updated';
         if (entry.action === 'payment_received') return 'Payment Received';
+        if (entry.action === 'refund_made') return 'Refund Made';
         return entry.action;
     };
 
@@ -1806,6 +1918,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
         if (isCreated) return 'bg-emerald-400';
         if (isQuoteAction) return 'bg-pink-400';
         if (isPaymentAction) return 'bg-indigo-400';
+        if (isRefundAction) return 'bg-rose-400';
         return 'bg-amber-400';
     };
 
@@ -1813,6 +1926,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
         if (isCreated) return 'border-emerald-500/20 bg-emerald-500/5';
         if (isQuoteAction) return 'border-pink-500/20 bg-pink-500/5';
         if (isPaymentAction) return 'border-indigo-500/30 bg-indigo-500/10';
+        if (isRefundAction) return 'border-rose-500/30 bg-rose-500/10';
         return 'border-white/10 bg-white/[0.02]';
     };
 
@@ -1873,6 +1987,27 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                                         <div className="flex items-center justify-between py-2 border-b border-indigo-500/20">
                                             <span className="text-xs text-indigo-300 font-bold">Remaining Balance</span>
                                             <span className="text-lg font-bold text-mustard-gold">€{parseFloat(entry.remaining_balance || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : isRefundAction ? (
+                                <div className="mt-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                                        <div className="flex items-center justify-between py-2 border-b border-rose-500/20">
+                                            <span className="text-xs text-rose-300">Previous Amount Paid</span>
+                                            <span className="text-sm font-semibold text-white">€{parseFloat(entry.previous_received_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between py-2 border-b border-rose-500/20">
+                                            <span className="text-xs text-rose-300 font-bold">Amount Refunded</span>
+                                            <span className="text-lg font-bold text-rose-400">-€{parseFloat(entry.amount_refunded || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between py-2 border-b border-rose-500/20">
+                                            <span className="text-xs text-rose-300">New Amount Paid</span>
+                                            <span className="text-sm font-semibold text-white">€{parseFloat(entry.new_received_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between py-2 border-b border-rose-500/20">
+                                            <span className="text-xs text-rose-300 font-bold">New Balance Due</span>
+                                            <span className="text-lg font-bold text-mustard-gold">€{parseFloat(entry.balance_due || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                         </div>
                                     </div>
                                 </div>

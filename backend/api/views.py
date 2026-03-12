@@ -171,6 +171,55 @@ class EventViewSet(viewsets.ModelViewSet):
         event.audit_log = current_log
         event.save(update_fields=['audit_log'])
 
+    @action(detail=True, methods=['post'], url_path='refund')
+    def make_refund(self, request, pk=None):
+        """Allows admin/staff to record a manual refund, updating received_amount and audit log."""
+        if not request.user.is_staff and not request.user.is_superuser:
+            return Response({"error": "Only staff members can make refunds."}, status=status.HTTP_403_FORBIDDEN)
+            
+        event = self.get_object()
+        user = request.user
+        
+        try:
+            refund_amount = float(request.data.get('amount', 0))
+        except (ValueError, TypeError):
+            return Response({"error": "Invalid refund amount."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if refund_amount <= 0:
+            return Response({"error": "Refund amount must be greater than zero."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        current_received = float(event.received_amount or 0)
+        
+        if refund_amount > current_received:
+            return Response(
+                {"error": f"Refund amount cannot exceed total amount paid (€{current_received:.2f})."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Update event balance
+        event.received_amount = current_received - refund_amount
+        
+        # Log the refund action
+        log_entry = {
+            'timestamp': __import__('django.utils.timezone', fromlist=['now']).now().isoformat(),
+            'action': 'refund_made',
+            'user': self._user_display(user),
+            'amount_refunded': str(refund_amount),
+            'previous_received_amount': str(current_received),
+            'new_received_amount': str(event.received_amount),
+            'balance_due': str(float(event.budget or 0) - event.received_amount - float(event.payment_discount or 0))
+        }
+        
+        current_log = list(event.audit_log or [])
+        current_log.append(log_entry)
+        event.audit_log = current_log
+        
+        event.save(update_fields=['received_amount', 'audit_log'])
+        
+        # Serialize and return updated event
+        serializer = self.get_serializer(event)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['get'], url_path='invoice/pdf')
     def generate_invoice_pdf(self, request, pk=None):
         import io
