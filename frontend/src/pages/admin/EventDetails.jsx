@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -204,6 +204,7 @@ const EventDetails = () => {
                 setShowEditModal(false);
                 setShowPaymentModal(false);
                 setShowRefundModal(false);
+                setShowQuoteForm(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -670,6 +671,90 @@ const EventDetails = () => {
     const quoteDiscountPct = parseFloat(quoteFormData.discount_percentage) || 0;
     const quoteDiscountAmt = quoteSubtotal * quoteDiscountPct / 100;
     const quoteTotal = quoteSubtotal - quoteDiscountAmt;
+
+    // Construct Timeline Nodes exactly chronologically
+    const timelineNodes = useMemo(() => {
+        if (!event) return [];
+        const nodes = [];
+        const baseBudget = parseFloat(event?.budget || eventQuote?.total || 0);
+        let currentBalance = baseBudget;
+        let previousDiscount = 0;
+
+        const chronologicalLogs = [...(event.audit_log || [])]; 
+        
+        chronologicalLogs.forEach((entry, idx) => {
+            if (entry.action === 'payment_received') {
+                const currentDiscount = parseFloat(entry.discount || 0);
+                const discountDelta = currentDiscount - previousDiscount;
+                
+                if (discountDelta !== 0) {
+                    currentBalance -= discountDelta;
+                    nodes.push({
+                        id: `discount-${idx}`,
+                        type: 'discount',
+                        title: discountDelta > 0 ? 'Discount Applied' : 'Discount Reduced',
+                        description: `by ${entry.user || 'System'}`,
+                        amount: Math.abs(discountDelta),
+                        isIncrease: discountDelta < 0,
+                        balance: currentBalance,
+                        timestamp: entry.timestamp,
+                        icon: 'DollarSign',
+                        colorTheme: discountDelta > 0 ? 'blue' : 'gray'
+                    });
+                    previousDiscount = currentDiscount;
+                }
+
+                const receivedNow = parseFloat(entry.amount_received_now || 0);
+                if (receivedNow > 0) {
+                    currentBalance -= receivedNow;
+                    nodes.push({
+                        id: `payment-${idx}`,
+                        type: 'payment',
+                        title: 'Payment Received',
+                        description: `by ${entry.user || 'System'}`,
+                        amount: receivedNow,
+                        isIncrease: false,
+                        balance: currentBalance,
+                        timestamp: entry.timestamp,
+                        icon: 'CheckCircle',
+                        colorTheme: 'emerald'
+                    });
+                }
+            } else if (entry.action === 'refund_made') {
+                const refundAmt = parseFloat(entry.amount_refunded || 0);
+                if (refundAmt > 0) {
+                    currentBalance += refundAmt;
+                    nodes.push({
+                        id: `refund-${idx}`,
+                        type: 'refund',
+                        title: 'Refund Processed',
+                        description: `by ${entry.user || 'System'}`,
+                        amount: refundAmt,
+                        isIncrease: true,
+                        balance: currentBalance,
+                        timestamp: entry.timestamp,
+                        icon: 'RefreshCw',
+                        colorTheme: 'rose'
+                    });
+                }
+            }
+        });
+
+        nodes.unshift({
+            id: 'genesis',
+            type: 'quote',
+            title: 'Base Quote Established',
+            description: 'Initial starting budget for the event.',
+            amount: baseBudget,
+            isIncrease: false,
+            balance: baseBudget,
+            timestamp: event.created_at || new Date().toISOString(),
+            icon: 'Briefcase',
+            colorTheme: 'mustard-gold'
+        });
+
+        return nodes.reverse();
+    }, [event, eventQuote]);
 
     if (loading) return <div className="p-4 sm:p-6 md:p-8 text-center text-gray-500">Loading event details...</div>;
     if (!event) return (
@@ -1501,7 +1586,9 @@ const EventDetails = () => {
                                                 </label>
                                                 <input type="number" value={quoteFormData.discount_percentage}
                                                     onChange={(e) => setQuoteFormData({ ...quoteFormData, discount_percentage: e.target.value })}
-                                                    className={selectClass.replace('cursor-pointer', '')} placeholder="0" step="0.01" min="0" max="100" />
+                                                    disabled={eventQuote?.status === 'accepted' || parseFloat(event?.received_amount || 0) > 0}
+                                                    className={`${selectClass.replace('cursor-pointer', '')} ${eventQuote?.status === 'accepted' || parseFloat(event?.received_amount || 0) > 0 ? 'opacity-50 cursor-not-allowed bg-black/20' : ''}`}
+                                                    placeholder="0" step="0.01" min="0" max="100" />
                                             </div>
                                             <div>
                                                 <label className="block text-gray-400 text-sm font-medium mb-2">Status</label>
@@ -1654,6 +1741,118 @@ const EventDetails = () => {
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* ── Payment History Section ──────────────────────────────────────── */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                    <div>
+                        <h2 className="text-lg font-bold text-white flex items-center space-x-2">
+                            <Briefcase size={20} className="text-mustard-gold" />
+                            <span>Payment History</span>
+                        </h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Summary of financial transactions and chronological history.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Quote Total</span>
+                        <p className="text-xl font-bold text-white mt-1">
+                            €{parseFloat(event?.budget || eventQuote?.total || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Discount</span>
+                        <p className="text-xl font-bold text-mustard-gold mt-1">
+                            €{parseFloat(event?.payment_discount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Total Paid</span>
+                        <p className="text-xl font-bold text-emerald-400 mt-1">
+                            €{parseFloat(event?.received_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Balance Due</span>
+                        <p className="text-xl font-bold text-rose-400 mt-1">
+                            €{Math.max(0, parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Premium History Timeline */}
+                <div className="mt-8">
+                    <h3 className="text-sm font-semibold text-gray-300 mb-6 uppercase tracking-wider">Timeline of Transactions</h3>
+                    
+                    <div className="relative pl-6 sm:pl-8 border-l-2 border-white/10 space-y-8">
+                        {/* Transaction Nodes */}
+                        {timelineNodes.map((node) => {
+                            const isQuote = node.type === 'quote';
+                            let prefix = '';
+                            if (node.type === 'payment' || (node.type === 'discount_reduce')) prefix = '+';
+                            else if (node.type === 'refund' || node.type === 'discount') prefix = '-';
+                            
+                            const amountStr = `${prefix}€${node.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                            const displayAmtStr = isQuote ? `€${node.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : amountStr;
+
+                            const Icon = node.icon === 'Briefcase' ? Briefcase :
+                                         node.icon === 'DollarSign' ? DollarSign :
+                                         node.icon === 'CheckCircle' ? CheckCircle : RefreshCw;
+
+                            const THEMES = {
+                                'mustard-gold': { tag: 'bg-mustard-gold', grad: 'from-mustard-gold/10', border: 'border-mustard-gold/20', iconBg: 'bg-mustard-gold/20', text: 'text-mustard-gold', amount: 'text-white' },
+                                'emerald': { tag: 'bg-emerald-400', grad: 'from-emerald-500/10', border: 'border-emerald-500/20', iconBg: 'bg-emerald-500/20', text: 'text-emerald-400', amount: 'text-emerald-400' },
+                                'rose': { tag: 'bg-rose-400', grad: 'from-rose-500/10', border: 'border-rose-500/20', iconBg: 'bg-rose-500/20', text: 'text-rose-400', amount: 'text-rose-400' },
+                                'blue': { tag: 'bg-blue-400', grad: 'from-blue-500/10', border: 'border-blue-500/20', iconBg: 'bg-blue-500/20', text: 'text-blue-400', amount: 'text-blue-400' },
+                                'gray': { tag: 'bg-gray-400', grad: 'from-gray-500/10', border: 'border-gray-500/20', iconBg: 'bg-gray-500/20', text: 'text-gray-400', amount: 'text-gray-400' },
+                            };
+                            const theme = THEMES[node.colorTheme];
+
+                            return (
+                                <div key={node.id} className="relative group">
+                                    <div className={`absolute -left-[35px] sm:-left-[43px] mt-4 w-4 h-4 rounded-full border-2 border-[#090e11] ring-2 ring-white/10 group-hover:ring-white/30 transition-all ${theme.tag}`} />
+                                    
+                                    <div className={`bg-gradient-to-br ${theme.grad} to-white/[0.02] ${theme.border} border p-4 sm:p-5 rounded-xl shadow-lg relative overflow-hidden flex flex-col sm:flex-row gap-4 justify-between sm:items-center transition-all hover:-translate-y-1 hover:shadow-xl`}>
+                                        <div className="flex items-start sm:items-center space-x-4">
+                                            <div className={`p-3 rounded-xl shadow-inner ${theme.iconBg} ${theme.text}`}>
+                                                <Icon size={22} />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-white font-bold text-base sm:text-lg">{node.title}</h4>
+                                                {node.type === 'quote' || node.type === 'discount' || node.type === 'discount_reduce' ? (
+                                                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-400 mt-1">
+                                                        <span>{node.description}</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-400 mt-1">
+                                                        <span>{new Date(node.timestamp).toLocaleString('en-IE', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                                                        <span className="text-gray-600">•</span>
+                                                        <span>{node.description}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between border-t border-white/5 sm:border-0 pt-3 sm:pt-0 mt-2 sm:mt-0 w-full sm:w-auto">
+                                            <div className={`text-xl sm:text-2xl font-bold tracking-tight ${theme.amount}`}>
+                                                {displayAmtStr}
+                                            </div>
+                                            <div className="text-xs sm:text-sm text-mustard-gold font-medium mt-1 sm:mt-0.5">
+                                                Balance: €{node.balance.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                    </div>
+                </div>
+            </div>
 
             {/* ── Gallery Images Section ──────────────────────────────────────── */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">

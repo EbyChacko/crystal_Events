@@ -25,7 +25,7 @@ const StatCard = ({ icon, label, value, change, changeType, delay, linkTo }) => 
             </div>
             <p className="text-sm text-gray-400 font-medium">{label}</p>
             <div className="flex items-end justify-between mt-1">
-                <p className="text-3xl font-bold text-white group-hover:text-mustard-gold transition-colors">{value}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-white group-hover:text-mustard-gold transition-colors">{value}</p>
                 <ArrowRight size={18} className="text-gray-500 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
             </div>
         </Link>

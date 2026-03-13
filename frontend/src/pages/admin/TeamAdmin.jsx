@@ -140,7 +140,7 @@ const TeamAdmin = () => {
         <div className="max-w-7xl mx-auto space-y-6 pb-20">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight flex items-center">
+                    <h1 className="text-2xl font-bold text-white tracking-tight flex items-center">
                         <UsersRound className="mr-3 text-mustard-gold" size={32} />
                         Team Members
                     </h1>
