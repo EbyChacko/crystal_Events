@@ -8,8 +8,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
 
-const CATEGORIES = [
+const EXPENSE_CATEGORIES = [
     'Decor', 'Catering', 'Venue', 'Logistics', 'Entertainment', 'Staffing', 'Marketing', 'Other'
+];
+const INCOME_CATEGORIES = [
+    'Investment', 'Sales', 'Other'
 ];
 
 const inputClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all";
@@ -41,7 +44,7 @@ const Financials = () => {
     const navigate = useNavigate();
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showForm, setShowForm] = useState(false);
+    const [formMode, setFormMode] = useState('none'); // 'none', 'expense', 'income'
     const [editingId, setEditingId] = useState(null);
     const [activeCategory, setActiveCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
@@ -58,37 +61,51 @@ const Financials = () => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && showForm) {
-                setShowForm(false);
+            if (e.key === 'Escape' && formMode !== 'none') {
+                setFormMode('none');
                 setEditingId(null);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [showForm]);
+    }, [formMode]);
 
     const initialFormData = {
-        date: '', amount: '', reason: '', category: 'Decor', receipt_image: null
+        date: '', amount: '', reason: '', category: '', receipt_image: null
     };
     const [formData, setFormData] = useState(initialFormData);
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [expensesRes, eventsRes] = await Promise.all([
+            const [expensesRes, incomesRes, eventsRes] = await Promise.all([
                 api.get('/expenses/'),
+                api.get('/incomes/'),
                 api.get('/events/')
             ]);
 
             const expenseData = (expensesRes.data.results || expensesRes.data).map(e => ({
-                id: `exp_${e.id} `,
+                id: `exp_${e.id}`,
                 originalId: e.id,
                 type: 'expense',
                 date: e.date,
                 amount: parseFloat(e.amount),
                 reason: e.reason,
                 category: e.category,
-                receipt_image: e.receipt_image
+                receipt_image: e.receipt_image,
+                isManual: true
+            }));
+            
+            const incomeData = (incomesRes.data.results || incomesRes.data).map(i => ({
+                id: `inc_manual_${i.id}`,
+                originalId: i.id,
+                type: 'income',
+                date: i.date,
+                amount: parseFloat(i.amount),
+                reason: i.reason,
+                category: i.category,
+                receipt_image: i.receipt_image,
+                isManual: true
             }));
 
             const eventData = [];
@@ -102,7 +119,7 @@ const Financials = () => {
                                 const actualAmount = parseFloat(log.amount_received_now || 0);
                                 if (actualAmount > 0) {
                                     eventData.push({
-                                        id: `inc_${ev.id}_${reversedIdx} `,
+                                        id: `inc_${ev.id}_${reversedIdx}`,
                                         originalId: ev.id,
                                         logIdx: reversedIdx, // send to backend to fetch exact log
                                         type: 'income',
@@ -110,7 +127,8 @@ const Financials = () => {
                                         amount: actualAmount,
                                         reason: ev.event_name || 'Event Payment',
                                         category: ev.event_type || 'Event',
-                                        receipt_image: null
+                                        receipt_image: null,
+                                        isManual: false
                                     });
                                 }
                             }
@@ -122,7 +140,7 @@ const Financials = () => {
                     const pushedForThisEvent = eventData.filter(d => d.originalId === ev.id).length;
                     if (pushedForThisEvent === 0) {
                         eventData.push({
-                            id: `inc_${ev.id} `,
+                            id: `inc_${ev.id}`,
                             originalId: ev.id,
                             logIdx: -1,
                             type: 'income',
@@ -130,13 +148,14 @@ const Financials = () => {
                             amount: parseFloat(ev.received_amount),
                             reason: ev.event_name || 'Event Payment',
                             category: ev.event_type || 'Event',
-                            receipt_image: null
+                            receipt_image: null,
+                            isManual: false
                         });
                     }
                 }
             });
 
-            const combined = [...expenseData, ...eventData].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const combined = [...expenseData, ...incomeData, ...eventData].sort((a, b) => new Date(b.date) - new Date(a.date));
             setTransactions(combined);
         } catch (err) {
             console.error('Failed to fetch financial data:', err);
@@ -160,7 +179,7 @@ const Financials = () => {
     };
 
     const handleEdit = (transaction) => {
-        if (transaction.type !== 'expense') return; // Only expenses can be edited here
+        if (!transaction.isManual) return; // Only manual items can be edited here
         setFormData({
             date: transaction.date,
             amount: transaction.amount,
@@ -169,7 +188,7 @@ const Financials = () => {
             receipt_image: null,
         });
         setEditingId(transaction.originalId);
-        setShowForm(true);
+        setFormMode(transaction.type);
     };
 
     const handleSubmit = async (e) => {
@@ -186,20 +205,23 @@ const Financials = () => {
                 data.append('receipt_image', formData.receipt_image);
             }
 
+            const endpoint = formMode === 'expense' ? '/expenses/' : '/incomes/';
+            const typeLabel = formMode === 'expense' ? 'Expense' : 'Income';
+
             if (editingId) {
-                await api.patch(`/expenses/${editingId}/`, data, {
+                await api.patch(`${endpoint}${editingId}/`, data, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                addToast('Expense updated successfully!', 'success');
+                addToast(`${typeLabel} updated successfully!`, 'success');
             } else {
-                await api.post('/expenses/', data, {
+                await api.post(endpoint, data, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                addToast('Expense added successfully!', 'success');
+                addToast(`${typeLabel} added successfully!`, 'success');
             }
             setFormData(initialFormData);
             setEditingId(null);
-            setShowForm(false);
+            setFormMode('none');
             fetchData();
         } catch (err) {
             const d = err.response?.data;
@@ -209,7 +231,7 @@ const Financials = () => {
                     .join(' | ');
                 addToast(messages, 'error');
             } else {
-                addToast('Failed to save expense.', 'error');
+                addToast(`Failed to save ${formMode}.`, 'error');
             }
         } finally {
             setSubmitting(false);
@@ -217,14 +239,16 @@ const Financials = () => {
     };
 
     const handleDelete = async (transaction) => {
-        if (transaction.type !== 'expense') return;
+        if (!transaction.isManual) return;
+        const endpoint = transaction.type === 'expense' ? '/expenses/' : '/incomes/';
+        const label = transaction.type === 'expense' ? 'Expense' : 'Income';
         try {
-            await api.delete(`/expenses/${transaction.originalId}/`);
-            addToast('Expense deleted.', 'success');
+            await api.delete(`${endpoint}${transaction.originalId}/`);
+            addToast(`${label} deleted.`, 'success');
             setDeleteConfirmId(null);
             fetchData();
         } catch {
-            addToast('Failed to delete expense.', 'error');
+            addToast(`Failed to delete ${label.toLowerCase()}.`, 'error');
         }
     };
 
@@ -288,23 +312,36 @@ const Financials = () => {
                     <h1 className="text-2xl font-bold text-white">Financial Report</h1>
                     <p className="text-gray-400 mt-1">Track comprehensive income and expenses</p>
                 </div>
-                <div className="flex items-center space-x-3">
-                    <button
-                        onClick={handleExportCSV}
-                        className="flex items-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all font-medium"
-                    >
-                        <Download size={18} />
-                        <span className="hidden sm:inline">Export CSV</span>
-                    </button>
-                    <button
-                        onClick={() => { setShowForm(!showForm); setEditingId(null); setFormData(initialFormData); }}
-                        className="flex items-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-bold"
-                    >
-                        {showForm ? <X size={20} /> : <Plus size={20} />}
-                        <span>{showForm ? 'Cancel' : 'Add Expense'}</span>
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                        <button
+                            onClick={handleExportCSV}
+                            className="flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all font-medium"
+                        >
+                            <Download size={18} />
+                            <span>Export CSV</span>
+                        </button>
+                        <button
+                            onClick={() => { 
+                                if (formMode === 'income') { setFormMode('none'); } 
+                                else { setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); } 
+                            }}
+                            className="flex items-center justify-center space-x-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-3 rounded-xl hover:bg-emerald-500/20 transition-all font-bold"
+                        >
+                            {formMode === 'income' ? <X size={20} /> : <Plus size={20} />}
+                            <span>Add Income</span>
+                        </button>
+                        <button
+                            onClick={() => { 
+                                if (formMode === 'expense') { setFormMode('none'); } 
+                                else { setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); } 
+                            }}
+                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-bold"
+                        >
+                            {formMode === 'expense' ? <X size={20} /> : <Plus size={20} />}
+                            <span>Add Expense</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
             {/* Date Filters */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -349,14 +386,14 @@ const Financials = () => {
 
             {/* Add/Edit Form Modal */}
             <AnimatePresence>
-                {showForm && (
+                {formMode !== 'none' && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={() => setShowForm(false)}
+                            onClick={() => setFormMode('none')}
                         />
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}
@@ -366,10 +403,10 @@ const Financials = () => {
                         >
                             <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
-                                    <DollarSign size={22} className="text-mustard-gold" />
-                                    <span>{editingId ? 'Edit Expense' : 'Add New Expense'}</span>
+                                    {formMode === 'expense' ? <DollarSign size={22} className="text-mustard-gold" /> : <Plus size={22} className="text-emerald-400" />}
+                                    <span>{editingId ? `Edit ${formMode === 'expense' ? 'Expense' : 'Income'}` : `Add New ${formMode === 'expense' ? 'Expense' : 'Income'}`}</span>
                                 </div>
-                                <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white transition-colors">
+                                <button type="button" onClick={() => setFormMode('none')} className="text-gray-400 hover:text-white transition-colors">
                                     <X size={24} />
                                 </button>
                             </h2>
@@ -388,7 +425,7 @@ const Financials = () => {
                                     <div>
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
                                         <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
-                                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
+                                            {(formMode === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
                                         </select>
                                     </div>
                                     <div className="lg:col-span-2">
@@ -409,8 +446,8 @@ const Financials = () => {
                                     </div>
                                 </div>
                                 <button type="submit" disabled={submitting}
-                                    className="w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                                    {submitting ? 'Saving...' : editingId ? 'Update Expense' : 'Add Expense'}
+                                    className={`w-full font-bold py-3.5 px-4 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${formMode === 'expense' ? 'bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal hover:shadow-mustard-gold/20' : 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-white hover:shadow-emerald-500/20'}`}>
+                                    {submitting ? 'Saving...' : editingId ? `Update ${formMode === 'expense' ? 'Expense' : 'Income'}` : `Add ${formMode === 'expense' ? 'Expense' : 'Income'}`}
                                 </button>
                             </form>
                         </motion.div>
@@ -510,7 +547,7 @@ const Financials = () => {
                                                                 <ExternalLink size={16} />
                                                             </a>
                                                         )}
-                                                        {t.type === 'expense' && (
+                                                        {t.isManual && (
                                                             <>
                                                                 <button onClick={() => handleEdit(t)}
                                                                     className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors">
@@ -522,7 +559,7 @@ const Financials = () => {
                                                                 </button>
                                                             </>
                                                         )}
-                                                        {t.type === 'income' && (
+                                                        {t.type === 'income' && !t.isManual && (
                                                             <>
                                                                 <button onClick={() => navigate(`/admin/events/${t.originalId}`)}
                                                                     className="p-1.5 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
@@ -587,13 +624,13 @@ const Financials = () => {
                                                     {t.receipt_image && (
                                                         <a href={t.receipt_image} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></a>
                                                     )}
-                                                    {t.type === 'expense' && (
+                                                    {t.isManual && (
                                                         <>
                                                             <button onClick={(e) => { e.stopPropagation(); handleEdit(t); }} className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
                                                             <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(t.id); }} className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
                                                         </>
                                                     )}
-                                                    {t.type === 'income' && (
+                                                    {t.type === 'income' && !t.isManual && (
                                                         <>
                                                             <button onClick={(e) => { e.stopPropagation(); navigate(`/admin/events/${t.originalId}`); }} className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></button>
                                                             <button onClick={(e) => {

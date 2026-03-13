@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    ServiceViewSet, EventViewSet, ExpenseViewSet, QuoteViewSet, MessageViewSet,
+    ServiceViewSet, EventViewSet, ExpenseViewSet, IncomeViewSet, QuoteViewSet, MessageViewSet,
     CurrentUserView, UserListView, CreateUserView, UpdateProfileView, AdminUserDetailView,
     EventImageViewSet, TeamMemberViewSet, TravelRateViewSet,
     TwoFactorLoginView, TwoFactorSetupView, TwoFactorVerifySetupView, TwoFactorDisableView
@@ -11,6 +11,7 @@ router = DefaultRouter()
 router.register(r'services', ServiceViewSet)
 router.register(r'events', EventViewSet)
 router.register(r'expenses', ExpenseViewSet)
+router.register(r'incomes', IncomeViewSet)
 router.register(r'quotes', QuoteViewSet)
 router.register(r'messages', MessageViewSet)
 router.register(r'event-images', EventImageViewSet)

@@ -6,13 +6,13 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
 from .serializers import (
-    ServiceSerializer, EventSerializer, ExpenseSerializer,
+    ServiceSerializer, EventSerializer, ExpenseSerializer, IncomeSerializer,
     QuoteSerializer, MessageSerializer, UserSerializer,
     CreateUserSerializer, UpdateProfileSerializer, AdminUpdateUserSerializer,
     EventImageSerializer, TeamMemberSerializer, TravelRateSerializer,
     TwoFactorLoginSerializer, CustomTokenObtainPairSerializer
 )
-from .models import Service, Event, Expense, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth
+from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth
 
 
 class IsSuperUser(permissions.BasePermission):
@@ -34,6 +34,14 @@ class TravelRateViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             return [permissions.IsAuthenticated()]
         return [IsSuperUser()]
+
+class IncomeViewSet(viewsets.ModelViewSet):
+    queryset = Income.objects.all()
+    serializer_class = IncomeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(added_by=self.request.user)
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()

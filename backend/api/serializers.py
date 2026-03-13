@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Service, Event, Expense, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate
+from .models import Service, Event, Expense, Income, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate
 
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,6 +45,11 @@ class EventImageSerializer(serializers.ModelSerializer):
 class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
+        fields = '__all__'
+
+class IncomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Income
         fields = '__all__'
 
 class TravelRateSerializer(serializers.ModelSerializer):
