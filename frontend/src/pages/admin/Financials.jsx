@@ -416,16 +416,18 @@ const Financials = () => {
                                 </button>
                             </h2>
                             <form onSubmit={handleSubmit}>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Date *</label>
-                                        <input type="date" name="date" value={formData.date} onChange={handleChange}
-                                            className={inputClass} required />
-                                    </div>
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Amount (€) *</label>
-                                        <input type="number" name="amount" value={formData.amount} onChange={handleChange}
-                                            className={inputClass} placeholder="0.00" step="0.01" min="0" required />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label className="block text-gray-400 text-sm font-medium mb-2">Date *</label>
+                                            <input type="date" name="date" value={formData.date} onChange={handleChange}
+                                                className={inputClass} required />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 text-sm font-medium mb-2">Amount (€) *</label>
+                                            <input type="number" name="amount" value={formData.amount} onChange={handleChange}
+                                                className={inputClass} placeholder="0.00" step="0.01" min="0" required />
+                                        </div>
                                     </div>
                                     <AnimatePresence>
                                         {formMode === 'income' && (
@@ -433,25 +435,36 @@ const Financials = () => {
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: 'auto' }}
                                                 exit={{ opacity: 0, height: 0 }}
+                                                className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5"
                                             >
-                                                <label className="block text-gray-400 text-sm font-medium mb-2">Received From (Payer Name)</label>
-                                                <input type="text" name="payer_name" value={formData.payer_name} onChange={handleChange}
-                                                    className={inputClass} placeholder="e.g. John Doe, ABC Corp" />
+                                                <div>
+                                                    <label className="block text-gray-400 text-sm font-medium mb-2">Received From (Payer Name)</label>
+                                                    <input type="text" name="payer_name" value={formData.payer_name} onChange={handleChange}
+                                                        className={inputClass} placeholder="e.g. John Doe, ABC Corp" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
+                                                    <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
+                                                        {INCOME_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
+                                                    </select>
+                                                </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
-                                        <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
-                                            {(formMode === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="lg:col-span-2">
+                                    {formMode === 'expense' && (
+                                        <div className="md:col-span-2">
+                                            <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
+                                            <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
+                                                {EXPENSE_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
+                                            </select>
+                                        </div>
+                                    )}
+                                    <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Reason / Description *</label>
                                         <input type="text" name="reason" value={formData.reason} onChange={handleChange}
                                             className={inputClass} placeholder="e.g. Flowers for Smith wedding" required />
                                     </div>
-                                    <div>
+                                    <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Receipt Image</label>
                                         <div className="relative border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-mustard-gold/30 transition-colors cursor-pointer">
                                             <input type="file" name="receipt_image" onChange={handleChange}
