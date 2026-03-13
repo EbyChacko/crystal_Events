@@ -71,7 +71,7 @@ const Financials = () => {
     }, [formMode]);
 
     const initialFormData = {
-        date: '', amount: '', reason: '', category: '', receipt_image: null
+        date: '', amount: '', reason: '', category: '', payer_name: '', receipt_image: null
     };
     const [formData, setFormData] = useState(initialFormData);
 
@@ -102,6 +102,7 @@ const Financials = () => {
                 type: 'income',
                 date: i.date,
                 amount: parseFloat(i.amount),
+                payer_name: i.payer_name || '',
                 reason: i.reason,
                 category: i.category,
                 receipt_image: i.receipt_image,
@@ -184,6 +185,7 @@ const Financials = () => {
             date: transaction.date,
             amount: transaction.amount,
             reason: transaction.reason,
+            payer_name: transaction.payer_name || '',
             category: transaction.category,
             receipt_image: null,
         });
@@ -201,6 +203,9 @@ const Financials = () => {
             data.append('amount', formData.amount);
             data.append('reason', formData.reason);
             data.append('category', formData.category);
+            if (formMode === 'income') {
+                data.append('payer_name', formData.payer_name);
+            }
             if (formData.receipt_image) {
                 data.append('receipt_image', formData.receipt_image);
             }
@@ -422,6 +427,19 @@ const Financials = () => {
                                         <input type="number" name="amount" value={formData.amount} onChange={handleChange}
                                             className={inputClass} placeholder="0.00" step="0.01" min="0" required />
                                     </div>
+                                    <AnimatePresence>
+                                        {formMode === 'income' && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                            >
+                                                <label className="block text-gray-400 text-sm font-medium mb-2">Received From (Payer Name)</label>
+                                                <input type="text" name="payer_name" value={formData.payer_name} onChange={handleChange}
+                                                    className={inputClass} placeholder="e.g. John Doe, ABC Corp" />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                     <div>
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
                                         <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
@@ -518,6 +536,9 @@ const Financials = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <p className="text-sm font-medium text-white">{t.reason}</p>
+                                                {t.type === 'income' && t.payer_name && (
+                                                    <p className="text-xs text-gray-400 mt-0.5">From: {t.payer_name}</p>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="text-sm text-gray-400">
@@ -593,7 +614,10 @@ const Financials = () => {
                                     <div className="flex justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-base font-bold text-white truncate">{t.reason}</h3>
-                                            <span className="text-sm text-gray-400 truncate block text-left">
+                                            {t.type === 'income' && t.payer_name && (
+                                                <span className="text-xs text-gray-400 truncate block mt-0.5">From: {t.payer_name}</span>
+                                            )}
+                                            <span className="text-sm text-gray-400 truncate block text-left mt-0.5">
                                                 {t.category}
                                             </span>
                                         </div>

@@ -112,6 +112,7 @@ class Expense(models.Model):
 class Income(models.Model):
     date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payer_name = models.CharField(max_length=255, blank=True, default='')
     reason = models.CharField(max_length=255)
     category = models.CharField(max_length=100) # e.g. Investment, Sales, Other
     added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
