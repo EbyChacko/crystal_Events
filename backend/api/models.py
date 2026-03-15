@@ -105,6 +105,11 @@ class Expense(models.Model):
     approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     receipt_image = models.ImageField(upload_to='expenses/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Asset Tracking Fields
+    is_asset = models.BooleanField(default=False)
+    asset_current_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    is_active_asset = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.date} - {self.reason}"

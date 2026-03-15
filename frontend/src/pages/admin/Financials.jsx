@@ -57,6 +57,12 @@ const Financials = () => {
     const [submitting, setSubmitting] = useState(false);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
+    
+    // Assets State
+    const [showAssetsModal, setShowAssetsModal] = useState(false);
+    const [editingAssetId, setEditingAssetId] = useState(null);
+    const [assetCurrentValue, setAssetCurrentValue] = useState('');
+    
     const formRef = useRef(null);
 
     useEffect(() => {
@@ -71,7 +77,7 @@ const Financials = () => {
     }, [formMode]);
 
     const initialFormData = {
-        date: '', amount: '', reason: '', category: '', payer_name: '', receipt_image: null
+        date: '', amount: '', reason: '', category: '', payer_name: '', receipt_image: null, is_asset: false
     };
     const [formData, setFormData] = useState(initialFormData);
 
@@ -93,6 +99,9 @@ const Financials = () => {
                 reason: e.reason,
                 category: e.category,
                 receipt_image: e.receipt_image,
+                is_asset: e.is_asset || false,
+                asset_current_value: e.asset_current_value ? parseFloat(e.asset_current_value) : parseFloat(e.amount),
+                is_active_asset: e.is_active_asset !== false,
                 isManual: true
             }));
             
@@ -171,9 +180,11 @@ const Financials = () => {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value, files } = e.target;
-        if (name === 'receipt_image') {
-            setFormData({ ...formData, receipt_image: files[0] || null });
+        const { name, value, type, checked, files } = e.target;
+        if (type === 'file') {
+            setFormData({ ...formData, [name]: files[0] || null });
+        } else if (type === 'checkbox') {
+            setFormData({ ...formData, [name]: checked });
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -188,6 +199,7 @@ const Financials = () => {
             payer_name: transaction.payer_name || '',
             category: transaction.category,
             receipt_image: null,
+            is_asset: transaction.is_asset || false
         });
         setEditingId(transaction.originalId);
         setFormMode(transaction.type);
@@ -205,6 +217,9 @@ const Financials = () => {
             data.append('category', formData.category);
             if (formMode === 'income') {
                 data.append('payer_name', formData.payer_name);
+            }
+            if (formMode === 'expense') {
+                data.append('is_asset', formData.is_asset ? 'True' : 'False');
             }
             if (formData.receipt_image) {
                 data.append('receipt_image', formData.receipt_image);
@@ -257,6 +272,35 @@ const Financials = () => {
         }
     };
 
+    const saveAssetValue = async (asset) => {
+        try {
+            const data = new FormData();
+            data.append('asset_current_value', assetCurrentValue);
+            await api.patch(`/expenses/${asset.originalId}/`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            addToast('Asset value updated.', 'success');
+            setEditingAssetId(null);
+            fetchData();
+        } catch (err) {
+            addToast('Failed to update asset value.', 'error');
+        }
+    };
+
+    const removeAsset = async (asset) => {
+        try {
+            const data = new FormData();
+            data.append('is_active_asset', 'False');
+            await api.patch(`/expenses/${asset.originalId}/`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            addToast('Asset removed from active list.', 'success');
+            fetchData();
+        } catch (err) {
+            addToast('Failed to remove asset.', 'error');
+        }
+    };
+
     const handleExportCSV = () => {
         const headers = ['Date', 'Type', 'Reason', 'Category', 'Amount'];
         const rows = filteredTransactions.map(t => [
@@ -304,6 +348,8 @@ const Financials = () => {
         return matchesCat && matchesSearch && matchesDate;
     });
 
+    const assetsList = transactions.filter(t => t.type === 'expense' && t.is_asset && t.is_active_asset);
+
     // Aggregations based on FILTERED results
     const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
@@ -324,6 +370,13 @@ const Financials = () => {
                         >
                             <Download size={18} />
                             <span>Export CSV</span>
+                        </button>
+                        <button
+                            onClick={() => setShowAssetsModal(true)}
+                            className="flex items-center justify-center space-x-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-3 rounded-xl hover:bg-purple-500/20 transition-all font-bold"
+                        >
+                            <PieChart size={20} />
+                            <span>View Assets List</span>
                         </button>
                         <button
                             onClick={() => { 
@@ -452,11 +505,23 @@ const Financials = () => {
                                         )}
                                     </AnimatePresence>
                                     {formMode === 'expense' && (
-                                        <div className="md:col-span-2">
-                                            <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
-                                            <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
-                                                {EXPENSE_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
-                                            </select>
+                                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+                                            <div>
+                                                <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
+                                                <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
+                                                    {EXPENSE_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="flex items-center md:pt-6">
+                                                <label className="flex items-center space-x-3 cursor-pointer group">
+                                                    <div className="relative flex items-center justify-center">
+                                                        <input type="checkbox" name="is_asset" checked={formData.is_asset} onChange={handleChange}
+                                                            className="w-5 h-5 rounded border border-white/20 bg-black/20 appearance-none cursor-pointer checked:bg-mustard-gold checked:border-mustard-gold transition-all" />
+                                                        <CheckCircle size={14} className={`absolute text-[#0b1015] pointer-events-none transition-opacity ${formData.is_asset ? 'opacity-100' : 'opacity-0'}`} />
+                                                    </div>
+                                                    <span className="text-white font-medium group-hover:text-mustard-gold transition-colors">Add to Assets List?</span>
+                                                </label>
+                                            </div>
                                         </div>
                                     )}
                                     <div className="md:col-span-2">
@@ -688,6 +753,73 @@ const Financials = () => {
                     </div>
                 )}
             </div>
+
+            {/* Assets Modal */}
+            <AnimatePresence>
+                {showAssetsModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAssetsModal(false)} />
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative w-full max-w-4xl bg-[#0b1015] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] flex flex-col">
+                            <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between flex-shrink-0">
+                                <div className="flex items-center space-x-2">
+                                    <PieChart size={22} className="text-purple-400" />
+                                    <span>Company Assets</span>
+                                </div>
+                                <button type="button" onClick={() => setShowAssetsModal(false)} className="text-gray-400 hover:text-white transition-colors">
+                                    <X size={24} />
+                                </button>
+                            </h2>
+                            <div className="overflow-y-auto flex-1 pr-2">
+                                {assetsList.length === 0 ? (
+                                    <div className="text-center text-gray-400 py-8">No active assets tracked. Add expenses and mark them as assets.</div>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left min-w-[600px]">
+                                            <thead>
+                                                <tr className="border-b border-white/10">
+                                                    <th className="py-3 text-sm font-medium text-gray-500 pl-2">Asset Name</th>
+                                                    <th className="py-3 text-sm font-medium text-gray-500">Date Added</th>
+                                                    <th className="py-3 items-end justify-end flex text-sm font-medium text-gray-500">Purchase Value</th>
+                                                    <th className="py-3 text-right text-sm font-medium text-gray-500">Current Value</th>
+                                                    <th className="py-3 text-right text-sm font-medium text-gray-500 pr-2">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {assetsList.map(a => (
+                                                    <tr key={a.id} className="hover:bg-white/5">
+                                                        <td className="py-4 text-sm font-medium text-white pl-2">{a.reason}</td>
+                                                        <td className="py-4 text-sm text-gray-400">{new Date(a.date).toLocaleDateString('en-IE')}</td>
+                                                        <td className="py-4 text-sm text-right text-gray-400">€{a.amount.toLocaleString('en-IE', { minimumFractionDigits: 2 })}</td>
+                                                        <td className="py-4 text-sm text-right font-bold text-mustard-gold">
+                                                            {editingAssetId === a.originalId ? (
+                                                                <div className="flex justify-end items-center space-x-2">
+                                                                    <input type="number" value={assetCurrentValue} onChange={(e) => setAssetCurrentValue(e.target.value)} className="w-24 bg-black/40 border border-white/20 rounded px-2 py-1 text-white text-sm" step="0.01" min="0" />
+                                                                    <button onClick={() => saveAssetValue(a)} className="text-emerald-400 hover:text-emerald-300"><CheckCircle size={16} /></button>
+                                                                    <button onClick={() => setEditingAssetId(null)} className="text-red-400 hover:text-red-300"><X size={16} /></button>
+                                                                </div>
+                                                            ) : (
+                                                                <span>€{a.asset_current_value.toLocaleString('en-IE', { minimumFractionDigits: 2 })}</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="py-4 text-right pr-2">
+                                                            <div className="flex justify-end space-x-2">
+                                                                {editingAssetId !== a.originalId && (
+                                                                    <button onClick={() => { setEditingAssetId(a.originalId); setAssetCurrentValue(a.asset_current_value); }} className="p-1.5 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg" title="Edit Current Value"><Edit3 size={16} /></button>
+                                                                )}
+                                                                <button onClick={() => removeAsset(a)} className="p-1.5 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg" title="Remove Asset"><Trash2 size={16} /></button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
