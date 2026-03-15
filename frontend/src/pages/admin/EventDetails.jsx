@@ -2221,6 +2221,12 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                                             <span className="text-xs text-rose-300 font-bold">New Balance Due</span>
                                             <span className="text-lg font-bold text-mustard-gold">€{parseFloat(entry.balance_due || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                         </div>
+                                        {entry.reason && (
+                                            <div className="md:col-span-2 mt-2 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3">
+                                                <span className="text-xs text-rose-300 block font-medium mb-1">Reason for Refund</span>
+                                                <p className="text-sm text-white italic">{entry.reason}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ) : isQuoteAction ? (
