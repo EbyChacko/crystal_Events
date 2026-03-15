@@ -82,7 +82,7 @@ const EventDetails = () => {
     const [saving, setSaving] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const originalFormData = React.useRef({});
-    const [showNotes, setShowNotes] = useState(false);
+    const [showNotes, setShowNotes] = useState(true);
     const notesRef = useRef(null);
 
     const handlePrintNotes = () => {
