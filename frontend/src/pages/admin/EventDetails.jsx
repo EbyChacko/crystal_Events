@@ -111,6 +111,7 @@ const EventDetails = () => {
     // Refund state
     const [showRefundModal, setShowRefundModal] = useState(false);
     const [refundAmount, setRefundAmount] = useState('');
+    const [refundReason, setRefundReason] = useState('');
     const [refundSubmitting, setRefundSubmitting] = useState(false);
 
     // Gallery state
@@ -396,10 +397,11 @@ const EventDetails = () => {
                 return;
             }
 
-            await api.post(`/events/${id}/refund/`, { amount: amtToRefund });
+            await api.post(`/events/${id}/refund/`, { amount: amtToRefund, reason: refundReason });
             addToast('Refund recorded successfully!', 'success');
             setShowRefundModal(false);
             setRefundAmount('');
+            setRefundReason('');
             fetchEvent();
         } catch (err) {
             const msg = err.response?.data?.error || 'Failed to process refund.';
@@ -729,6 +731,7 @@ const EventDetails = () => {
                         type: 'refund',
                         title: 'Refund Processed',
                         description: `by ${entry.user || 'System'}`,
+                        reason: entry.reason || '',
                         amount: refundAmt,
                         isIncrease: true,
                         balance: currentBalance,
@@ -1712,6 +1715,16 @@ const EventDetails = () => {
                                             }}
                                             className={`${selectClass.replace('cursor-pointer', '')} border-rose-500/30 focus:border-rose-500/50 focus:ring-rose-500/50`} 
                                             placeholder="0.00" step="0.01" min="0.01" max={event?.received_amount || 0} required 
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Reason for Refund</label>
+                                        <textarea 
+                                            value={refundReason}
+                                            onChange={(e) => setRefundReason(e.target.value)}
+                                            className={`${selectClass.replace('cursor-pointer', '')} h-24 border-rose-500/30 focus:border-rose-500/50 focus:ring-rose-500/50 resize-none`}
+                                            placeholder="e.g., Event canceled by client, overpaid..."
                                         />
                                     </div>
 

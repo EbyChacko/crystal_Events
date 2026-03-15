@@ -207,12 +207,15 @@ class EventViewSet(viewsets.ModelViewSet):
         # Update event balance
         event.received_amount = current_received - refund_amount
         
+        reason = request.data.get('reason', '')
+        
         # Log the refund action
         log_entry = {
             'timestamp': __import__('django.utils.timezone', fromlist=['now']).now().isoformat(),
             'action': 'refund_made',
             'user': self._user_display(user),
             'amount_refunded': str(refund_amount),
+            'reason': reason,
             'previous_received_amount': str(current_received),
             'new_received_amount': str(event.received_amount),
             'balance_due': str(float(event.budget or 0) - event.received_amount - float(event.payment_discount or 0))
