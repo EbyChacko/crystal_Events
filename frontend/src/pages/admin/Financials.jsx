@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
-import api from '../../utils/api';
+import api, { API_BASE_URL } from '../../utils/api';
 
 const EXPENSE_CATEGORIES = [
     'Decor', 'Catering', 'Venue', 'Logistics', 'Entertainment', 'Staffing', 'Marketing', 'Other'
@@ -693,7 +693,7 @@ const Financials = () => {
                                                                 </button>
                                                                 <button onClick={() => {
                                                                     const token = localStorage.getItem('access_token');
-                                                                    const url = `http://localhost:8000/api/events/${t.originalId}/invoice/pdf/?token=${token}${t.logIdx !== undefined ? `&logIdx=${t.logIdx}` : ''}`;
+                                                                    const url = `${API_BASE_URL}/events/${t.originalId}/invoice/pdf/?token=${token}${t.logIdx !== undefined ? `&logIdx=${t.logIdx}` : ''}`;
                                                                     window.open(url, '_blank');
                                                                 }}
                                                                     className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors"
@@ -764,7 +764,7 @@ const Financials = () => {
                                                             <button onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 const token = localStorage.getItem('access_token');
-                                                                const url = `http://localhost:8000/api/events/${t.originalId}/invoice/pdf/?token=${token}${t.logIdx !== undefined ? `&logIdx=${t.logIdx}` : ''}`;
+                                                                const url = `${API_BASE_URL}/events/${t.originalId}/invoice/pdf/?token=${token}${t.logIdx !== undefined ? `&logIdx=${t.logIdx}` : ''}`;
                                                                 window.open(url, '_blank');
                                                             }} className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Download size={14} /></button>
                                                         </>

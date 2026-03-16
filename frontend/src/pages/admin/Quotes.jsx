@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
-import api from '../../utils/api';
+import api, { API_BASE_URL } from '../../utils/api';
 
 const STATUS_OPTIONS = [
     { value: 'draft', label: 'Draft', color: 'bg-gray-500/10 text-gray-400 border-gray-500/20' },
@@ -95,7 +95,7 @@ const Quotes = () => {
 
     const handleDownloadPdf = (id) => {
         const token = localStorage.getItem('access_token');
-        window.open(`http://localhost:8000/api/quotes/${id}/pdf/?token=${token}`, '_blank');
+        window.open(`${API_BASE_URL}/quotes/${id}/pdf/?token=${token}`, '_blank');
     };
 
     const filteredQuotes = quotes.filter(q => {

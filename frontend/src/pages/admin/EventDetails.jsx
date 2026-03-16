@@ -7,7 +7,7 @@ import {
     PlusCircle, MinusCircle, Download, Percent, Plus, Image as ImageIcon, Link as LinkIcon, Upload,
     Send, Check, DollarSign, Link2, RefreshCw, Briefcase, Info, Edit2, Printer
 } from 'lucide-react';
-import api from '../../utils/api';
+import api, { API_BASE_URL } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
@@ -87,7 +87,7 @@ const EventDetails = () => {
 
     const handlePrintNotes = () => {
         const token = localStorage.getItem('access_token');
-        window.open(`http://localhost:8000/api/events/${event?.id}/notes/pdf/?token=${token}`, '_blank');
+        window.open(`${API_BASE_URL}/events/${event?.id}/notes/pdf/?token=${token}`, '_blank');
     };
 
     // Quote state
@@ -562,7 +562,7 @@ const EventDetails = () => {
 
     const handleDownloadPdf = (quoteId) => {
         const token = localStorage.getItem('access_token');
-        window.open(`http://localhost:8000/api/quotes/${quoteId}/pdf/?token=${token}`, '_blank');
+        window.open(`${API_BASE_URL}/quotes/${quoteId}/pdf/?token=${token}`, '_blank');
     };
 
     const handleImageSubmit = async (e) => {
@@ -2165,7 +2165,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                             onClick={(e) => {
                                 e.stopPropagation();
                                 const token = localStorage.getItem('access_token');
-                                const url = `http://localhost:8000/api/events/${eventId}/invoice/pdf/?token=${token}&logIdx=${logIdx}`;
+                                const url = `${API_BASE_URL}/events/${eventId}/invoice/pdf/?token=${token}&logIdx=${logIdx}`;
                                 window.open(url, '_blank');
                             }}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg transition-colors border border-indigo-500/30 text-xs font-medium"
