@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     DollarSign, Plus, X, AlertCircle, Search, CheckCircle,
-    Trash2, Edit3, Upload, TrendingUp, PieChart, Receipt, Calendar, ExternalLink, Download, Filter, ChevronDown, ChevronUp, RefreshCw, Link as LinkIcon
+    Trash2, Edit3, Upload, TrendingUp, PieChart, Receipt, Calendar, ExternalLink, Download, Filter, ChevronDown, ChevronUp, RefreshCw, Link as LinkIcon, MoreVertical
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
@@ -48,6 +48,8 @@ const Financials = () => {
     const [editingId, setEditingId] = useState(null);
     const [activeCategory, setActiveCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [statsTimeframe, setStatsTimeframe] = useState('month'); // 'month', 'year', 'all'
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Date Filters
     const [fromDate, setFromDate] = useState('');
@@ -324,47 +326,106 @@ const Financials = () => {
         <div>
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-white">Financial Report</h1>
-                    <p className="text-gray-400 mt-1">Track comprehensive income and expenses</p>
-                </div>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-white">Financial Report</h1>
+                        <p className="text-gray-400 mt-1">Track comprehensive income and expenses</p>
+                    </div>
+                    
+                    {/* Mobile 3-dot Menu Toggle */}
+                    <div className="sm:hidden relative">
                         <button
-                            onClick={handleExportCSV}
-                            className="flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all font-medium"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors"
                         >
-                            <Download size={18} />
-                            <span>Export CSV</span>
+                            {isMobileMenuOpen ? <X size={24} /> : <MoreVertical size={24} />}
                         </button>
-                        <button
-                            onClick={() => navigate('/admin/assets')}
-                            className="flex items-center justify-center space-x-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-3 rounded-xl hover:bg-purple-500/20 transition-all font-bold"
-                        >
-                            <PieChart size={20} />
-                            <span>View Assets List</span>
-                        </button>
-                        <button
-                            onClick={() => { 
-                                if (formMode === 'income') { setFormMode('none'); } 
-                                else { setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); } 
-                            }}
-                            className="flex items-center justify-center space-x-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-3 rounded-xl hover:bg-emerald-500/20 transition-all font-bold"
-                        >
-                            {formMode === 'income' ? <X size={20} /> : <Plus size={20} />}
-                            <span>Add Income</span>
-                        </button>
-                        <button
-                            onClick={() => { 
-                                if (formMode === 'expense') { setFormMode('none'); } 
-                                else { setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); } 
-                            }}
-                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-bold"
-                        >
-                            {formMode === 'expense' ? <X size={20} /> : <Plus size={20} />}
-                            <span>Add Expense</span>
-                        </button>
+                        
+                        {/* Mobile Dropdown */}
+                        {isMobileMenuOpen && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setIsMobileMenuOpen(false)} />
+                                <div className="absolute right-0 top-full mt-2 w-56 bg-[#1a1c23] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden flex flex-col p-2 space-y-1">
+                                    <button
+                                        onClick={() => { handleExportCSV(); setIsMobileMenuOpen(false); }}
+                                        className="flex items-center space-x-3 text-gray-300 hover:bg-white/5 hover:text-white px-3 py-2.5 rounded-lg transition-colors w-full text-left text-sm"
+                                    >
+                                        <Download size={16} />
+                                        <span>Export CSV</span>
+                                    </button>
+                                    <button
+                                        onClick={() => { navigate('/admin/assets'); setIsMobileMenuOpen(false); }}
+                                        className="flex items-center space-x-3 text-purple-400 hover:bg-purple-500/10 px-3 py-2.5 rounded-lg transition-colors w-full text-left text-sm"
+                                    >
+                                        <PieChart size={16} />
+                                        <span>View Assets List</span>
+                                    </button>
+                                    <button
+                                        onClick={() => { 
+                                            if (formMode === 'income') { setFormMode('none'); } 
+                                            else { setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); } 
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className="flex items-center space-x-3 text-emerald-400 hover:bg-emerald-500/10 px-3 py-2.5 rounded-lg transition-colors w-full text-left text-sm"
+                                    >
+                                        <Plus size={16} />
+                                        <span>Add Income</span>
+                                    </button>
+                                    <button
+                                        onClick={() => { 
+                                            if (formMode === 'expense') { setFormMode('none'); } 
+                                            else { setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); } 
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className="flex items-center space-x-3 text-mustard-gold hover:bg-mustard-gold/10 px-3 py-2.5 rounded-lg transition-colors w-full text-left text-sm"
+                                    >
+                                        <Plus size={16} />
+                                        <span>Add Expense</span>
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
+
+                {/* Desktop Buttons */}
+                <div className="hidden sm:flex flex-row items-center space-x-3 w-auto">
+                    <button
+                        onClick={handleExportCSV}
+                        className="flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all font-medium"
+                    >
+                        <Download size={18} />
+                        <span>Export CSV</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/admin/assets')}
+                        className="flex items-center justify-center space-x-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-3 rounded-xl hover:bg-purple-500/20 transition-all font-bold"
+                    >
+                        <PieChart size={20} />
+                        <span>View Assets List</span>
+                    </button>
+                    <button
+                        onClick={() => { 
+                            if (formMode === 'income') { setFormMode('none'); } 
+                            else { setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); } 
+                        }}
+                        className="flex items-center justify-center space-x-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-3 rounded-xl hover:bg-emerald-500/20 transition-all font-bold"
+                    >
+                        {formMode === 'income' ? <X size={20} /> : <Plus size={20} />}
+                        <span>Add Income</span>
+                    </button>
+                    <button
+                        onClick={() => { 
+                            if (formMode === 'expense') { setFormMode('none'); } 
+                            else { setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); } 
+                        }}
+                        className="flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-bold"
+                    >
+                        {formMode === 'expense' ? <X size={20} /> : <Plus size={20} />}
+                        <span>Add Expense</span>
+                    </button>
+                </div>
+            </div>
 
             {/* Date Filters */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">

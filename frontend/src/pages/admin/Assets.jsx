@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PieChart, TrendingDown, Edit3, Trash2, CheckCircle, X, DollarSign } from 'lucide-react';
+import { PieChart, TrendingDown, Edit3, Trash2, CheckCircle, X, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../../utils/api';
 import { useToast } from '../../context/ToastContext';
@@ -33,6 +33,7 @@ const Assets = () => {
     const [editingAssetId, setEditingAssetId] = useState(null);
     const [assetCurrentValue, setAssetCurrentValue] = useState('');
     const [confirmRemoveAssetId, setConfirmRemoveAssetId] = useState(null);
+    const [isOverviewOpen, setIsOverviewOpen] = useState(false);
 
     const fetchAssets = async () => {
         setLoading(true);
@@ -104,10 +105,19 @@ const Assets = () => {
                     <h1 className="text-2xl font-bold text-white">Company Assets</h1>
                     <p className="text-gray-400 mt-1">Overview and tracking of active depreciating assets</p>
                 </div>
+                
+                {/* Mobile Overview Toggle */}
+                <button
+                    onClick={() => setIsOverviewOpen(!isOverviewOpen)}
+                    className="md:hidden flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all font-medium w-full"
+                >
+                    {isOverviewOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    <span>{isOverviewOpen ? 'Hide Overview' : 'Show Overview'}</span>
+                </button>
             </div>
 
             {/* Overview Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+            <div className={`grid-cols-1 md:grid-cols-3 gap-5 mb-8 ${isOverviewOpen ? 'grid' : 'hidden md:grid'}`}>
                 <StatCard icon={<DollarSign size={22} />} label="Total Purchase Value" value={`€${totalPurchaseValue.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={null} delay={0} />
                 <StatCard icon={<PieChart size={22} />} label="Total Current Value" value={`€${totalCurrentValue.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={true} delay={0.1} />
                 <StatCard icon={<TrendingDown size={22} />} label="Total Depreciation" value={`€${totalDepreciation.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={totalDepreciation > 0 ? false : null} delay={0.2} />
@@ -126,69 +136,132 @@ const Assets = () => {
                 ) : assetsList.length === 0 ? (
                     <div className="p-8 text-center text-gray-500">No active assets tracked. Add expenses and mark them as assets.</div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left min-w-[700px]">
-                            <thead>
-                                <tr className="border-b border-white/10">
-                                    <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Asset Name</th>
-                                    <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
-                                    <th className="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Purchase Value</th>
-                                    <th className="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Current Value</th>
-                                    <th className="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {assetsList.map(a => (
-                                    <tr key={a.id} className="hover:bg-white/5 transition-colors group">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <p className="text-sm font-medium text-white">{a.reason}</p>
-                                            <span className="text-xs text-gray-400 mt-0.5 block">{a.category}</span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                                            {new Date(a.date).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-300">
-                                            €{a.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-mustard-gold">
+                    <>
+                        <div className="overflow-x-auto hidden md:block">
+                            <table className="w-full text-left min-w-[700px]">
+                                <thead>
+                                    <tr className="border-b border-white/10">
+                                        <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Asset Name</th>
+                                        <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
+                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Purchase Value</th>
+                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Current Value</th>
+                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {assetsList.map(a => (
+                                        <tr key={a.id} className="hover:bg-white/5 transition-colors group">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <p className="text-sm font-medium text-white">{a.reason}</p>
+                                                <span className="text-xs text-gray-400 mt-0.5 block">{a.category}</span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                                                {new Date(a.date).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-300">
+                                                €{a.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-mustard-gold">
+                                                {editingAssetId === a.originalId ? (
+                                                    <div className="flex justify-end items-center space-x-2">
+                                                        <input 
+                                                            type="number" 
+                                                            value={assetCurrentValue} 
+                                                            onChange={(e) => setAssetCurrentValue(e.target.value)} 
+                                                            className="w-24 bg-black/40 border border-white/20 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-mustard-gold" 
+                                                            step="0.01" 
+                                                            min="0" 
+                                                        />
+                                                        <button onClick={() => saveAssetValue(a)} className="text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 p-1.5 rounded-lg transition-colors"><CheckCircle size={16} /></button>
+                                                        <button onClick={() => setEditingAssetId(null)} className="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded-lg transition-colors"><X size={16} /></button>
+                                                    </div>
+                                                ) : (
+                                                    <span>€{a.asset_current_value.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                {confirmRemoveAssetId === a.originalId ? (
+                                                    <div className="flex justify-end items-center space-x-2 border border-red-500/30 p-1.5 rounded-xl bg-red-500/5">
+                                                        <span className="text-xs text-red-400 font-medium">Remove?</span>
+                                                        <button onClick={() => removeAsset(a)} className="px-3 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 font-bold transition-colors">Yes</button>
+                                                        <button onClick={() => setConfirmRemoveAssetId(null)} className="px-3 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/20 font-bold transition-colors">No</button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {editingAssetId !== a.originalId && (
+                                                            <button onClick={() => { setEditingAssetId(a.originalId); setAssetCurrentValue(a.asset_current_value); }} className="p-2 text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors" title="Edit Current Value"><Edit3 size={16} /></button>
+                                                        )}
+                                                        <button onClick={() => setConfirmRemoveAssetId(a.originalId)} className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-colors" title="Remove Asset"><Trash2 size={16} /></button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile List View */}
+                        <div className="md:hidden divide-y divide-white/5">
+                            {assetsList.map((a) => (
+                                <div key={a.id} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
+                                    <div className="flex justify-between items-start gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-base font-bold text-white truncate">{a.reason}</h3>
+                                            <span className="text-sm text-gray-400 truncate block mt-0.5">{a.category}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4 mt-2">
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-0.5">Purchase Value</p>
+                                            <p className="text-sm font-medium text-white">€{a.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-0.5">Current Value</p>
                                             {editingAssetId === a.originalId ? (
-                                                <div className="flex justify-end items-center space-x-2">
+                                                <div className="flex items-center space-x-2">
                                                     <input 
                                                         type="number" 
                                                         value={assetCurrentValue} 
                                                         onChange={(e) => setAssetCurrentValue(e.target.value)} 
-                                                        className="w-24 bg-black/40 border border-white/20 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-mustard-gold" 
-                                                        step="0.01" 
-                                                        min="0" 
+                                                        className="w-full bg-black/40 border border-white/20 rounded-lg px-2 py-1 text-white text-sm focus:outline-none focus:border-mustard-gold" 
+                                                        step="0.01" min="0" 
                                                     />
-                                                    <button onClick={() => saveAssetValue(a)} className="text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 p-1.5 rounded-lg transition-colors"><CheckCircle size={16} /></button>
-                                                    <button onClick={() => setEditingAssetId(null)} className="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded-lg transition-colors"><X size={16} /></button>
                                                 </div>
                                             ) : (
-                                                <span>€{a.asset_current_value.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                <p className="text-sm font-bold text-mustard-gold">€{a.asset_current_value.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                             )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex justify-between items-end gap-2 text-sm text-gray-400 mt-2 pt-2 border-t border-white/5">
+                                        <div className="flex items-center gap-1.5 text-xs">
+                                            <span>{new Date(a.date).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 flex-shrink-0">
                                             {confirmRemoveAssetId === a.originalId ? (
-                                                <div className="flex justify-end items-center space-x-2 border border-red-500/30 p-1.5 rounded-xl bg-red-500/5">
-                                                    <span className="text-xs text-red-400 font-medium">Remove?</span>
-                                                    <button onClick={() => removeAsset(a)} className="px-3 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 font-bold transition-colors">Yes</button>
-                                                    <button onClick={() => setConfirmRemoveAssetId(null)} className="px-3 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/20 font-bold transition-colors">No</button>
+                                                <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
+                                                    <button onClick={() => removeAsset(a)} className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Yes</button>
+                                                    <button onClick={() => setConfirmRemoveAssetId(null)} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/20">No</button>
+                                                </div>
+                                            ) : editingAssetId === a.originalId ? (
+                                                <div className="flex space-x-1">
+                                                    <button onClick={() => saveAssetValue(a)} className="p-2 text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><CheckCircle size={14} /></button>
+                                                    <button onClick={() => setEditingAssetId(null)} className="p-2 text-red-400 bg-red-500/10 rounded-lg transition-colors"><X size={14} /></button>
                                                 </div>
                                             ) : (
-                                                <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    {editingAssetId !== a.originalId && (
-                                                        <button onClick={() => { setEditingAssetId(a.originalId); setAssetCurrentValue(a.asset_current_value); }} className="p-2 text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors" title="Edit Current Value"><Edit3 size={16} /></button>
-                                                    )}
-                                                    <button onClick={() => setConfirmRemoveAssetId(a.originalId)} className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-colors" title="Remove Asset"><Trash2 size={16} /></button>
-                                                </div>
+                                                <>
+                                                    <button onClick={() => { setEditingAssetId(a.originalId); setAssetCurrentValue(a.asset_current_value); }} className="p-2 text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
+                                                    <button onClick={() => setConfirmRemoveAssetId(a.originalId)} className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                                                </>
                                             )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
                 )}
             </div>
         </div>
