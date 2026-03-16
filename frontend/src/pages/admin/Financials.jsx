@@ -62,6 +62,7 @@ const Financials = () => {
     const [showAssetsModal, setShowAssetsModal] = useState(false);
     const [editingAssetId, setEditingAssetId] = useState(null);
     const [assetCurrentValue, setAssetCurrentValue] = useState('');
+    const [confirmRemoveAssetId, setConfirmRemoveAssetId] = useState(null);
     
     const formRef = useRef(null);
 
@@ -199,7 +200,7 @@ const Financials = () => {
             payer_name: transaction.payer_name || '',
             category: transaction.category,
             receipt_image: null,
-            is_asset: transaction.is_asset || false
+            is_asset: (transaction.is_asset && transaction.is_active_asset) || false
         });
         setEditingId(transaction.originalId);
         setFormMode(transaction.type);
@@ -220,6 +221,7 @@ const Financials = () => {
             }
             if (formMode === 'expense') {
                 data.append('is_asset', formData.is_asset ? 'True' : 'False');
+                data.append('is_active_asset', formData.is_asset ? 'True' : 'False');
             }
             if (formData.receipt_image) {
                 data.append('receipt_image', formData.receipt_image);
@@ -295,6 +297,7 @@ const Financials = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             addToast('Asset removed from active list.', 'success');
+            setConfirmRemoveAssetId(null);
             fetchData();
         } catch (err) {
             addToast('Failed to remove asset.', 'error');
@@ -802,12 +805,20 @@ const Financials = () => {
                                                             )}
                                                         </td>
                                                         <td className="py-4 text-right pr-2">
-                                                            <div className="flex justify-end space-x-2">
-                                                                {editingAssetId !== a.originalId && (
-                                                                    <button onClick={() => { setEditingAssetId(a.originalId); setAssetCurrentValue(a.asset_current_value); }} className="p-1.5 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg" title="Edit Current Value"><Edit3 size={16} /></button>
-                                                                )}
-                                                                <button onClick={() => removeAsset(a)} className="p-1.5 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg" title="Remove Asset"><Trash2 size={16} /></button>
-                                                            </div>
+                                                            {confirmRemoveAssetId === a.originalId ? (
+                                                                <div className="flex justify-end items-center space-x-2 border border-red-500/30 p-1.5 rounded-xl bg-red-500/5">
+                                                                    <span className="text-xs text-red-400 font-medium">Remove?</span>
+                                                                    <button onClick={() => removeAsset(a)} className="px-3 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 font-bold transition-colors">Yes</button>
+                                                                    <button onClick={() => setConfirmRemoveAssetId(null)} className="px-3 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/20 font-bold transition-colors">No</button>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex justify-end space-x-2">
+                                                                    {editingAssetId !== a.originalId && (
+                                                                        <button onClick={() => { setEditingAssetId(a.originalId); setAssetCurrentValue(a.asset_current_value); }} className="p-1.5 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg" title="Edit Current Value"><Edit3 size={16} /></button>
+                                                                    )}
+                                                                    <button onClick={() => setConfirmRemoveAssetId(a.originalId)} className="p-1.5 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg" title="Remove Asset"><Trash2 size={16} /></button>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                     </tr>
                                                 ))}
