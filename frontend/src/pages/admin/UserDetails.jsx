@@ -287,9 +287,9 @@ const UserDetails = () => {
                     </div>
 
                     <button type="button" onClick={() => { setShowEditModal(true); }}
-                        className="flex items-center justify-center space-x-2 text-mustard-gold md:text-deep-teal font-medium md:bg-gradient-to-r md:from-mustard-gold md:to-yellow-500 md:px-5 md:py-2.5 rounded-lg md:rounded-xl md:hover:shadow-lg md:hover:shadow-mustard-gold/20 transition-all text-sm md:text-base">
+                        className="w-full sm:w-auto flex items-center justify-center space-x-2 text-deep-teal font-medium bg-gradient-to-r from-mustard-gold to-yellow-500 px-5 py-3 sm:py-2.5 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all text-base sm:text-sm">
                         <Pencil size={18} />
-                        <span className="hidden sm:inline">Edit User</span>
+                        <span>Edit User</span>
                     </button>
                 </div>
 
@@ -506,9 +506,9 @@ const UserDetails = () => {
                                     </div>
                                 </div>
 
-                                <div className="mt-8 pt-6 border-t border-white/10 flex items-center space-x-4">
+                                <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                                     <button type="submit" disabled={saving}
-                                        className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-6 py-3.5 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                        className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-6 py-3.5 sm:py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-sm">
                                         <Save size={18} />
                                         <span>{saving ? 'Saving...' : 'Save Changes'}</span>
                                     </button>
@@ -531,7 +531,7 @@ const UserDetails = () => {
                     </div>
                     {!changingPassword && (
                         <button type="button" onClick={() => { setChangingPassword(true); }}
-                            className="flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-white font-medium px-5 py-2.5 rounded-xl hover:bg-white/15 transition-all">
+                            className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-white font-medium px-5 py-3 sm:py-2.5 rounded-xl hover:bg-white/15 transition-all text-base sm:text-sm">
                             <Lock size={16} />
                             <span>Set Password</span>
                         </button>
@@ -561,14 +561,14 @@ const UserDetails = () => {
                                         )}
                                     </div>
                                 </div>
-                                <div className="flex items-center space-x-4">
+                                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                                     <button type="submit" disabled={saving || (passwordData.confirmPassword && passwordData.password !== passwordData.confirmPassword)}
-                                        className="flex items-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                        className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-6 py-3 sm:py-2.5 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-sm">
                                         <Lock size={18} />
                                         <span>{saving ? 'Updating...' : 'Set Password'}</span>
                                     </button>
                                     <button type="button" onClick={() => { setChangingPassword(false); setPasswordData({ password: '', confirmPassword: '' }); }}
-                                        className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 rounded-xl hover:bg-white/15 transition-all">
+                                        className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 sm:py-2.5 rounded-xl hover:bg-white/15 transition-all text-base sm:text-sm">
                                         <X size={18} />
                                         <span>Cancel</span>
                                     </button>
@@ -594,27 +594,27 @@ const UserDetails = () => {
                             <button
                                 type="button"
                                 onClick={() => setConfirmingDelete(true)}
-                                className="flex items-center justify-center space-x-2 text-red-400 font-medium md:bg-red-500/20 md:border md:border-red-500/30 md:px-5 md:py-2.5 rounded-lg md:rounded-xl hover:opacity-80 md:hover:bg-red-500/30 transition-all text-sm md:text-base"
+                                className="w-full sm:w-auto flex items-center justify-center space-x-2 text-red-400 font-medium bg-red-500/20 border border-red-500/30 px-5 py-3 sm:py-2.5 rounded-xl hover:opacity-80 hover:bg-red-500/30 transition-all text-base sm:text-sm"
                             >
                                 <Trash2 size={16} />
                                 <span>Remove User</span>
                             </button>
                         ) : (
-                            <div className="flex items-center space-x-3">
-                                <span className="text-sm text-red-400 font-medium">Are you sure?</span>
+                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                                 <button
                                     type="button"
                                     onClick={handleDeleteUser}
-                                    className="bg-red-600 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-red-700 transition-all"
+                                    className="w-full sm:w-auto flex items-center justify-center space-x-2 text-white font-medium bg-red-500 px-5 py-3 sm:py-2.5 rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 text-base sm:text-sm"
                                 >
-                                    Yes, Delete
+                                    <Trash2 size={16} />
+                                    <span>Yes, Remove Completely</span>
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setConfirmingDelete(false)}
-                                    className="bg-white/10 border border-white/10 text-gray-300 font-medium px-5 py-2.5 rounded-xl hover:bg-white/15 transition-all"
+                                    className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-5 py-3 sm:py-2.5 rounded-xl hover:bg-white/15 transition-all text-base sm:text-sm"
                                 >
-                                    Cancel
+                                    <span>Cancel</span>
                                 </button>
                             </div>
                         )}

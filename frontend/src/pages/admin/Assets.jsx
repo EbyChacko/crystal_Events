@@ -187,7 +187,7 @@ const Assets = () => {
                                                         <button onClick={() => setConfirmRemoveAssetId(null)} className="px-3 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/20 font-bold transition-colors">No</button>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div className="flex justify-end space-x-2 transition-opacity">
                                                         {editingAssetId !== a.originalId && (
                                                             <button onClick={() => { setEditingAssetId(a.originalId); setAssetCurrentValue(a.asset_current_value); }} className="p-2 text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors" title="Edit Current Value"><Edit3 size={16} /></button>
                                                         )}

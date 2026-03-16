@@ -568,7 +568,7 @@ const Financials = () => {
                                     </div>
                                 </div>
                                 <button type="submit" disabled={submitting}
-                                    className={`w-full font-bold py-3.5 px-4 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${formMode === 'expense' ? 'bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal hover:shadow-mustard-gold/20' : 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-white hover:shadow-emerald-500/20'}`}>
+                                    className={`w-full flex flex-row items-center justify-center space-x-2 font-bold py-3.5 sm:py-3 px-4 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-sm ${formMode === 'expense' ? 'bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal hover:shadow-mustard-gold/20' : 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-white hover:shadow-emerald-500/20'}`}>
                                     {submitting ? 'Saving...' : editingId ? `Update ${formMode === 'expense' ? 'Expense' : 'Income'}` : `Add ${formMode === 'expense' ? 'Expense' : 'Income'}`}
                                 </button>
                             </form>
