@@ -21,6 +21,7 @@ import Users from './pages/admin/Users';
 import UserDetails from './pages/admin/UserDetails';
 import Profile from './pages/admin/Profile';
 import Financials from './pages/admin/Financials';
+import Assets from './pages/admin/Assets';
 import Quotes from './pages/admin/Quotes';
 import ServicesAdmin from './pages/admin/ServicesAdmin';
 import Settings from './pages/admin/Settings';
@@ -60,6 +61,7 @@ function App() {
               <Route path="events/:id" element={<EventDetails />} />
               <Route path="profile" element={<Profile />} />
               <Route path="financials" element={<Financials />} />
+              <Route path="assets" element={<Assets />} />
               <Route path="quotes" element={<Quotes />} />
               <Route path="services" element={
                 <ProtectedRoute requireSuperUser>
