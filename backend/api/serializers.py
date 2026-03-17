@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Service, Event, Expense, Income, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate
+from .models import Service, Event, Expense, Income, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate, FoodMenu, FoodMenuItem
 
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -377,3 +377,42 @@ class TwoFactorLoginSerializer(serializers.Serializer):
             'access': str(refresh.access_token),
             'refresh': str(refresh)
         }
+
+
+class FoodMenuItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodMenuItem
+        fields = ['id', 'name']
+
+class FoodMenuSerializer(serializers.ModelSerializer):
+    items = FoodMenuItemSerializer(many=True)
+    total_cost = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    event_name = serializers.CharField(source='event.event_name', read_only=True, default=None)
+
+    class Meta:
+        model = FoodMenu
+        fields = [
+            'id', 'event', 'event_name', 'adult_count', 'adult_rate',
+            'kid_count', 'kid_rate', 'items', 'total_cost', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        menu = FoodMenu.objects.create(**validated_data)
+        for item_data in items_data:
+            FoodMenuItem.objects.create(menu=menu, **item_data)
+        return menu
+
+    def update(self, instance, validated_data):
+        items_data = validated_data.pop('items', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if items_data is not None:
+            instance.items.all().delete()
+            for item_data in items_data:
+                FoodMenuItem.objects.create(menu=instance, **item_data)
+        return instance

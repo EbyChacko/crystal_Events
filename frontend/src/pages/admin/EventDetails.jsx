@@ -5,11 +5,12 @@ import {
     Calendar as CalendarIcon, Save, AlertCircle, CheckCircle, MapPin, Pencil, X, ArrowLeft,
     Trash2, Clock, Users as UsersIcon, FileText, BookOpen, ChevronDown, ChevronUp,
     PlusCircle, MinusCircle, Download, Percent, Plus, Image as ImageIcon, Link as LinkIcon, Upload,
-    Send, Check, DollarSign, Link2, RefreshCw, Briefcase, Info, Edit2, Printer
+    Send, Check, DollarSign, Link2, RefreshCw, Briefcase, Info, Edit2, Printer, Utensils
 } from 'lucide-react';
 import api, { API_BASE_URL } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import FoodMenuForm from '../../components/events/FoodMenuForm';
 
 const EVENT_TYPES = [
     { value: 'wedding', label: 'Wedding' },
@@ -103,6 +104,10 @@ const EventDetails = () => {
     const [isQuoteDirty, setIsQuoteDirty] = useState(false);
     const originalQuoteData = useRef(null);
 
+    // Food Menu state
+    const [eventFoodMenu, setEventFoodMenu] = useState(null);
+    const [showFoodMenuForm, setShowFoodMenuForm] = useState(false);
+
     // Payment state
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentData, setPaymentData] = useState({ type: 'full', discount: '0', received: '' });
@@ -190,12 +195,23 @@ const EventDetails = () => {
         }
     };
 
+    const fetchFoodMenu = async () => {
+        try {
+            const res = await api.get('/food-menus/');
+            const linked = res.data.find(m => m.event === parseInt(id));
+            setEventFoodMenu(linked || null);
+        } catch (err) {
+            console.error('Failed to fetch food menus:', err);
+        }
+    };
+
     useEffect(() => {
         fetchEvent();
         fetchStaff();
         fetchServices();
         fetchTravelRates();
         fetchEventQuote();
+        fetchFoodMenu();
         // eslint-disable-next-line
     }, [id]);
 
@@ -206,6 +222,7 @@ const EventDetails = () => {
                 setShowPaymentModal(false);
                 setShowRefundModal(false);
                 setShowQuoteForm(false);
+                setShowFoodMenuForm(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -758,6 +775,11 @@ const EventDetails = () => {
 
         return nodes.reverse();
     }, [event, eventQuote]);
+
+    const handleDownloadFoodMenuPdf = (menuId) => {
+        const token = localStorage.getItem('access_token');
+        window.open(`${API_BASE_URL}/food-menus/${menuId}/pdf/?token=${token}`, '_blank');
+    };
 
     if (loading) return <div className="p-4 sm:p-6 md:p-8 text-center text-gray-500">Loading event details...</div>;
     if (!event) return (
@@ -1649,6 +1671,108 @@ const EventDetails = () => {
                             </div>
                         </div>
                     </div>
+                )}
+            </AnimatePresence>
+
+            {/* ── Food Menu Section ──────────────────────────────────────── */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                    <div>
+                        <h2 className="text-lg font-bold text-white flex items-center space-x-2">
+                            <Utensils size={20} className="text-mustard-gold" />
+                            <span>Food Menu</span>
+                        </h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {eventFoodMenu ? `Catering for ${eventFoodMenu.adult_count + eventFoodMenu.kid_count} guests` : 'No food menu added yet'}
+                        </p>
+                    </div>
+                </div>
+
+                {eventFoodMenu && !showFoodMenuForm && (
+                    <div>
+                        <div className="space-y-4 mb-6">
+                            {/* Rates Info */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="bg-white/[0.03] border border-white/5 p-4 rounded-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Adults Count</span>
+                                    <span className="text-lg font-bold text-white">{eventFoodMenu.adult_count}</span>
+                                </div>
+                                <div className="bg-white/[0.03] border border-white/5 p-4 rounded-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Adult Rate</span>
+                                    <span className="text-lg font-bold text-white">€{parseFloat(eventFoodMenu.adult_rate).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                </div>
+                                <div className="bg-white/[0.03] border border-white/5 p-4 rounded-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Kids Count</span>
+                                    <span className="text-lg font-bold text-white">{eventFoodMenu.kid_count}</span>
+                                </div>
+                                <div className="bg-white/[0.03] border border-white/5 p-4 rounded-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Kid Rate</span>
+                                    <span className="text-lg font-bold text-white">€{parseFloat(eventFoodMenu.kid_rate).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                </div>
+                            </div>
+
+                            {/* Menu Items List */}
+                            <div className="bg-white/[0.03] border border-white/5 rounded-xl px-5 py-4">
+                                <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Menu Selection</h4>
+                                {eventFoodMenu.items && eventFoodMenu.items.length > 0 ? (
+                                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                                        {eventFoodMenu.items.map((item, i) => (
+                                            <li key={i}>{item.name}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-gray-500 text-sm italic">No items specified.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-end space-x-6 pt-2 border-t border-white/10 text-sm">
+                            <span className="text-mustard-gold font-semibold">Total Catering Cost:</span>
+                            <span className="text-white font-bold text-lg w-28 text-right">
+                                €{parseFloat(eventFoodMenu.total_cost).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                        </div>
+
+                        {/* Food Menu Actions */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3 mt-6 pt-6 border-t border-white/10 w-full">
+                            <button onClick={() => handleDownloadFoodMenuPdf(eventFoodMenu.id)}
+                                className="flex items-center justify-center space-x-1.5 text-white font-medium bg-emerald-500/20 border border-emerald-500/30 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-emerald-500/30 transition-all text-base md:text-sm">
+                                <Download size={16} />
+                                <span>Download PDF</span>
+                            </button>
+                            {!isLocked && (
+                                <button onClick={() => setShowFoodMenuForm(true)}
+                                    className="flex items-center justify-center space-x-1.5 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/15 transition-all text-base md:text-sm">
+                                    <Pencil size={16} />
+                                    <span>Edit Menu</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {!showFoodMenuForm && !eventFoodMenu && !isLocked && (
+                    <div className="flex justify-end mt-4">
+                        <button type="button" onClick={() => setShowFoodMenuForm(true)}
+                            className="w-full sm:w-auto flex items-center justify-center space-x-2 text-deep-teal font-bold bg-gradient-to-r from-mustard-gold to-yellow-500 px-6 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:shadow-lg hover:shadow-mustard-gold/20 transition-all text-base md:text-sm">
+                            <Plus size={18} />
+                            <span>Create Menu</span>
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            <AnimatePresence>
+                {showFoodMenuForm && (
+                    <FoodMenuForm
+                        event={event}
+                        menu={eventFoodMenu}
+                        onClose={() => setShowFoodMenuForm(false)}
+                        onSuccess={() => {
+                            setShowFoodMenuForm(false);
+                            fetchFoodMenu();
+                        }}
+                    />
                 )}
             </AnimatePresence>
 

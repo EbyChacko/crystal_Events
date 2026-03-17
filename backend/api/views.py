@@ -12,7 +12,8 @@ from .serializers import (
     EventImageSerializer, TeamMemberSerializer, TravelRateSerializer,
     TwoFactorLoginSerializer, CustomTokenObtainPairSerializer
 )
-from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth
+from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem
+from .serializers import FoodMenuSerializer
 
 
 class IsSuperUser(permissions.BasePermission):
@@ -1446,3 +1447,166 @@ class TwoFactorDisableView(generics.GenericAPIView):
             return Response({'message': '2FA disabled successfully.'}, status=status.HTTP_200_OK)
         except TwoFactorAuth.DoesNotExist:
             return Response({'message': '2FA is not currently enabled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+class FoodMenuViewSet(viewsets.ModelViewSet):
+    queryset = FoodMenu.objects.all()
+    serializer_class = FoodMenuSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=True, methods=['get'], url_path='pdf')
+    def pdf(self, request, pk=None):
+        # Allow token via query string so window.open() works
+        from rest_framework_simplejwt.authentication import JWTAuthentication
+        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+        token_str = request.query_params.get('token')
+        if token_str:
+            try:
+                jwt_auth = JWTAuthentication()
+                validated = jwt_auth.get_validated_token(token_str)
+                request.user = jwt_auth.get_user(validated)
+            except (InvalidToken, TokenError):
+                from django.http import HttpResponseForbidden
+                return HttpResponseForbidden('Invalid token')
+
+        import io
+        import os
+        from django.conf import settings
+        from django.http import HttpResponse, HttpResponseForbidden
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib import colors
+        from reportlab.lib.units import mm
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_CENTER
+        from PIL import Image as PilImage
+
+        # Optional Token Auth for direct browser download
+        token_str = request.query_params.get('token')
+        if token_str:
+            from rest_framework_simplejwt.authentication import JWTAuthentication
+            from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+            try:
+                jwt_auth = JWTAuthentication()
+                validated = jwt_auth.get_validated_token(token_str)
+                request.user = jwt_auth.get_user(validated)
+            except (InvalidToken, TokenError):
+                return HttpResponseForbidden('Invalid token')
+
+        if not request.user or not request.user.is_authenticated:
+            return HttpResponseForbidden('Authentication required')
+
+        menu = self.get_object()
+        event = menu.event
+
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4,
+            rightMargin=20*mm, leftMargin=20*mm,
+            topMargin=20*mm, bottomMargin=20*mm
+        )
+        styles = getSampleStyleSheet()
+        elems = []
+
+        title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontName='Helvetica-Bold', fontSize=24, textColor=colors.HexColor('#012d2d'), alignment=0, spaceAfter=8)
+        subtitle_style = ParagraphStyle('Sub', parent=styles['Normal'], fontName='Helvetica', fontSize=10, textColor=colors.HexColor('#666666'), alignment=0, spaceAfter=4)
+        heading_style = ParagraphStyle('Head', parent=styles['Heading2'], fontName='Helvetica-Bold', fontSize=14, textColor=colors.HexColor('#012d2d'), spaceAfter=10, spaceBefore=20)
+
+        # Header
+        base_dir = settings.BASE_DIR
+        logo_path = os.path.join(base_dir.parent, 'frontend', 'src', 'assets', 'images', 'logo.png')
+        colored_logo_buffer = None
+        if os.path.exists(logo_path):
+            try:
+                img = PilImage.open(logo_path).convert('RGBA')
+                alpha = img.split()[-1]
+                solid_color = PilImage.new('RGBA', img.size, (1, 45, 45, 255))
+                colored_logo = PilImage.composite(solid_color, PilImage.new('RGBA', img.size, (255, 255, 255, 0)), alpha)
+                colored_logo_buffer = io.BytesIO()
+                colored_logo.save(colored_logo_buffer, format='PNG')
+                colored_logo_buffer.seek(0)
+            except Exception as e:
+                pass
+
+        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="24">EVENTS</font>'
+        if colored_logo_buffer:
+            colored_logo_buffer.seek(0)
+            logo = Image(colored_logo_buffer, width=25*mm, height=25*mm)
+            header_table = Table([[logo, [Paragraph(brand_title, title_style), Spacer(1, 4), Paragraph('Ballinasloe, Galway, Ireland | Redhill, London, UK', subtitle_style), Paragraph('info@crystaleventsie.com', subtitle_style)]]], colWidths=[35*mm, 150*mm])
+            header_table.setStyle(TableStyle([('ALIGN', (0, 0), (-1, -1), 'LEFT'), ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'), ('BOTTOMPADDING', (0, 0), (-1, -1), 10)]))
+            elems.append(header_table)
+        else:
+            elems.append(Paragraph(brand_title, title_style))
+
+        elems.append(HRFlowable(width='100%', thickness=1, color=colors.HexColor('#EEC059'), spaceAfter=20, spaceBefore=5))
+
+        # Title
+        elems.append(Paragraph('Catering & Food Menu', ParagraphStyle('ReportTitle', parent=styles['Heading1'], fontName='Helvetica-Bold', fontSize=18, textColor=colors.HexColor('#012d2d'), alignment=TA_CENTER, spaceAfter=20)))
+
+        # Event details
+        ev_data = [
+            ['Event:', event.event_name or '—', 'Date:', event.event_date.strftime('%d %B %Y') if event.event_date else '—'],
+            ['Client:', event.client_name or '—', 'Venue:', event.venue or '—']
+        ]
+        ev_table = Table(ev_data, colWidths=[30*mm, 70*mm, 30*mm, 50*mm])
+        ev_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#333333')),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6)
+        ]))
+        elems.append(ev_table)
+        elems.append(Spacer(1, 15))
+
+        # Items
+        elems.append(Paragraph('Menu Selection', heading_style))
+        item_data = [['Item Name']]
+        for item in menu.items.all():
+            item_data.append([item.name])
+        
+        if len(item_data) == 1:
+            item_data.append(['No items specified.'])
+
+        item_table = Table(item_data, colWidths=[180*mm])
+        item_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#012d2d')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f9f9f9')),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#dddddd')),
+        ]))
+        elems.append(item_table)
+        elems.append(Spacer(1, 20))
+
+        # Rates
+        elems.append(Paragraph('Catering Breakdown', heading_style))
+        rate_data = [
+            ['Category', 'Count', 'Rate', 'Total'],
+            ['Adults', str(menu.adult_count), f'€{menu.adult_rate:,.2f}', f'€{(menu.adult_count * menu.adult_rate):,.2f}'],
+            ['Kids', str(menu.kid_count), f'€{menu.kid_rate:,.2f}', f'€{(menu.kid_count * menu.kid_rate):,.2f}'],
+            ['', '', 'Total Cost:', f'€{menu.total_cost:,.2f}']
+        ]
+
+        rate_table = Table(rate_data, colWidths=[60*mm, 30*mm, 40*mm, 50*mm])
+        rate_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#012d2d')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (3, 0), (3, -1), 'RIGHT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (2, -1), (3, -1), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            ('GRID', (0, 0), (-1, -2), 0.5, colors.HexColor('#dddddd')),
+            ('LINEABOVE', (2, -1), (3, -1), 1.5, colors.HexColor('#012d2d')),
+        ]))
+        elems.append(rate_table)
+
+        doc.build(elems)
+
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        filename = f"FoodMenu_{event.event_name.replace(' ', '_')}.pdf"
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response

@@ -4,7 +4,8 @@ from .views import (
     ServiceViewSet, EventViewSet, ExpenseViewSet, IncomeViewSet, QuoteViewSet, MessageViewSet,
     CurrentUserView, UserListView, CreateUserView, UpdateProfileView, AdminUserDetailView,
     EventImageViewSet, TeamMemberViewSet, TravelRateViewSet,
-    TwoFactorLoginView, TwoFactorSetupView, TwoFactorVerifySetupView, TwoFactorDisableView
+    TwoFactorLoginView, TwoFactorSetupView, TwoFactorVerifySetupView, TwoFactorDisableView,
+    FoodMenuViewSet
 )
 
 router = DefaultRouter()
@@ -17,6 +18,7 @@ router.register(r'messages', MessageViewSet)
 router.register(r'event-images', EventImageViewSet)
 router.register(r'team-members', TeamMemberViewSet)
 router.register(r'travel_rates', TravelRateViewSet)
+router.register(r'food-menus', FoodMenuViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
