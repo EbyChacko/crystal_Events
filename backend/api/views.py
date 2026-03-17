@@ -1451,7 +1451,10 @@ class TwoFactorDisableView(generics.GenericAPIView):
 class FoodMenuViewSet(viewsets.ModelViewSet):
     queryset = FoodMenu.objects.all()
     serializer_class = FoodMenuSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    def get_permissions(self):
+        if self.action == 'pdf':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     @action(detail=True, methods=['get'], url_path='pdf')
     def pdf(self, request, pk=None):
