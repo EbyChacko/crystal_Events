@@ -1,69 +1,27 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-    Gem,
-    Star,
-    BadgeCheck,
-    Calendar,
-    Flower,
-    UtensilsCrossed,
-    Video,
-    Music,
-    Sliders,
-    ArrowRight
-} from 'lucide-react';
+import { Star, BadgeCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import api from '../utils/api';
 
 const Services = () => {
-    // Scroll to top on mount
+    const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         window.scrollTo(0, 0);
+        const fetchServices = async () => {
+            try {
+                const res = await api.get('/services/');
+                setServices(res.data);
+            } catch (err) {
+                console.error("Failed to fetch services", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchServices();
     }, []);
-
-    const services = [
-        {
-            title: "Event Planning",
-            description: "Full-service coordination for stress-free luxury. We manage every logistical nuance from inception to final applause.",
-            icon: <Calendar className="w-8 h-8 md:w-10 md:h-10 text-mustard-gold" strokeWidth={1.5} />,
-            image: "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162028/crystal%20events/event_sjzxpf.webp",
-            alt: "Professional event planner working on high-end wedding schedule"
-        },
-        {
-            title: "Stage Decoration",
-            description: "Bespoke floral and structural designs tailored to your vision. Transforming spaces into breathtaking sanctuaries.",
-            icon: <Flower className="w-8 h-8 md:w-10 md:h-10 text-mustard-gold" strokeWidth={1.5} />,
-            image: "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162030/crystal%20events/stage_djg9z4.webp",
-            alt: "Stunning floral stage decoration with gold accents"
-        },
-        {
-            title: "Catering",
-            description: "Gourmet international cuisine and custom menus. A culinary journey crafted by world-class chefs for your guests.",
-            icon: <UtensilsCrossed className="w-8 h-8 md:w-10 md:h-10 text-mustard-gold" strokeWidth={1.5} />,
-            image: "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162028/crystal%20events/catering_vax2fc.webp",
-            alt: "Exquisite gourmet dishes served on high-end dinner plates"
-        },
-        {
-            title: "Photo & Video",
-            description: "Professional cinematography and capturing timeless moments. Cinematic storytelling that preserves every emotion.",
-            icon: <Video className="w-8 h-8 md:w-10 md:h-10 text-mustard-gold" strokeWidth={1.5} />,
-            image: "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162027/crystal%20events/photo_video_s6meeo.webp",
-            alt: "Professional cinema camera setup at a luxury event"
-        },
-        {
-            title: "Live Music & Entertainment",
-            description: "Top-tier performers and curated talent for your event. From jazz quartets to international headline acts.",
-            icon: <Music className="w-8 h-8 md:w-10 md:h-10 text-mustard-gold" strokeWidth={1.5} />,
-            image: "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162028/crystal%20events/live_music_zfhczb.webp",
-            alt: "Live band performance with stage lighting"
-        },
-        {
-            title: "Technical Production",
-            description: "Professional Light & Audio setup for immersive environments. Cutting-edge tech that ensures flawless execution.",
-            icon: <Sliders className="w-8 h-8 md:w-10 md:h-10 text-mustard-gold" strokeWidth={1.5} />,
-            image: "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162029/crystal%20events/light_and_sound_i0xdew.webp",
-            alt: "Complex audio and lighting control board for a large production"
-        }
-    ];
 
     return (
         <div className="flex flex-col min-h-screen bg-off-white dark:bg-background-dark font-sans text-slate-800 dark:text-slate-100">
@@ -125,9 +83,13 @@ const Services = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {services.map((service, index) => (
+                        {loading ? (
+                            <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-slate-400 py-12">Loading services...</div>
+                        ) : services.length === 0 ? (
+                            <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-slate-400 py-12">No services available at the moment.</div>
+                        ) : services.map((service, index) => (
                             <motion.div
-                                key={index}
+                                key={service.id}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -136,24 +98,15 @@ const Services = () => {
                             >
                                 <div className="h-64 overflow-hidden relative">
                                     <img
-                                        src={service.image}
-                                        alt={service.alt}
+                                        src={service.image || "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162028/crystal%20events/event_sjzxpf.webp"}
+                                        alt={service.name}
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-deep-teal to-transparent opacity-80"></div>
-                                    <div className="absolute bottom-4 left-4">
-                                        {service.icon}
-                                    </div>
                                 </div>
                                 <div className="p-6 md:p-8">
-                                    <h3 className="text-white text-xl font-bold mb-3 group-hover:text-mustard-gold transition-colors">{service.title}</h3>
-                                    <p className="text-slate-400 text-sm leading-relaxed mb-6">{service.description}</p>
-                                    <Link
-                                        to="#"
-                                        className="inline-flex items-center text-mustard-gold text-xs font-bold uppercase tracking-widest group/link"
-                                    >
-                                        Explore Service <ArrowRight className="ml-2 w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                                    </Link>
+                                    <h3 className="text-white text-xl font-bold mb-3 group-hover:text-mustard-gold transition-colors">{service.name}</h3>
+                                    <p className="text-slate-400 text-sm leading-relaxed">{service.description}</p>
                                 </div>
                             </motion.div>
                         ))}

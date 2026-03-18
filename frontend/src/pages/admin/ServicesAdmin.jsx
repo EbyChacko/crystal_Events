@@ -33,7 +33,7 @@ const ServicesAdmin = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [showForm]);
 
-    const initialFormData = { name: '', description: '', base_price: '' };
+    const initialFormData = { name: '', description: '', base_price: '', image: null };
     const [formData, setFormData] = useState(initialFormData);
 
     const fetchServices = async () => {
@@ -52,7 +52,11 @@ const ServicesAdmin = () => {
     }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (e.target.type === 'file') {
+            setFormData({ ...formData, [e.target.name]: e.target.files[0] });
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        }
     };
 
     const handleEdit = (service) => {
@@ -60,6 +64,7 @@ const ServicesAdmin = () => {
             name: service.name,
             description: service.description,
             base_price: service.base_price,
+            image: null,
         });
         setEditingId(service.id);
         setShowForm(true);
@@ -69,12 +74,24 @@ const ServicesAdmin = () => {
         e.preventDefault();
         setSubmitting(true);
 
+        const uploadData = new FormData();
+        uploadData.append('name', formData.name);
+        uploadData.append('description', formData.description);
+        uploadData.append('base_price', formData.base_price);
+        if (formData.image) {
+            uploadData.append('image', formData.image);
+        }
+
         try {
             if (editingId) {
-                await api.patch(`/services/${editingId}/`, formData);
+                await api.patch(`/services/${editingId}/`, uploadData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
                 addToast('Service updated successfully!', 'success');
             } else {
-                await api.post('/services/', formData);
+                await api.post('/services/', uploadData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
                 addToast('Service created successfully!', 'success');
             }
             setFormData(initialFormData);
@@ -176,6 +193,12 @@ const ServicesAdmin = () => {
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Description *</label>
                                         <textarea name="description" value={formData.description} onChange={handleChange}
                                             rows="3" className={inputClass} placeholder="Describe the service offering..." required />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Service Image</label>
+                                        <input type="file" name="image" accept="image/*" onChange={handleChange}
+                                            className={`${inputClass} !py-2`} />
+                                        <p className="text-xs text-gray-500 mt-2">Optional. Replaces existing image if provided.</p>
                                     </div>
                                 </div>
                                 <button type="submit" disabled={submitting}
