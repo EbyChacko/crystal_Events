@@ -6,6 +6,7 @@ class Service(models.Model):
     description = models.TextField()
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='services/', null=True, blank=True)
+    image_url = models.URLField(max_length=1000, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -105,6 +106,7 @@ class Expense(models.Model):
     category = models.CharField(max_length=100) # e.g. Decor, Catering
     approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     receipt_image = models.ImageField(upload_to='expenses/', blank=True, null=True)
+    receipt_image_url = models.URLField(max_length=1000, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     # Asset Tracking Fields
@@ -123,6 +125,7 @@ class Income(models.Model):
     category = models.CharField(max_length=100) # e.g. Investment, Sales, Other
     added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     receipt_image = models.ImageField(upload_to='incomes/', blank=True, null=True)
+    receipt_image_url = models.URLField(max_length=1000, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

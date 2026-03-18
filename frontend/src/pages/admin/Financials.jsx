@@ -74,9 +74,10 @@ const Financials = () => {
     }, [formMode]);
 
     const initialFormData = {
-        date: '', amount: '', reason: '', category: '', payer_name: '', receipt_image: null, is_asset: false
+        date: '', amount: '', reason: '', category: '', payer_name: '', receipt_image: null, receipt_image_url: '', is_asset: false
     };
     const [formData, setFormData] = useState(initialFormData);
+    const [receiptMode, setReceiptMode] = useState('file'); // 'file' | 'url'
 
     const fetchData = async () => {
         setLoading(true);
@@ -196,8 +197,10 @@ const Financials = () => {
             payer_name: transaction.payer_name || '',
             category: transaction.category,
             receipt_image: null,
+            receipt_image_url: transaction.receipt_image_url || '',
             is_asset: (transaction.is_asset && transaction.is_active_asset) || false
         });
+        setReceiptMode(transaction.receipt_image_url ? 'url' : 'file');
         setEditingId(transaction.originalId);
         setFormMode(transaction.type);
     };
@@ -219,8 +222,12 @@ const Financials = () => {
                 data.append('is_asset', formData.is_asset ? 'True' : 'False');
                 data.append('is_active_asset', formData.is_asset ? 'True' : 'False');
             }
-            if (formData.receipt_image) {
+            if (receiptMode === 'url') {
+                data.append('receipt_image_url', formData.receipt_image_url);
+                data.append('receipt_image', '');
+            } else if (formData.receipt_image) {
                 data.append('receipt_image', formData.receipt_image);
+                data.append('receipt_image_url', '');
             }
 
             const endpoint = formMode === 'expense' ? '/expenses/' : '/incomes/';
@@ -557,14 +564,32 @@ const Financials = () => {
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Receipt Image</label>
-                                        <div className="relative border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-mustard-gold/30 transition-colors cursor-pointer">
-                                            <input type="file" name="receipt_image" onChange={handleChange}
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf" />
-                                            <div className="flex flex-col items-center justify-center text-gray-500">
-                                                <Upload size={20} className="mb-1" />
-                                                <span className="text-xs">{formData.receipt_image ? formData.receipt_image.name : 'Click to upload'}</span>
-                                            </div>
+                                        {/* Toggle */}
+                                        <div className="flex rounded-xl overflow-hidden border border-white/10 mb-3 w-fit">
+                                            <button type="button"
+                                                onClick={() => setReceiptMode('file')}
+                                                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${receiptMode === 'file' ? 'bg-mustard-gold text-deep-teal' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                                Upload File
+                                            </button>
+                                            <button type="button"
+                                                onClick={() => setReceiptMode('url')}
+                                                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${receiptMode === 'url' ? 'bg-mustard-gold text-deep-teal' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                                Paste URL
+                                            </button>
                                         </div>
+                                        {receiptMode === 'file' ? (
+                                            <div className="relative border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-mustard-gold/30 transition-colors cursor-pointer">
+                                                <input type="file" name="receipt_image" onChange={handleChange}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf" />
+                                                <div className="flex flex-col items-center justify-center text-gray-500">
+                                                    <Upload size={20} className="mb-1" />
+                                                    <span className="text-xs">{formData.receipt_image ? formData.receipt_image.name : 'Click to upload'}</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <input type="url" name="receipt_image_url" value={formData.receipt_image_url} onChange={handleChange}
+                                                className={inputClass} placeholder="https://example.com/receipt.jpg" />
+                                        )}
                                     </div>
                                 </div>
                                 <button type="submit" disabled={submitting}

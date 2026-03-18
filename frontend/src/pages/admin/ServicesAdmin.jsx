@@ -33,8 +33,9 @@ const ServicesAdmin = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [showForm]);
 
-    const initialFormData = { name: '', description: '', base_price: '', image: null };
+    const initialFormData = { name: '', description: '', base_price: '', image: null, image_url: '' };
     const [formData, setFormData] = useState(initialFormData);
+    const [imageMode, setImageMode] = useState('file'); // 'file' | 'url'
 
     const fetchServices = async () => {
         try {
@@ -65,7 +66,10 @@ const ServicesAdmin = () => {
             description: service.description,
             base_price: service.base_price,
             image: null,
+            image_url: service.image_url || '',
         });
+        // Pre-select URL mode if there's a URL
+        setImageMode(service.image_url ? 'url' : 'file');
         setEditingId(service.id);
         setShowForm(true);
     };
@@ -78,8 +82,13 @@ const ServicesAdmin = () => {
         uploadData.append('name', formData.name);
         uploadData.append('description', formData.description);
         uploadData.append('base_price', formData.base_price);
-        if (formData.image) {
+        if (imageMode === 'url') {
+            uploadData.append('image_url', formData.image_url);
+            // Clear out previous file if switching to URL mode
+            uploadData.append('image', '');
+        } else if (formData.image) {
             uploadData.append('image', formData.image);
+            uploadData.append('image_url', '');
         }
 
         try {
@@ -196,9 +205,29 @@ const ServicesAdmin = () => {
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Service Image</label>
-                                        <input type="file" name="image" accept="image/*" onChange={handleChange}
-                                            className={`${inputClass} !py-2`} />
-                                        <p className="text-xs text-gray-500 mt-2">Optional. Replaces existing image if provided.</p>
+                                        {/* Toggle */}
+                                        <div className="flex rounded-xl overflow-hidden border border-white/10 mb-3 w-fit">
+                                            <button type="button"
+                                                onClick={() => setImageMode('file')}
+                                                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${imageMode === 'file' ? 'bg-mustard-gold text-deep-teal' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                                Upload File
+                                            </button>
+                                            <button type="button"
+                                                onClick={() => setImageMode('url')}
+                                                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${imageMode === 'url' ? 'bg-mustard-gold text-deep-teal' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                                Paste URL
+                                            </button>
+                                        </div>
+                                        {imageMode === 'file' ? (
+                                            <>
+                                                <input type="file" name="image" accept="image/*" onChange={handleChange}
+                                                    className={`${inputClass} !py-2`} />
+                                                <p className="text-xs text-gray-500 mt-2">Optional. Replaces existing image if provided.</p>
+                                            </>
+                                        ) : (
+                                            <input type="url" name="image_url" value={formData.image_url} onChange={handleChange}
+                                                className={inputClass} placeholder="https://example.com/image.jpg" />
+                                        )}
                                     </div>
                                 </div>
                                 <button type="submit" disabled={submitting}
