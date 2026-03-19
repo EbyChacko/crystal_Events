@@ -97,9 +97,21 @@ class EventViewSet(viewsets.ModelViewSet):
             'timestamp': event.created_at.isoformat(),
             'action': 'created',
             'user': self._user_display(user),
-            'snapshot': self._build_snapshot(event),
-        }]
         event.save(update_fields=['audit_log'])
+
+        # Send Booking Confirmation if created as confirmed
+        if event.status == 'confirmed' and event.client_email:
+            try:
+                from django.core.mail import send_mail
+                send_mail(
+                    subject="Booking Confirmation",
+                    message="Thank you for booking with Crystal Events!",
+                    from_email=None,
+                    recipient_list=[event.client_email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print(f"Error sending booking confirmation: {e}")
 
     def perform_update(self, serializer):
         user = self.request.user
