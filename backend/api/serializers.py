@@ -114,7 +114,7 @@ class MessageSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['profile_picture', 'phone', 'address', 'designation', 'can_view_financials']
+        fields = ['profile_picture', 'phone', 'address', 'designation', 'can_view_financials', 'email_notifications']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -123,6 +123,7 @@ class UserSerializer(serializers.ModelSerializer):
     address = serializers.CharField(source='profile.address', read_only=True)
     designation = serializers.CharField(source='profile.designation', read_only=True)
     can_view_financials = serializers.BooleanField(source='profile.can_view_financials', read_only=True)
+    email_notifications = serializers.BooleanField(source='profile.email_notifications', read_only=True)
     two_factor_enabled = serializers.SerializerMethodField()
 
     class Meta:
@@ -130,7 +131,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
             'is_staff', 'is_superuser', 'is_active', 'date_joined',
-            'profile_picture', 'phone', 'address', 'designation', 'can_view_financials', 'two_factor_enabled'
+            'profile_picture', 'phone', 'address', 'designation', 'can_view_financials', 'email_notifications', 'two_factor_enabled'
         ]
         read_only_fields = fields
 
@@ -218,12 +219,13 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(source='profile.phone', required=False, allow_blank=True)
     address = serializers.CharField(source='profile.address', required=False, allow_blank=True)
     designation = serializers.CharField(source='profile.designation', required=False, allow_blank=True)
+    email_notifications = serializers.BooleanField(source='profile.email_notifications', required=False)
     password = serializers.CharField(write_only=True, required=False, min_length=8)
     old_password = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'password', 'old_password', 'profile_picture', 'phone', 'address', 'designation']
+        fields = ['first_name', 'last_name', 'username', 'password', 'old_password', 'profile_picture', 'phone', 'address', 'designation', 'email_notifications']
 
     def validate(self, attrs):
         """If a new password is being set, old_password must be provided and correct."""
@@ -261,6 +263,8 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             profile.address = profile_data['address']
         if 'designation' in profile_data:
             profile.designation = profile_data['designation']
+        if 'email_notifications' in profile_data:
+            profile.email_notifications = profile_data['email_notifications']
         profile.save()
 
         return instance

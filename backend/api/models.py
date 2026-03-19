@@ -235,6 +235,7 @@ class UserProfile(models.Model):
     address = models.TextField(blank=True, default='')
     designation = models.CharField(max_length=100, blank=True, default='')
     can_view_financials = models.BooleanField(default=False)
+    email_notifications = models.BooleanField(default=True, help_text="Receive email when a new contact message is received")
 
     def __str__(self):
         return f"Profile of {self.user.username}"

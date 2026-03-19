@@ -61,8 +61,21 @@ const Settings = () => {
     const [confirmDisable2FA, setConfirmDisable2FA] = useState(false);
 
     useEffect(() => {
-        if (user && user.two_factor_enabled !== undefined) {
-            setTwoFactorEnabled(user.two_factor_enabled);
+        if (user) {
+            if (user.two_factor_enabled !== undefined) {
+                setTwoFactorEnabled(user.two_factor_enabled);
+            }
+            // Sync backend notification preference to state
+            if (user.email_notifications !== undefined) {
+                setSettings(prev => ({
+                    ...prev,
+                    newMessageNotification: user.email_notifications
+                }));
+                setInitialSettings(prev => ({
+                    ...prev,
+                    newMessageNotification: user.email_notifications
+                }));
+            }
         }
     }, [user]);
 
@@ -109,13 +122,28 @@ const Settings = () => {
 
     const handleSave = async () => {
         setSaving(true);
-        // Simulate a small delay
-        await new Promise(r => setTimeout(r, 500));
-        localStorage.setItem('crystal_events_settings', JSON.stringify(settings));
-        setInitialSettings(settings);
-        setHasChanges(false);
-        addToast('Settings saved successfully!', 'success');
-        setSaving(false);
+        try {
+            // 1. Save local preferences
+            localStorage.setItem('crystal_events_settings', JSON.stringify(settings));
+            
+            // 2. Persist email notification preference to backend
+            await api.patch('/auth/profile/', {
+                email_notifications: settings.newMessageNotification
+            });
+            
+            // 3. Update local state
+            setInitialSettings(settings);
+            setHasChanges(false);
+            addToast('Settings saved successfully!', 'success');
+            
+            // 4. Refresh user context
+            fetchUser();
+        } catch (err) {
+            console.error('Failed to save settings:', err);
+            addToast('Failed to save some settings to the server.', 'error');
+        } finally {
+            setSaving(false);
+        }
     };
 
     // ── Two-Factor Authentication Handlers ────────────────────────

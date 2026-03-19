@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ const Contact = () => {
         // Fetch services for dropdown
         const fetchServices = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/services/');
+                const response = await api.get('/services/');
                 setServices(response.data);
             } catch (error) {
                 console.error('Error fetching services:', error);
@@ -38,7 +38,7 @@ const Contact = () => {
         setErrorMessage('');
 
         try {
-            await axios.post('http://127.0.0.1:8000/api/messages/', formData);
+            await api.post('/messages/', formData);
             setStatus('success');
             setFormData({ name: '', email: '', phone: '', service: '', message: '' });
         } catch (error) {
