@@ -466,12 +466,35 @@ const Messages = () => {
                                 )}
 
                                 {/* Already Replied */}
-                                {selectedMessage.status === 'replied' ? (
-                                    <div className="text-emerald-400 flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-xl">
-                                        <CheckCircle size={20} />
-                                        <span className="font-medium">Reply sent</span>
+                                {selectedMessage.status === 'replied' && (
+                                    <div className="space-y-4 pt-4 border-t border-white/10">
+                                        <h4 className="text-lg font-bold text-white flex items-center space-x-2">
+                                            <Mail size={18} className="text-mustard-gold" />
+                                            <span>Our Reply</span>
+                                        </h4>
+                                        <div className="bg-emerald-500/5 border border-emerald-500/20 p-5 rounded-xl">
+                                            <p className="text-[10px] text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                <CheckCircle size={12} />
+                                                SENT {selectedMessage.replied_at ? `ON ${format(new Date(selectedMessage.replied_at), 'PPpp')}` : ''}
+                                            </p>
+                                            <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">{selectedMessage.reply_text}</p>
+                                        </div>
+                                        <div className="flex justify-end">
+                                            <button 
+                                                onClick={() => {
+                                                    // Allow re-replying by temporarily changing local state
+                                                    setSelectedMessage(prev => ({...prev, status: 'read'}));
+                                                    setReplyContent(selectedMessage.reply_text);
+                                                }}
+                                                className="text-sm text-gray-500 hover:text-white transition-colors flex items-center gap-1"
+                                            >
+                                                <Reply size={14} /> Send another reply
+                                            </button>
+                                        </div>
                                     </div>
-                                ) : (
+                                )}
+
+                                {selectedMessage.status !== 'replied' && (
                                     <form onSubmit={handleReply} className="space-y-4 pt-4 border-t border-white/10">
                                         <h4 className="text-lg font-bold text-white flex items-center space-x-2">
                                             <Mail size={18} className="text-mustard-gold" />

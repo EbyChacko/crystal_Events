@@ -106,7 +106,8 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = '__all__'
+        fields = ['id', 'name', 'email', 'phone', 'message', 'service', 'service_name', 'status', 'reply_text', 'replied_at', 'created_at']
+        read_only_fields = ['created_at', 'replied_at']
 
 
 # ── User & Profile Serializers ─────────────────────────────────────

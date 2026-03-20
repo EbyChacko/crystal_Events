@@ -220,8 +220,10 @@ class Message(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True, default='')
     message = models.TextField()
+    reply_text = models.TextField(blank=True, default='')
     service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unread')
+    replied_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

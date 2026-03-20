@@ -107,9 +107,9 @@ class EventViewSet(viewsets.ModelViewSet):
                 send_mail(
                     subject="Booking Confirmation",
                     message="Thank you for booking with Crystal Events!",
-                    from_email=None,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[event.client_email],
-                    fail_silently=True,
+                    fail_silently=False,
                 )
             except Exception as e:
                 print(f"Error sending booking confirmation: {e}")
@@ -1298,6 +1298,7 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Reply content is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            from django.utils import timezone
             send_mail(
                 f'Re: Your message to Crystal Events',
                 reply_content,
@@ -1306,6 +1307,8 @@ class MessageViewSet(viewsets.ModelViewSet):
                 fail_silently=False,
             )
             message.status = 'replied'
+            message.reply_text = reply_content
+            message.replied_at = timezone.now()
             message.save()
             return Response({'status': 'Reply sent'})
         except Exception as e:
