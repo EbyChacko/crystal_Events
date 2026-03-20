@@ -94,17 +94,13 @@ DATABASES = {
 }
 
 # CORS Configuration
-cors_env = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173')
+cors_env = os.environ.get('CORS_ALLOWED_ORIGINS', '*')
 if cors_env.strip() == '*':
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOWED_ORIGINS = []
 else:
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_env.split(',') if origin.strip()]
     CORS_ALLOW_ALL_ORIGINS = False
-
-# Provide fallback for local dev if not explicitly set
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Password validation

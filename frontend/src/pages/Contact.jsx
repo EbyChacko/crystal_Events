@@ -38,7 +38,11 @@ const Contact = () => {
         setErrorMessage('');
 
         try {
-            await api.post('/messages/', formData);
+            const payload = {
+                ...formData,
+                service: formData.service || null,
+            };
+            await api.post('/messages/', payload);
             setStatus('success');
             setFormData({ name: '', email: '', phone: '', service: '', message: '' });
         } catch (error) {
