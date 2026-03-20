@@ -1252,7 +1252,7 @@ class MessageViewSet(viewsets.ModelViewSet):
                 customer_body,
                 settings.DEFAULT_FROM_EMAIL,
                 [message.email],
-                fail_silently=True,
+                fail_silently=False,
             )
         except Exception as e:
             print(f"Error sending customer confirmation: {e}")
@@ -1284,7 +1284,7 @@ class MessageViewSet(viewsets.ModelViewSet):
                 staff_body,
                 settings.DEFAULT_FROM_EMAIL,
                 recipients,
-                fail_silently=True,
+                fail_silently=False,
             )
         except Exception as e:
             print(f"Error sending staff notifications: {e}")
