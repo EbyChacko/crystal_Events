@@ -13,7 +13,7 @@ from .serializers import (
     EventImageSerializer, TeamMemberSerializer, TravelRateSerializer,
     TwoFactorLoginSerializer, CustomTokenObtainPairSerializer
 )
-from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem
+from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem, UserProfile
 from .serializers import FoodMenuSerializer
 
 
@@ -1250,13 +1250,19 @@ class MessageViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
+        import traceback
         message = serializer.save()
-        
+
         # 1. Send confirmation to Customer
         try:
             customer_subject = 'We received your message - Crystal Events'
-            customer_body = f"Hi {message.name},\n\nThank you for reaching out to Crystal Events! We have received your message regarding '{message.service.name if message.service else 'General Inquiry'}' and will get back to you as soon as possible.\n\nYour message:\n{message.message}\n\nBest regards,\nThe Crystal Events Team"
-            
+            customer_body = (
+                f"Hi {message.name},\n\n"
+                f"Thank you for reaching out to Crystal Events! We have received your message regarding "
+                f"'{message.service.name if message.service else 'General Inquiry'}' and will get back to you as soon as possible.\n\n"
+                f"Your message:\n{message.message}\n\n"
+                f"Best regards,\nThe Crystal Events Team"
+            )
             send_mail(
                 customer_subject,
                 customer_body,
@@ -1264,26 +1270,24 @@ class MessageViewSet(viewsets.ModelViewSet):
                 [message.email],
                 fail_silently=False,
             )
+            print(f"[EMAIL] Customer confirmation sent to {message.email}")
         except Exception as e:
-            print(f"Error sending customer confirmation: {e}")
+            print(f"[EMAIL ERROR] Customer confirmation failed for {message.email}: {e}")
+            traceback.print_exc()
 
-        # 2. Notify info@crystaleventsie.com and Staff members
+        # 2. Notify info@crystaleventsie.com and staff members
         try:
-            staff_subject = f'New Website Message: {message.name}'
+            staff_subject = f'New Website Message from {message.name}'
             staff_body = (
                 f"You have received a new message from the website contact form.\n\n"
                 f"Name: {message.name}\n"
                 f"Email: {message.email}\n"
                 f"Phone: {message.phone}\n"
                 f"Service: {message.service.name if message.service else 'N/A'}\n\n"
-                f"Message:\n{message.message}\n\n"
-                f"View in Admin: {settings.CORS_ALLOWED_ORIGINS[0] if settings.CORS_ALLOWED_ORIGINS else ''}/admin/messages"
+                f"Message:\n{message.message}"
             )
 
-            # Collect recipients: always include info@ and then add staff who enabled notifications
             recipients = [settings.NOTIFY_EMAIL]
-            
-            # Fan-out to staff
             staff_profiles = UserProfile.objects.filter(email_notifications=True, user__is_active=True)
             for profile in staff_profiles:
                 if profile.user.email and profile.user.email not in recipients:
@@ -1296,8 +1300,10 @@ class MessageViewSet(viewsets.ModelViewSet):
                 recipients,
                 fail_silently=False,
             )
+            print(f"[EMAIL] Staff notification sent to {recipients}")
         except Exception as e:
-            print(f"Error sending staff notifications: {e}")
+            print(f"[EMAIL ERROR] Staff notification failed: {e}")
+            traceback.print_exc()
 
     @action(detail=True, methods=['post'])
     def reply(self, request, pk=None):
