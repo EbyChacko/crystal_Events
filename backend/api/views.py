@@ -97,6 +97,7 @@ class EventViewSet(viewsets.ModelViewSet):
             'timestamp': event.created_at.isoformat(),
             'action': 'created',
             'user': self._user_display(user),
+        }]
         event.save(update_fields=['audit_log'])
 
         # Send Booking Confirmation if created as confirmed
