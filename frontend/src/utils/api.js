@@ -7,6 +7,7 @@ export const AUTH_BASE_URL = isProd ? 'https://crystal-events-backend.onrender.c
 
 const api = axios.create({
     baseURL: API_BASE_URL,
+    timeout: 60000, // 60s — covers Render free tier cold-start time
 });
 
 // Attach JWT access token to every request

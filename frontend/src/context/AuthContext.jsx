@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import api, { AUTH_BASE_URL } from '../utils/api';
+import api from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -22,10 +21,15 @@ export const AuthProvider = ({ children }) => {
             const res = await api.get('/auth/me/');
             setUser(res.data);
         } catch (err) {
-            // Token is invalid or expired (and refresh failed)
-            setUser(null);
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
+            if (err.code === 'ECONNABORTED' || err.message?.toLowerCase().includes('timeout')) {
+                // Backend is cold-starting — token may still be valid, don't destroy it
+                setUser(null);
+            } else {
+                // Genuine auth failure — clear tokens
+                setUser(null);
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+            }
         } finally {
             setLoading(false);
         }
@@ -36,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     }, [fetchUser]);
 
     const login = async (username, password) => {
-        const res = await axios.post(`${AUTH_BASE_URL}/login/`, {
+        const res = await api.post('/auth/login/', {
             username,
             password,
         });
@@ -60,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const verifyLogin2FA = async (userId, otp) => {
-        const res = await axios.post(`${AUTH_BASE_URL}/2fa/login/`, {
+        const res = await api.post('/auth/2fa/login/', {
             user_id: userId,
             otp: otp
         });

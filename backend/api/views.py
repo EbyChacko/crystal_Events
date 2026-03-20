@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.views import APIView
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -14,6 +15,15 @@ from .serializers import (
 )
 from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem
 from .serializers import FoodMenuSerializer
+
+
+class HealthCheckView(APIView):
+    """Lightweight wake-up endpoint. No auth, no DB query."""
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        return Response({"status": "ok"})
 
 
 class IsSuperUser(permissions.BasePermission):
