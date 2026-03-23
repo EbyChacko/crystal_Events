@@ -1250,11 +1250,13 @@ class MessageViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
-        import traceback
+        print(f"DEBUG: Receiving new message form submission...")
         message = serializer.save()
-
+        print(f"DEBUG: Message saved to DB with ID: {message.id}")
+        
         # 1. Send confirmation to Customer
         try:
+            print(f"DEBUG: Attempting to send customer confirmation to {message.email}...")
             customer_subject = 'We received your message - Crystal Events'
             customer_body = (
                 f"Hi {message.name},\n\n"
