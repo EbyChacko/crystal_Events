@@ -1279,6 +1279,17 @@ class MessageViewSet(viewsets.ModelViewSet):
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            print(f"[ERROR] Message create failed: {type(e).__name__}: {e}")
+            traceback.print_exc()
+            return Response({'error': f"{type(e).__name__}: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def perform_create(self, serializer):
         print(f"DEBUG: Receiving new message form submission...")
         message = serializer.save()
