@@ -27,6 +27,35 @@ class HealthCheckView(APIView):
         return Response({"status": "ok"})
 
 
+class EmailTestView(APIView):
+    """Superuser-only endpoint to diagnose email configuration on the server."""
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        import smtplib, ssl as ssl_lib
+        result = {
+            "config": {
+                "EMAIL_HOST": settings.EMAIL_HOST,
+                "EMAIL_PORT": settings.EMAIL_PORT,
+                "EMAIL_HOST_USER": settings.EMAIL_HOST_USER,
+                "EMAIL_HOST_PASSWORD_SET": bool(settings.EMAIL_HOST_PASSWORD),
+                "EMAIL_USE_SSL": settings.EMAIL_USE_SSL,
+                "EMAIL_USE_TLS": settings.EMAIL_USE_TLS,
+                "DEFAULT_FROM_EMAIL": settings.DEFAULT_FROM_EMAIL,
+            }
+        }
+        # Test SMTP connection + auth
+        try:
+            ctx = ssl_lib.create_default_context()
+            with smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT, context=ctx, timeout=10) as s:
+                result["smtp_connect"] = "OK"
+                s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+                result["smtp_auth"] = "OK"
+        except Exception as e:
+            result["smtp_error"] = f"{type(e).__name__}: {e}"
+        return Response(result)
+
+
 class IsSuperUser(permissions.BasePermission):
     """Only allows access to superusers."""
     def has_permission(self, request, view):
