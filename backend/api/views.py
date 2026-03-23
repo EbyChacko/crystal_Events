@@ -1280,25 +1280,19 @@ class MessageViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            message = serializer.save()
         except Exception as e:
-            print(f"[ERROR] Message create failed: {type(e).__name__}: {e}")
             traceback.print_exc()
-            return Response({'error': f"{type(e).__name__}: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self._send_contact_emails(message)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def perform_create(self, serializer):
-        print(f"DEBUG: Receiving new message form submission...")
-        message = serializer.save()
-        print(f"DEBUG: Message saved to DB with ID: {message.id}")
-        
-        # 1. Send confirmation to Customer
+    def _send_contact_emails(self, message):
+        # 1. Confirmation to customer
         try:
-            print(f"DEBUG: Attempting to send customer confirmation to {message.email}...")
-            customer_subject = 'We received your message - Crystal Events'
             customer_body = (
                 f"Hi {message.name},\n\n"
                 f"Thank you for reaching out to Crystal Events! We have received your message regarding "
@@ -1307,46 +1301,40 @@ class MessageViewSet(viewsets.ModelViewSet):
                 f"Best regards,\nThe Crystal Events Team"
             )
             send_mail(
-                customer_subject,
+                'We received your message - Crystal Events',
                 customer_body,
                 settings.DEFAULT_FROM_EMAIL,
                 [message.email],
-                fail_silently=False,
+                fail_silently=True,
             )
             print(f"[EMAIL] Customer confirmation sent to {message.email}")
         except Exception as e:
-            print(f"[EMAIL ERROR] Customer confirmation failed for {message.email}: {e}")
-            traceback.print_exc()
+            print(f"[EMAIL ERROR] Customer confirmation failed: {e}")
 
-        # 2. Notify info@crystaleventsie.com and staff members
+        # 2. Staff notification
         try:
-            staff_subject = f'New Website Message from {message.name}'
             staff_body = (
-                f"You have received a new message from the website contact form.\n\n"
+                f"New message from the website contact form.\n\n"
                 f"Name: {message.name}\n"
                 f"Email: {message.email}\n"
                 f"Phone: {message.phone}\n"
                 f"Service: {message.service.name if message.service else 'N/A'}\n\n"
                 f"Message:\n{message.message}"
             )
-
             recipients = [settings.NOTIFY_EMAIL]
-            staff_profiles = UserProfile.objects.filter(email_notifications=True, user__is_active=True)
-            for profile in staff_profiles:
+            for profile in UserProfile.objects.filter(email_notifications=True, user__is_active=True):
                 if profile.user.email and profile.user.email not in recipients:
                     recipients.append(profile.user.email)
-
             send_mail(
-                staff_subject,
+                f'New Website Message from {message.name}',
                 staff_body,
                 settings.DEFAULT_FROM_EMAIL,
                 recipients,
-                fail_silently=False,
+                fail_silently=True,
             )
             print(f"[EMAIL] Staff notification sent to {recipients}")
         except Exception as e:
             print(f"[EMAIL ERROR] Staff notification failed: {e}")
-            traceback.print_exc()
 
     @action(detail=True, methods=['post'])
     def reply(self, request, pk=None):

@@ -176,3 +176,4 @@ EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True") == "True"
 
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "info@crystaleventsie.com")
 NOTIFY_EMAIL = 'info@crystaleventsie.com'
+EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", "5"))
