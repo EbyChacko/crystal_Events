@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogIn, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { LogIn, Eye, EyeOff, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -109,6 +109,15 @@ const Login = () => {
                 transition={{ duration: 0.5 }}
                 className="relative w-full max-w-md"
             >
+                {/* Back button */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6 group"
+                >
+                    <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                    <span className="text-sm">Go Back</span>
+                </button>
+
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
