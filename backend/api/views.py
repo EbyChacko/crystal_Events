@@ -914,9 +914,15 @@ class EventViewSet(viewsets.ModelViewSet):
         return response
 
 class ExpenseViewSet(viewsets.ModelViewSet):
-    queryset = Expense.objects.all()
     serializer_class = ExpenseSerializer
     permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        queryset = Expense.objects.all()
+        event_id = self.request.query_params.get('event')
+        if event_id:
+            queryset = queryset.filter(event_id=event_id)
+        return queryset
 
 
 class EventImageViewSet(viewsets.ModelViewSet):

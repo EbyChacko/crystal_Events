@@ -43,9 +43,17 @@ class EventImageSerializer(serializers.ModelSerializer):
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
+    event_name = serializers.CharField(source='event.event_name', read_only=True, default=None)
+    approved_by_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Expense
         fields = '__all__'
+
+    def get_approved_by_name(self, obj):
+        if obj.approved_by:
+            return f"{obj.approved_by.first_name} {obj.approved_by.last_name}".strip() or obj.approved_by.username
+        return None
 
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:

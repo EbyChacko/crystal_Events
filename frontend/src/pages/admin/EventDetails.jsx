@@ -5,7 +5,7 @@ import {
     Calendar as CalendarIcon, Save, AlertCircle, CheckCircle, MapPin, Pencil, X, ArrowLeft,
     Trash2, Clock, Users as UsersIcon, FileText, BookOpen, ChevronDown, ChevronUp,
     PlusCircle, MinusCircle, Download, Percent, Plus, Image as ImageIcon, Link as LinkIcon, Upload,
-    Send, Check, DollarSign, Link2, RefreshCw, Briefcase, Info, Edit2, Printer, Utensils
+    Send, Check, DollarSign, Link2, RefreshCw, Briefcase, Info, Edit2, Printer, Utensils, SlidersHorizontal
 } from 'lucide-react';
 import api, { API_BASE_URL } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
@@ -110,6 +110,14 @@ const EventDetails = () => {
 
     // Payment state
     const [paymentHistoryOpen, setPaymentHistoryOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [showExpenseModal, setShowExpenseModal] = useState(false);
+    const [expenseFormData, setExpenseFormData] = useState({ date: new Date().toISOString().split('T')[0], amount: '', category: 'Catering', reason: '', approved_by: '', receipt_image_url: '' });
+    const [expenseSubmitting, setExpenseSubmitting] = useState(false);
+    const [eventExpenses, setEventExpenses] = useState([]);
+    const [showPaymentHistoryModal, setShowPaymentHistoryModal] = useState(false);
+    const [showGalleryModal, setShowGalleryModal] = useState(false);
+    const [showLogbookModal, setShowLogbookModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentData, setPaymentData] = useState({ type: 'full', discount: '0', received: '' });
     const [paymentSubmitting, setPaymentSubmitting] = useState(false);
@@ -206,6 +214,40 @@ const EventDetails = () => {
         }
     };
 
+    const fetchEventExpenses = async () => {
+        try {
+            const res = await api.get(`/expenses/?event=${id}`);
+            setEventExpenses(res.data);
+        } catch (err) {
+            console.error('Failed to fetch event expenses:', err);
+        }
+    };
+
+    const handleAddExpense = async (e) => {
+        e.preventDefault();
+        setExpenseSubmitting(true);
+        try {
+            const payload = {
+                date: expenseFormData.date,
+                amount: expenseFormData.amount,
+                category: expenseFormData.category,
+                reason: expenseFormData.reason,
+                event: parseInt(id),
+                ...(expenseFormData.approved_by && { approved_by: expenseFormData.approved_by }),
+                ...(expenseFormData.receipt_image_url && { receipt_image_url: expenseFormData.receipt_image_url }),
+            };
+            await api.post('/expenses/', payload);
+            addToast('Expense recorded successfully!', 'success');
+            setShowExpenseModal(false);
+            setExpenseFormData({ date: new Date().toISOString().split('T')[0], amount: '', category: 'Catering', reason: '', approved_by: '', receipt_image_url: '' });
+            fetchEventExpenses();
+        } catch (err) {
+            addToast('Failed to record expense.', 'error');
+        } finally {
+            setExpenseSubmitting(false);
+        }
+    };
+
     useEffect(() => {
         fetchEvent();
         fetchStaff();
@@ -213,6 +255,7 @@ const EventDetails = () => {
         fetchTravelRates();
         fetchEventQuote();
         fetchFoodMenu();
+        fetchEventExpenses();
         // eslint-disable-next-line
     }, [id]);
 
@@ -222,6 +265,11 @@ const EventDetails = () => {
                 setShowEditModal(false);
                 setShowPaymentModal(false);
                 setShowRefundModal(false);
+                setShowExpenseModal(false);
+                setShowPaymentHistoryModal(false);
+                setShowGalleryModal(false);
+                setShowLogbookModal(false);
+                setSidebarOpen(false);
                 setShowQuoteForm(false);
                 setShowFoodMenuForm(false);
             }
@@ -823,14 +871,19 @@ const EventDetails = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center">
-                    <button onClick={() => setShowLogbook(!showLogbook)}
+                <div className="flex items-center gap-2">
+                    <button onClick={() => setShowLogbookModal(true)}
                         className="flex items-center justify-center w-full md:w-auto space-x-2 bg-white/10 border border-white/10 text-white font-medium px-4 py-3 md:py-2.5 rounded-xl hover:bg-white/15 transition-all text-base md:text-sm">
                         <BookOpen size={16} />
-                        <span>Logbook</span>
+                        <span className="hidden sm:inline">Logbook</span>
                         {auditLog.length > 0 && (
                             <span className="bg-mustard-gold/20 text-mustard-gold text-xs px-1.5 py-0.5 rounded-md font-bold">{auditLog.length}</span>
                         )}
+                    </button>
+                    <button onClick={() => setSidebarOpen(true)}
+                        className="flex items-center justify-center space-x-2 bg-mustard-gold/10 border border-mustard-gold/30 text-mustard-gold font-medium px-4 py-3 md:py-2.5 rounded-xl hover:bg-mustard-gold/20 transition-all text-base md:text-sm">
+                        <SlidersHorizontal size={16} />
+                        <span className="hidden sm:inline">Actions</span>
                     </button>
                 </div>
             </div>
@@ -968,35 +1021,6 @@ const EventDetails = () => {
                             </form>
                         </motion.div>
                     </div>
-                )}
-            </AnimatePresence>
-
-            {/* Logbook Panel */}
-            <AnimatePresence>
-                {showLogbook && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-6">
-                            <div className="flex items-center justify-between mb-5">
-                                <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                                    <BookOpen size={20} className="text-mustard-gold" />
-                                    <span>Change Logbook</span>
-                                </h3>
-                                <button onClick={() => setShowLogbook(false)} className="text-gray-400 hover:text-white transition-colors">
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            {auditLog.length === 0 ? (
-                                <p className="text-gray-500 text-sm">No log entries yet.</p>
-                            ) : (
-                                <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {auditLog.map((entry, idx) => (
-                                        <LogbookEntry key={idx} entry={entry} isFirst={idx === 0} isLast={idx === auditLog.length - 1} eventId={event.id} logIdx={idx} />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </motion.div>
                 )}
             </AnimatePresence>
 
@@ -1777,36 +1801,133 @@ const EventDetails = () => {
                 )}
             </AnimatePresence>
 
-            {/* ── Payment Section ──────────────────────────────────────── */}
-            {
-                event?.status !== 'finished' && !isLocked && (
-                    <div className="bg-emerald-500/5 backdrop-blur-sm border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 relative overflow-hidden">
-                        <div className="relative z-10 w-full sm:w-auto">
-                            <h3 className="text-lg font-bold text-emerald-400 flex items-center space-x-2">
-                                <DollarSign size={20} />
-                                <span>Financial Actions</span>
-                            </h3>
-                            <p className="text-sm text-gray-400 mt-1">
-                                Record a payment or process a refund for this event.
-                            </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto relative z-10">
-                            <button type="button" onClick={() => setShowRefundModal(true)}
-                                className="w-full sm:w-auto flex items-center justify-center space-x-2 text-rose-400 font-medium bg-rose-500/10 border border-rose-500/20 px-5 py-2.5 rounded-xl hover:bg-rose-500/20 transition-all text-base md:text-sm">
-                                <RefreshCw size={16} />
-                                <span>Make Refund</span>
-                            </button>
-                            <button type="button" onClick={handleOpenPayment}
-                                className="w-full sm:w-auto flex items-center justify-center space-x-2 text-emerald-900 font-bold bg-emerald-400 border border-emerald-400 px-6 py-2.5 rounded-xl hover:bg-emerald-300 transition-all text-base md:text-sm shadow-lg shadow-emerald-500/20">
-                                <CheckCircle size={18} />
-                                <span>Receive Payment</span>
-                            </button>
-                        </div>
-                    </div>
-                )
-            }
+            {/* ── Right Sidebar Drawer ──────────────────────────────────── */}
+            <AnimatePresence>
+                {sidebarOpen && (
+                    <>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+                            onClick={() => setSidebarOpen(false)} />
+                        <motion.div
+                            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                            className="fixed right-0 top-0 h-full w-80 z-50 bg-[#090e11] border-l border-white/10 flex flex-col shadow-2xl">
+                            <div className="flex items-center justify-between p-5 border-b border-white/10">
+                                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <SlidersHorizontal size={18} className="text-mustard-gold" />
+                                    Actions & Details
+                                </h2>
+                                <button onClick={() => setSidebarOpen(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
 
-            {/* Refund Modal */}
+                                {/* Financial group */}
+                                {event?.status !== 'finished' && !isLocked && (
+                                    <>
+                                        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-2 pb-1">Financial</p>
+                                        <button onClick={() => { setSidebarOpen(false); handleOpenPayment(); }}
+                                            className="w-full flex items-center space-x-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all text-left">
+                                            <div className="p-2 bg-emerald-500/20 rounded-lg shrink-0"><CheckCircle size={17} /></div>
+                                            <div>
+                                                <p className="font-semibold text-sm">Receive Payment</p>
+                                                <p className="text-xs text-gray-500">Record a new payment</p>
+                                            </div>
+                                        </button>
+                                        <button onClick={() => { setSidebarOpen(false); setShowRefundModal(true); }}
+                                            className="w-full flex items-center space-x-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-all text-left">
+                                            <div className="p-2 bg-rose-500/20 rounded-lg shrink-0"><RefreshCw size={17} /></div>
+                                            <div>
+                                                <p className="font-semibold text-sm">Make Refund</p>
+                                                <p className="text-xs text-gray-500">Process a refund</p>
+                                            </div>
+                                        </button>
+                                        <button onClick={() => { setSidebarOpen(false); setShowExpenseModal(true); }}
+                                            className="w-full flex items-center space-x-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-left">
+                                            <div className="p-2 bg-amber-500/20 rounded-lg shrink-0"><PlusCircle size={17} /></div>
+                                            <div>
+                                                <p className="font-semibold text-sm">Add Expense</p>
+                                                <p className="text-xs text-gray-500">Record an event expense</p>
+                                            </div>
+                                        </button>
+                                    </>
+                                )}
+
+                                {/* Records group */}
+                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1">Records</p>
+                                <button onClick={() => { setSidebarOpen(false); setShowPaymentHistoryModal(true); }}
+                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all text-left">
+                                    <div className="p-2 bg-indigo-500/20 rounded-lg shrink-0"><Briefcase size={17} /></div>
+                                    <div>
+                                        <p className="font-semibold text-sm">Payment History</p>
+                                        <p className="text-xs text-gray-500">Transactions & expenses</p>
+                                    </div>
+                                </button>
+                                <button onClick={() => { setSidebarOpen(false); setShowLogbookModal(true); }}
+                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 transition-all text-left">
+                                    <div className="p-2 bg-white/10 rounded-lg shrink-0"><BookOpen size={17} /></div>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-sm">Logbook</p>
+                                        <p className="text-xs text-gray-500">{auditLog.length} entries</p>
+                                    </div>
+                                    {auditLog.length > 0 && <span className="bg-mustard-gold/20 text-mustard-gold text-xs px-1.5 py-0.5 rounded-md font-bold">{auditLog.length}</span>}
+                                </button>
+
+                                {/* Media group */}
+                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1">Media</p>
+                                <button onClick={() => { setSidebarOpen(false); setShowGalleryModal(true); }}
+                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 transition-all text-left">
+                                    <div className="p-2 bg-purple-500/20 rounded-lg shrink-0"><ImageIcon size={17} /></div>
+                                    <div>
+                                        <p className="font-semibold text-sm">Gallery</p>
+                                        <p className="text-xs text-gray-500">{event?.images?.length || 0} images</p>
+                                    </div>
+                                </button>
+
+                                {/* Event Management group */}
+                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1">Event Management</p>
+                                {event?.status !== 'finished' && event?.status !== 'canceled' && (
+                                    <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                                        <p className="text-sm font-semibold text-emerald-400 mb-1">Finish Event</p>
+                                        <p className="text-xs text-gray-500 mb-3">Mark as complete once the event date has passed.</p>
+                                        <button type="button" onClick={() => { setSidebarOpen(false); handleFinishEvent(); }} disabled={!isEventOver() || finishingEvent}
+                                            className="w-full flex items-center justify-center space-x-2 text-emerald-400 font-medium bg-emerald-500/20 border border-emerald-500/30 px-4 py-2 rounded-xl hover:bg-emerald-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+                                            <CheckCircle size={15} />
+                                            <span>{finishingEvent ? 'Processing...' : 'Finish Event'}</span>
+                                        </button>
+                                        {!isEventOver() && <p className="text-xs text-emerald-500/50 mt-2 text-center">Event date has not passed yet.</p>}
+                                    </div>
+                                )}
+                                <div className="p-3 rounded-xl bg-red-500/5 border border-red-500/20">
+                                    <p className="text-sm font-semibold text-red-400 mb-1">Danger Zone</p>
+                                    <p className="text-xs text-gray-500 mb-3">Permanently delete this event. Cannot be undone.</p>
+                                    {!confirmingDelete ? (
+                                        <button type="button" onClick={() => setConfirmingDelete(true)}
+                                            className="w-full flex items-center justify-center space-x-2 text-red-400 font-medium bg-red-500/20 border border-red-500/30 px-4 py-2 rounded-xl hover:bg-red-500/30 transition-all text-sm">
+                                            <Trash2 size={15} />
+                                            <span>Delete Event</span>
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-red-400 font-medium text-center">Are you sure?</p>
+                                            <div className="flex gap-2">
+                                                <button type="button" onClick={handleDelete}
+                                                    className="flex-1 bg-red-600 text-white font-bold py-2 rounded-xl hover:bg-red-700 text-sm">Yes, Delete</button>
+                                                <button type="button" onClick={() => setConfirmingDelete(false)}
+                                                    className="flex-1 bg-white/10 text-gray-300 py-2 rounded-xl hover:bg-white/15 text-sm">Cancel</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* ── Refund Modal ──────────────────────────────────────────── */}
             <AnimatePresence>
                 {showRefundModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
@@ -1826,40 +1947,28 @@ const EventDetails = () => {
                                         <span className="text-gray-400">Total Amount Paid</span>
                                         <span className="text-emerald-400 font-semibold text-lg">€{parseFloat(event?.received_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
-                                    
                                     <div>
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Refund Amount (€) *</label>
                                         <input type="number" value={refundAmount}
                                             onChange={(e) => {
                                                 let val = e.target.value;
-                                                if (val.includes('.')) {
-                                                    const parts = val.split('.');
-                                                    val = `${parts[0]}.${parts[1].slice(0, 2)}`;
-                                                }
+                                                if (val.includes('.')) { const parts = val.split('.'); val = `${parts[0]}.${parts[1].slice(0, 2)}`; }
                                                 setRefundAmount(val);
                                             }}
-                                            className={`${selectClass.replace('cursor-pointer', '')} border-rose-500/30 focus:border-rose-500/50 focus:ring-rose-500/50`} 
-                                            placeholder="0.00" step="0.01" min="0.01" max={event?.received_amount || 0} required 
-                                        />
+                                            className={`${selectClass.replace('cursor-pointer', '')} border-rose-500/30 focus:border-rose-500/50 focus:ring-rose-500/50`}
+                                            placeholder="0.00" step="0.01" min="0.01" max={event?.received_amount || 0} required />
                                     </div>
-
                                     <div>
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Reason for Refund</label>
-                                        <textarea 
-                                            value={refundReason}
-                                            onChange={(e) => setRefundReason(e.target.value)}
+                                        <textarea value={refundReason} onChange={(e) => setRefundReason(e.target.value)}
                                             className={`${selectClass.replace('cursor-pointer', '')} h-24 border-rose-500/30 focus:border-rose-500/50 focus:ring-rose-500/50 resize-none`}
-                                            placeholder="e.g., Event canceled by client, overpaid..."
-                                        />
+                                            placeholder="e.g., Event canceled by client, overpaid..." />
                                     </div>
-
                                     {parseFloat(refundAmount || 0) > parseFloat(event?.received_amount || 0) && (
                                         <div className="text-rose-400 text-sm font-medium flex items-center gap-2 mt-2 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
-                                            <AlertCircle size={16} />
-                                            Refund amount cannot exceed total paid.
+                                            <AlertCircle size={16} /> Refund amount cannot exceed total paid.
                                         </div>
                                     )}
-
                                     <div className="pt-4 border-t border-white/10 flex justify-between items-center text-sm">
                                         <span className="text-gray-400 font-medium">Paid Amount After Refund</span>
                                         <span className="text-white font-semibold">
@@ -1867,345 +1976,373 @@ const EventDetails = () => {
                                         </span>
                                     </div>
                                 </div>
-
-                                <div className="mt-6">
-                                    <button type="submit" disabled={refundSubmitting || parseFloat(refundAmount || 0) > parseFloat(event?.received_amount || 0)}
-                                        className="w-full px-4 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-400 transition-all shadow-lg shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
-                                        {refundSubmitting ? 'Processing...' : 'Confirm Refund'}
-                                    </button>
-                                </div>
+                                <button type="submit" disabled={refundSubmitting || parseFloat(refundAmount || 0) > parseFloat(event?.received_amount || 0)}
+                                    className="w-full px-4 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-400 transition-all shadow-lg shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {refundSubmitting ? 'Processing...' : 'Confirm Refund'}
+                                </button>
                             </form>
                         </motion.div>
                     </div>
                 )}
             </AnimatePresence>
 
-            {/* ── Payment History Section ──────────────────────────────────────── */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl mb-6 overflow-hidden">
-                <button
-                    type="button"
-                    onClick={() => setPaymentHistoryOpen(o => !o)}
-                    className="w-full flex items-center justify-between p-4 sm:p-6 md:p-8 text-left hover:bg-white/5 transition-colors"
-                >
-                    <div>
-                        <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-                            <Briefcase size={20} className="text-mustard-gold" />
-                            <span>Payment History</span>
-                        </h2>
-                        <p className="text-sm text-gray-500 mt-1">
-                            Summary of financial transactions and chronological history.
-                        </p>
+            {/* ── Add Expense Modal ─────────────────────────────────────── */}
+            <AnimatePresence>
+                {showExpenseModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowExpenseModal(false); }}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-[#0b1015] border border-amber-500/20 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            <button type="button" onClick={() => setShowExpenseModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                                <X size={20} />
+                            </button>
+                            <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                                <PlusCircle className="text-amber-400" size={24} />
+                                Add Expense
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-5">Record an expense for <span className="text-amber-400 font-medium">{event?.event_name}</span></p>
+                            <form onSubmit={handleAddExpense}>
+                                <div className="space-y-4 mb-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-gray-400 text-sm font-medium mb-2">Date *</label>
+                                            <input type="date" value={expenseFormData.date}
+                                                onChange={(e) => setExpenseFormData(p => ({...p, date: e.target.value}))}
+                                                className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
+                                                required />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 text-sm font-medium mb-2">Amount (€) *</label>
+                                            <input type="number" value={expenseFormData.amount}
+                                                onChange={(e) => {
+                                                    let val = e.target.value;
+                                                    if (val.includes('.')) { const parts = val.split('.'); val = `${parts[0]}.${parts[1].slice(0, 2)}`; }
+                                                    setExpenseFormData(p => ({...p, amount: val}));
+                                                }}
+                                                className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
+                                                placeholder="0.00" step="0.01" min="0.01" required />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Category *</label>
+                                        <select value={expenseFormData.category}
+                                            onChange={(e) => setExpenseFormData(p => ({...p, category: e.target.value}))}
+                                            className={`${selectClass} border-amber-500/30`} required>
+                                            {['Catering', 'Decor', 'Travel', 'Equipment', 'Staff', 'Venue', 'Entertainment', 'Marketing', 'Other'].map(c => (
+                                                <option key={c} value={c}>{c}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Description *</label>
+                                        <input type="text" value={expenseFormData.reason}
+                                            onChange={(e) => setExpenseFormData(p => ({...p, reason: e.target.value}))}
+                                            className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
+                                            placeholder="e.g., Flowers and table decorations..." required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Approved By</label>
+                                        <select value={expenseFormData.approved_by}
+                                            onChange={(e) => setExpenseFormData(p => ({...p, approved_by: e.target.value}))}
+                                            className={`${selectClass} border-amber-500/30`}>
+                                            <option value="">— Select staff member —</option>
+                                            {staffList.map(s => (
+                                                <option key={s.id} value={s.id}>{s.first_name} {s.last_name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Receipt URL <span className="text-gray-600 font-normal">(optional)</span></label>
+                                        <input type="url" value={expenseFormData.receipt_image_url}
+                                            onChange={(e) => setExpenseFormData(p => ({...p, receipt_image_url: e.target.value}))}
+                                            className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50`}
+                                            placeholder="https://..." />
+                                    </div>
+                                </div>
+                                <button type="submit" disabled={expenseSubmitting}
+                                    className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold hover:opacity-90 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {expenseSubmitting ? 'Saving...' : 'Record Expense'}
+                                </button>
+                            </form>
+                        </motion.div>
                     </div>
-                    {paymentHistoryOpen
-                        ? <ChevronUp size={20} className="text-gray-400 flex-shrink-0" />
-                        : <ChevronDown size={20} className="text-gray-400 flex-shrink-0" />}
-                </button>
+                )}
+            </AnimatePresence>
 
-                {paymentHistoryOpen && (
-                <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 border-t border-white/10">
+            {/* ── Payment History Modal ─────────────────────────────────── */}
+            <AnimatePresence>
+                {showPaymentHistoryModal && (
+                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
+                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentHistoryModal(false); }}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-[#0b1015] border border-indigo-500/20 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative mb-8">
+                            <button type="button" onClick={() => setShowPaymentHistoryModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                                <X size={20} />
+                            </button>
+                            <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                                <Briefcase className="text-indigo-400" size={22} />
+                                Payment History
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-6">Transactions for <span className="text-indigo-400 font-medium">{event?.event_name}</span></p>
 
-                {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 mt-6">
-                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Quote Total</span>
-                        <p className="text-xl font-bold text-white mt-1">
-                            €{parseFloat(event?.budget || eventQuote?.total || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Discount</span>
-                        <p className="text-xl font-bold text-mustard-gold mt-1">
-                            €{parseFloat(event?.payment_discount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Total Paid</span>
-                        <p className="text-xl font-bold text-emerald-400 mt-1">
-                            €{parseFloat(event?.received_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
-                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Balance Due</span>
-                        <p className="text-xl font-bold text-rose-400 mt-1">
-                            €{Math.max(0, parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                    </div>
-                </div>
+                            {/* Summary Cards */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                                <div className="bg-white/5 border border-white/10 p-3 rounded-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Quote Total</span>
+                                    <p className="text-lg font-bold text-white mt-1">€{parseFloat(event?.budget || eventQuote?.total || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                </div>
+                                <div className="bg-white/5 border border-white/10 p-3 rounded-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Discount</span>
+                                    <p className="text-lg font-bold text-amber-400 mt-1">€{parseFloat(event?.payment_discount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                </div>
+                                <div className="bg-white/5 border border-white/10 p-3 rounded-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Total Paid</span>
+                                    <p className="text-lg font-bold text-emerald-400 mt-1">€{parseFloat(event?.received_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                </div>
+                                <div className="bg-white/5 border border-white/10 p-3 rounded-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Balance Due</span>
+                                    <p className="text-lg font-bold text-rose-400 mt-1">€{Math.max(0, parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                </div>
+                            </div>
 
-                {/* Premium History Timeline */}
-                <div className="mt-8">
-                    <h3 className="text-sm font-semibold text-gray-300 mb-6 uppercase tracking-wider">Timeline of Transactions</h3>
-                    
-                    <div className="relative pl-6 sm:pl-8 border-l-2 border-white/10 space-y-8">
-                        {/* Transaction Nodes */}
-                        {timelineNodes.map((node) => {
-                            const isQuote = node.type === 'quote';
-                            let prefix = '';
-                            if (node.type === 'payment' || (node.type === 'discount_reduce')) prefix = '+';
-                            else if (node.type === 'refund' || node.type === 'discount') prefix = '-';
-                            
-                            const amountStr = `${prefix}€${node.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                            const displayAmtStr = isQuote ? `€${node.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : amountStr;
-
-                            const Icon = node.icon === 'Briefcase' ? Briefcase :
-                                         node.icon === 'DollarSign' ? DollarSign :
-                                         node.icon === 'CheckCircle' ? CheckCircle : RefreshCw;
-
-                            const THEMES = {
-                                'mustard-gold': { tag: 'bg-mustard-gold', grad: 'from-mustard-gold/10', border: 'border-mustard-gold/20', iconBg: 'bg-mustard-gold/20', text: 'text-mustard-gold', amount: 'text-white' },
-                                'emerald': { tag: 'bg-emerald-400', grad: 'from-emerald-500/10', border: 'border-emerald-500/20', iconBg: 'bg-emerald-500/20', text: 'text-emerald-400', amount: 'text-emerald-400' },
-                                'rose': { tag: 'bg-rose-400', grad: 'from-rose-500/10', border: 'border-rose-500/20', iconBg: 'bg-rose-500/20', text: 'text-rose-400', amount: 'text-rose-400' },
-                                'blue': { tag: 'bg-blue-400', grad: 'from-blue-500/10', border: 'border-blue-500/20', iconBg: 'bg-blue-500/20', text: 'text-blue-400', amount: 'text-blue-400' },
-                                'gray': { tag: 'bg-gray-400', grad: 'from-gray-500/10', border: 'border-gray-500/20', iconBg: 'bg-gray-500/20', text: 'text-gray-400', amount: 'text-gray-400' },
-                            };
-                            const theme = THEMES[node.colorTheme];
-
-                            return (
-                                <div key={node.id} className="relative group">
-                                    <div className={`absolute -left-[35px] sm:-left-[43px] mt-4 w-4 h-4 rounded-full border-2 border-[#090e11] ring-2 ring-white/10 group-hover:ring-white/30 transition-all ${theme.tag}`} />
-                                    
-                                    <div className={`bg-gradient-to-br ${theme.grad} to-white/[0.02] ${theme.border} border p-4 sm:p-5 rounded-xl shadow-lg relative overflow-hidden flex flex-col sm:flex-row gap-4 justify-between sm:items-center transition-all hover:-translate-y-1 hover:shadow-xl`}>
-                                        <div className="flex items-start sm:items-center space-x-4">
-                                            <div className={`p-3 rounded-xl shadow-inner ${theme.iconBg} ${theme.text}`}>
-                                                <Icon size={22} />
+                            {/* Event Expenses */}
+                            {eventExpenses.length > 0 && (
+                                <div className="mb-6">
+                                    <h4 className="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wider flex items-center gap-2">
+                                        <PlusCircle size={13} className="text-amber-400" /> Event Expenses
+                                    </h4>
+                                    <div className="space-y-2">
+                                        {eventExpenses.map(exp => (
+                                            <div key={exp.id} className="flex items-center justify-between bg-amber-500/5 border border-amber-500/20 p-3 rounded-xl">
+                                                <div>
+                                                    <p className="text-sm font-medium text-white">{exp.reason}</p>
+                                                    <p className="text-xs text-gray-500">{exp.category} — {new Date(exp.date).toLocaleDateString('en-IE')}</p>
+                                                </div>
+                                                <span className="text-amber-400 font-bold text-sm">€{parseFloat(exp.amount).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                             </div>
-                                            <div>
-                                                <h4 className="text-white font-bold text-base sm:text-lg">{node.title}</h4>
-                                                {node.type === 'quote' || node.type === 'discount' || node.type === 'discount_reduce' ? (
-                                                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-400 mt-1">
-                                                        <span>{node.description}</span>
+                                        ))}
+                                        <div className="flex justify-between items-center pt-2 border-t border-amber-500/20">
+                                            <span className="text-sm text-gray-400 font-medium">Total Expenses</span>
+                                            <span className="text-amber-400 font-bold">€{eventExpenses.reduce((sum, e) => sum + parseFloat(e.amount), 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Transaction Timeline */}
+                            <h4 className="text-sm font-semibold text-gray-300 mb-4 uppercase tracking-wider">Timeline of Transactions</h4>
+                            <div className="relative pl-6 border-l-2 border-white/10 space-y-5">
+                                {timelineNodes.map((node) => {
+                                    const isQuote = node.type === 'quote';
+                                    let prefix = '';
+                                    if (node.type === 'payment' || node.type === 'discount_reduce') prefix = '+';
+                                    else if (node.type === 'refund' || node.type === 'discount') prefix = '-';
+                                    const amountStr = `${prefix}€${node.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                    const displayAmtStr = isQuote ? `€${node.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : amountStr;
+                                    const Icon = node.icon === 'Briefcase' ? Briefcase : node.icon === 'DollarSign' ? DollarSign : node.icon === 'CheckCircle' ? CheckCircle : RefreshCw;
+                                    const THEMES = {
+                                        'mustard-gold': { tag: 'bg-mustard-gold', grad: 'from-mustard-gold/10', border: 'border-mustard-gold/20', iconBg: 'bg-mustard-gold/20', text: 'text-mustard-gold', amount: 'text-white' },
+                                        'emerald': { tag: 'bg-emerald-400', grad: 'from-emerald-500/10', border: 'border-emerald-500/20', iconBg: 'bg-emerald-500/20', text: 'text-emerald-400', amount: 'text-emerald-400' },
+                                        'rose': { tag: 'bg-rose-400', grad: 'from-rose-500/10', border: 'border-rose-500/20', iconBg: 'bg-rose-500/20', text: 'text-rose-400', amount: 'text-rose-400' },
+                                        'blue': { tag: 'bg-blue-400', grad: 'from-blue-500/10', border: 'border-blue-500/20', iconBg: 'bg-blue-500/20', text: 'text-blue-400', amount: 'text-blue-400' },
+                                        'gray': { tag: 'bg-gray-400', grad: 'from-gray-500/10', border: 'border-gray-500/20', iconBg: 'bg-gray-500/20', text: 'text-gray-400', amount: 'text-gray-400' },
+                                    };
+                                    const theme = THEMES[node.colorTheme];
+                                    return (
+                                        <div key={node.id} className="relative">
+                                            <div className={`absolute -left-[35px] mt-4 w-4 h-4 rounded-full border-2 border-[#090e11] ring-2 ring-white/10 ${theme.tag}`} />
+                                            <div className={`bg-gradient-to-br ${theme.grad} to-white/[0.02] ${theme.border} border p-4 rounded-xl flex flex-col sm:flex-row gap-3 justify-between sm:items-center`}>
+                                                <div className="flex items-start sm:items-center space-x-3">
+                                                    <div className={`p-2.5 rounded-xl shrink-0 ${theme.iconBg} ${theme.text}`}><Icon size={17} /></div>
+                                                    <div>
+                                                        <h4 className="text-white font-bold text-sm">{node.title}</h4>
+                                                        {node.type === 'quote' || node.type === 'discount' || node.type === 'discount_reduce' ? (
+                                                            <p className="text-xs text-gray-400 mt-0.5">{node.description}</p>
+                                                        ) : (
+                                                            <p className="text-xs text-gray-400 mt-0.5">{new Date(node.timestamp).toLocaleString('en-IE', { dateStyle: 'medium', timeStyle: 'short' })} · {node.description}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between border-t border-white/5 sm:border-0 pt-2 sm:pt-0 mt-1 sm:mt-0 shrink-0">
+                                                    <div className={`text-lg font-bold ${theme.amount}`}>{displayAmtStr}</div>
+                                                    <div className="text-xs text-mustard-gold font-medium mt-0.5">Balance: €{node.balance.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* ── Gallery Modal ─────────────────────────────────────────── */}
+            <AnimatePresence>
+                {showGalleryModal && (
+                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
+                         onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowGalleryModal(false); setShowImageForm(false); } }}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-[#0b1015] border border-purple-500/20 rounded-2xl p-6 w-full max-w-3xl shadow-2xl relative mb-8">
+                            <button type="button" onClick={() => { setShowGalleryModal(false); setShowImageForm(false); }} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                                <X size={20} />
+                            </button>
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                        <ImageIcon className="text-purple-400" size={22} />
+                                        Gallery
+                                    </h3>
+                                    <p className="text-sm text-gray-500 mt-1">{event?.images?.length || 0} images · {event?.event_name}</p>
+                                </div>
+                                {!showImageForm && !isLocked && (
+                                    <button type="button" onClick={() => setShowImageForm(true)}
+                                        className="flex items-center space-x-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 font-medium px-4 py-2 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
+                                        <Plus size={16} /><span>Add Image</span>
+                                    </button>
+                                )}
+                            </div>
+
+                            <AnimatePresence>
+                                {showImageForm && (
+                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-6">
+                                        <form onSubmit={handleImageSubmit} className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                                            <div className="flex items-center space-x-3 mb-5">
+                                                <button type="button" onClick={() => setImageUploadType('url')}
+                                                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${imageUploadType === 'url' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                                    <LinkIcon size={15} /><span>Image URLs</span>
+                                                </button>
+                                                <button type="button" onClick={() => setImageUploadType('upload')}
+                                                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${imageUploadType === 'upload' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                                    <Upload size={15} /><span>Upload</span>
+                                                </button>
+                                            </div>
+                                            <div className="space-y-4 mb-5">
+                                                {imageUploadType === 'url' ? (
+                                                    <div className="space-y-3">
+                                                        {urlItems.map((item, index) => (
+                                                            <div key={index} className="flex gap-3 items-start bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                                                                <div className="flex-1 space-y-3">
+                                                                    <div>
+                                                                        <label className="block text-gray-400 text-xs font-medium mb-1.5">Image URL *</label>
+                                                                        <input type="url" required value={item.url} onChange={(e) => handleUrlChange(index, 'url', e.target.value)} className={selectClass.replace('cursor-pointer', '')} placeholder="https://..." />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="block text-gray-400 text-xs font-medium mb-1.5">Description</label>
+                                                                        <input type="text" value={item.description} onChange={(e) => handleUrlChange(index, 'description', e.target.value)} className={selectClass.replace('cursor-pointer', '')} placeholder="Optional description..." />
+                                                                    </div>
+                                                                </div>
+                                                                {urlItems.length > 1 && (
+                                                                    <button type="button" onClick={() => handleRemoveUrlRow(index)} className="mt-6 p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors shrink-0">
+                                                                        <Trash2 size={17} />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                        <button type="button" onClick={handleAddUrlRow} className="flex items-center space-x-2 text-purple-400 font-medium text-sm hover:text-purple-300 transition-colors">
+                                                            <Plus size={15} /><span>Add Another URL</span>
+                                                        </button>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-400 mt-1">
-                                                        <span>{new Date(node.timestamp).toLocaleString('en-IE', { dateStyle: 'medium', timeStyle: 'short' })}</span>
-                                                        <span className="text-gray-600">•</span>
-                                                        <span>{node.description}</span>
+                                                    <div className="space-y-3">
+                                                        <label className="block text-gray-400 text-sm font-medium mb-1">Select Files *</label>
+                                                        <input type="file" accept="image/*" multiple onChange={handleFileSelect}
+                                                            className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500 file:text-white hover:file:bg-purple-600" />
+                                                        {fileItems.length > 0 && (
+                                                            <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                                                                {fileItems.map((item, index) => (
+                                                                    <div key={index} className="flex gap-3 items-center bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                                                                        <img src={item.preview} alt="preview" className="w-14 h-14 object-cover rounded-lg shrink-0" />
+                                                                        <div className="flex-1">
+                                                                            <input type="text" value={item.description} onChange={(e) => handleFileDescChange(index, e.target.value)} className={selectClass.replace('cursor-pointer', '')} placeholder="Optional description..." />
+                                                                        </div>
+                                                                        <button type="button" onClick={() => handleRemoveFile(index)} className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors shrink-0">
+                                                                            <X size={17} />
+                                                                        </button>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
-                                        </div>
-                                        
-                                        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between border-t border-white/5 sm:border-0 pt-3 sm:pt-0 mt-2 sm:mt-0 w-full sm:w-auto">
-                                            <div className={`text-xl sm:text-2xl font-bold tracking-tight ${theme.amount}`}>
-                                                {displayAmtStr}
+                                            <div className="flex items-center space-x-3">
+                                                <button type="submit" disabled={imageSubmitting}
+                                                    className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-violet-500 text-white font-bold px-5 py-2.5 rounded-xl hover:opacity-90 transition-all disabled:opacity-50">
+                                                    <Save size={15} /><span>{imageSubmitting ? 'Saving...' : 'Save Image'}</span>
+                                                </button>
+                                                <button type="button" onClick={() => setShowImageForm(false)}
+                                                    className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-5 py-2.5 rounded-xl hover:bg-white/15 transition-all">
+                                                    <X size={15} /><span>Cancel</span>
+                                                </button>
                                             </div>
-                                            <div className="text-xs sm:text-sm text-mustard-gold font-medium mt-1 sm:mt-0.5">
-                                                Balance: €{node.balance.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                        </form>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
-                    </div>
-                </div>
-                </div>
-                )}
-            </div>
-
-            {/* ── Gallery Images Section ──────────────────────────────────────── */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
-                    <div>
-                        <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-                            <ImageIcon size={20} className="text-mustard-gold" />
-                            <span>Gallery Images</span>
-                        </h2>
-                        <p className="text-sm text-gray-500 mt-1">
-                            {event.images && event.images.length > 0 ? `${event.images.length} images uploaded` : 'No images added yet'}
-                        </p>
-                    </div>
-                    {!showImageForm && !isLocked && (
-                        <button type="button" onClick={() => setShowImageForm(true)}
-                            className="flex items-center space-x-2 bg-white/10 border border-white/10 text-white font-medium px-5 py-2.5 rounded-xl hover:bg-white/15 transition-all">
-                            <Plus size={18} />
-                            <span>Add Image</span>
-                        </button>
-                    )}
-                </div>
-
-                <AnimatePresence>
-                    {showImageForm && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-8">
-                            <form onSubmit={handleImageSubmit} className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
-                                <div className="flex items-center space-x-4 mb-6">
-                                    <button type="button"
-                                        onClick={() => setImageUploadType('url')}
-                                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${imageUploadType === 'url' ? 'bg-mustard-gold text-deep-teal' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
-                                        <LinkIcon size={16} /><span>Image URLs</span>
-                                    </button>
-                                    <button type="button"
-                                        onClick={() => setImageUploadType('upload')}
-                                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${imageUploadType === 'upload' ? 'bg-mustard-gold text-deep-teal' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
-                                        <Upload size={16} /><span>Direct Upload</span>
-                                    </button>
-                                </div>
-
-                                <div className="space-y-4 mb-6">
-                                    {imageUploadType === 'url' ? (
-                                        <div className="space-y-4">
-                                            {urlItems.map((item, index) => (
-                                                <div key={index} className="flex gap-4 items-start bg-white/[0.02] p-4 rounded-xl border border-white/5">
-                                                    <div className="flex-1 space-y-4">
-                                                        <div>
-                                                            <label className="block text-gray-400 text-sm font-medium mb-2">Image URL *</label>
-                                                            <input type="url" required
-                                                                value={item.url}
-                                                                onChange={(e) => handleUrlChange(index, 'url', e.target.value)}
-                                                                className={selectClass.replace('cursor-pointer', '')} placeholder="https://..." />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-gray-400 text-sm font-medium mb-2">Description</label>
-                                                            <input type="text"
-                                                                value={item.description}
-                                                                onChange={(e) => handleUrlChange(index, 'description', e.target.value)}
-                                                                className={selectClass.replace('cursor-pointer', '')} placeholder="Optional image description..." />
-                                                        </div>
-                                                    </div>
-                                                    {urlItems.length > 1 && (
-                                                        <button type="button" onClick={() => handleRemoveUrlRow(index)} className="mt-8 p-3 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors shrink-0">
-                                                            <Trash2 size={20} />
+                            {event?.images && event.images.length > 0 ? (
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {event.images.map(img => (
+                                        <div key={img.id} className="group relative aspect-square rounded-xl overflow-hidden bg-white/5 border border-white/10">
+                                            <img src={img.image || img.image_url} alt={img.description || 'Event Gallery Image'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3">
+                                                <div className="flex justify-end">
+                                                    {!isLocked && (
+                                                        <button type="button" onClick={() => handleDeleteImage(img.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                                                            <Trash2 size={15} />
                                                         </button>
                                                     )}
                                                 </div>
-                                            ))}
-                                            <button type="button" onClick={handleAddUrlRow} className="flex items-center space-x-2 text-mustard-gold font-medium text-sm hover:text-yellow-400 transition-colors">
-                                                <Plus size={16} /><span>Add Another URL</span>
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="block text-gray-400 text-sm font-medium mb-2">Select Files *</label>
-                                                <input type="file" accept="image/*" multiple
-                                                    onChange={handleFileSelect}
-                                                    className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-mustard-gold file:text-deep-teal hover:file:bg-yellow-500" />
+                                                <p className="text-white text-xs text-center truncate px-2">{img.description || 'No description'}</p>
                                             </div>
-                                            {fileItems.length > 0 && (
-                                                <div className="space-y-3 mt-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                                                    {fileItems.map((item, index) => (
-                                                        <div key={index} className="flex gap-4 items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
-                                                            <img src={item.preview} alt="preview" className="w-16 h-16 object-cover rounded-lg shrink-0" />
-                                                            <div className="flex-1">
-                                                                <input type="text"
-                                                                    value={item.description}
-                                                                    onChange={(e) => handleFileDescChange(index, e.target.value)}
-                                                                    className={selectClass.replace('cursor-pointer', '')} placeholder="Optional image description..." />
-                                                            </div>
-                                                            <button type="button" onClick={() => handleRemoveFile(index)} className="p-3 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors shrink-0">
-                                                                <X size={20} />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
                                         </div>
-                                    )}
+                                    ))}
                                 </div>
-
-                                <div className="flex items-center space-x-4">
-                                    <button type="submit" disabled={imageSubmitting}
-                                        className="flex items-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <Save size={18} />
-                                        <span>{imageSubmitting ? 'Saving...' : 'Save Image'}</span>
-                                    </button>
-                                    <button type="button" onClick={() => setShowImageForm(false)}
-                                        className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 rounded-xl hover:bg-white/15 transition-all">
-                                        <X size={18} />
-                                        <span>Cancel</span>
-                                    </button>
+                            ) : (
+                                <div className="text-center py-12 text-gray-500">
+                                    <ImageIcon size={40} className="mx-auto mb-3 opacity-30" />
+                                    <p>No images yet. Click &quot;Add Image&quot; to upload.</p>
                                 </div>
-                            </form>
+                            )}
                         </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {
-                    event.images && event.images.length > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {event.images.map(img => (
-                                <div key={img.id} className="group relative aspect-square rounded-xl overflow-hidden bg-white/5 border border-white/10">
-                                    <img src={img.image || img.image_url} alt={img.description || 'Event Gallery Image'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3">
-                                        <div className="flex justify-end">
-                                            {!isLocked && (
-                                                <button type="button" onClick={() => handleDeleteImage(img.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            )}
-                                        </div>
-                                        <p className="text-white text-xs text-center truncate px-2">{img.description || 'No description'}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )
-                }
-            </div>
-
-            {/* Action Zones */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {/* Finish Event Zone */}
-                {
-                    event?.status !== 'finished' && event?.status !== 'canceled' && (
-                        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col justify-between">
-                            <div>
-                                <h3 className="text-lg font-bold text-emerald-400 flex items-center space-x-2">
-                                    <CheckCircle size={20} />
-                                    <span>Finish Event</span>
-                                </h3>
-                                <p className="text-sm text-gray-400 mt-1 mb-6">
-                                    Mark this event as complete. This option becomes available once the event date has passed.
-                                </p>
-                            </div>
-                            <div>
-                                <button type="button" onClick={handleFinishEvent} disabled={!isEventOver() || finishingEvent}
-                                    className="w-full sm:w-auto flex items-center justify-center space-x-2 text-emerald-400 font-medium bg-emerald-500/20 border border-emerald-500/30 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-base md:text-sm">
-                                    <CheckCircle size={16} />
-                                    <span>{finishingEvent ? 'Processing...' : 'Finish Event'}</span>
-                                </button>
-                                {!isEventOver() && (
-                                    <p className="text-xs text-emerald-500/60 mt-2">Cannot be finished before the event date.</p>
-                                )}
-                            </div>
-                        </div>
-                    )
-                }
-
-                {/* Danger Zone */}
-                <div className={`bg-red-500/5 border border-red-500/20 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col justify-between ${event?.status === 'finished' || event?.status === 'canceled' ? 'md:col-span-2' : ''}`}>
-                    <div>
-                        <h3 className="text-lg font-bold text-red-400 flex items-center space-x-2">
-                            <Trash2 size={20} />
-                            <span>Danger Zone</span>
-                        </h3>
-                        <p className="text-sm text-gray-400 mt-1 mb-6">Permanently delete this event. This action cannot be undone.</p>
                     </div>
-                    <div>
-                        {!confirmingDelete ? (
-                            <button type="button" onClick={() => setConfirmingDelete(true)}
-                                className="w-full sm:w-auto flex items-center justify-center space-x-2 text-red-400 font-medium bg-red-500/20 border border-red-500/30 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-red-500/30 transition-all text-base md:text-sm">
-                                <Trash2 size={16} />
-                                <span>Delete Event</span>
+                )}
+            </AnimatePresence>
+
+            {/* ── Logbook Modal ─────────────────────────────────────────── */}
+            <AnimatePresence>
+                {showLogbookModal && (
+                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
+                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowLogbookModal(false); }}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-[#0b1015] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative mb-8">
+                            <button type="button" onClick={() => setShowLogbookModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                                <X size={20} />
                             </button>
-                        ) : (
-                            <div className="flex items-center space-x-3 w-full sm:w-auto overflow-x-auto">
-                                <span className="text-sm text-red-400 font-medium whitespace-nowrap">Are you sure?</span>
-                                <button type="button" onClick={handleDelete}
-                                    className="bg-red-600 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-red-700 transition-all whitespace-nowrap">
-                                    Yes, Delete
-                                </button>
-                                <button type="button" onClick={() => setConfirmingDelete(false)}
-                                    className="bg-white/10 border border-white/10 text-gray-300 font-medium px-5 py-2.5 rounded-xl hover:bg-white/15 transition-all whitespace-nowrap">
-                                    Cancel
-                                </button>
-                            </div>
-                        )}
+                            <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                                <BookOpen className="text-mustard-gold" size={22} />
+                                Change Logbook
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-6">{auditLog.length} entries · <span className="text-mustard-gold font-medium">{event?.event_name}</span></p>
+                            {auditLog.length === 0 ? (
+                                <div className="text-center py-12 text-gray-500">
+                                    <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
+                                    <p>No logbook entries yet.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {auditLog.map((entry, idx) => (
+                                        <LogbookEntry key={idx} entry={entry} isFirst={idx === 0} isLast={idx === auditLog.length - 1} eventId={id} logIdx={idx} />
+                                    ))}
+                                </div>
+                            )}
+                        </motion.div>
                     </div>
-                </div>
-            </div >
-        </div >
+                )}
+            </AnimatePresence>
+
+        </div>
     );
 };
 

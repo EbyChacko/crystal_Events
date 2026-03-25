@@ -11,7 +11,7 @@ from .views import (
 router = DefaultRouter()
 router.register(r'services', ServiceViewSet)
 router.register(r'events', EventViewSet)
-router.register(r'expenses', ExpenseViewSet)
+router.register(r'expenses', ExpenseViewSet, basename='expense')
 router.register(r'incomes', IncomeViewSet)
 router.register(r'quotes', QuoteViewSet)
 router.register(r'messages', MessageViewSet)
