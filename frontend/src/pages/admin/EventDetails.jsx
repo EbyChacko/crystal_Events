@@ -109,6 +109,7 @@ const EventDetails = () => {
     const [showFoodMenuForm, setShowFoodMenuForm] = useState(false);
 
     // Payment state
+    const [paymentHistoryOpen, setPaymentHistoryOpen] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentData, setPaymentData] = useState({ type: 'full', discount: '0', received: '' });
     const [paymentSubmitting, setPaymentSubmitting] = useState(false);
@@ -1880,8 +1881,12 @@ const EventDetails = () => {
             </AnimatePresence>
 
             {/* ── Payment History Section ──────────────────────────────────────── */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl mb-6 overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => setPaymentHistoryOpen(o => !o)}
+                    className="w-full flex items-center justify-between p-4 sm:p-6 md:p-8 text-left hover:bg-white/5 transition-colors"
+                >
                     <div>
                         <h2 className="text-lg font-bold text-white flex items-center space-x-2">
                             <Briefcase size={20} className="text-mustard-gold" />
@@ -1891,10 +1896,16 @@ const EventDetails = () => {
                             Summary of financial transactions and chronological history.
                         </p>
                     </div>
-                </div>
+                    {paymentHistoryOpen
+                        ? <ChevronUp size={20} className="text-gray-400 flex-shrink-0" />
+                        : <ChevronDown size={20} className="text-gray-400 flex-shrink-0" />}
+                </button>
+
+                {paymentHistoryOpen && (
+                <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 border-t border-white/10">
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 mt-6">
                     <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
                         <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Quote Total</span>
                         <p className="text-xl font-bold text-white mt-1">
@@ -1989,6 +2000,8 @@ const EventDetails = () => {
 
                     </div>
                 </div>
+                </div>
+                )}
             </div>
 
             {/* ── Gallery Images Section ──────────────────────────────────────── */}
