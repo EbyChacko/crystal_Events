@@ -21,7 +21,7 @@ FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", USER)
 RECIPIENT = sys.argv[1] if len(sys.argv) > 1 else USER
 
 print("=" * 50)
-print("Crystal Events — Email Configuration Test")
+print("Crystal Events - Email Configuration Test")
 print("=" * 50)
 print(f"  HOST     : {HOST}")
 print(f"  PORT     : {PORT}")
@@ -64,11 +64,11 @@ try:
     message = f"""\
 From: {FROM_EMAIL}
 To: {RECIPIENT}
-Subject: Crystal Events — Email Test
+Subject: Crystal Events - Email Test
 
 This is a test email sent from the Crystal Events email test script.
 If you received this, your email setup is working correctly.
-"""
+""".encode("utf-8")
     server.sendmail(FROM_EMAIL, [RECIPIENT], message)
     server.quit()
     print("  → Sent ✓")

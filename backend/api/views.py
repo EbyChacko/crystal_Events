@@ -32,27 +32,54 @@ class EmailTestView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def get(self, request):
-        import smtplib, ssl as ssl_lib
-        result = {
-            "config": {
-                "EMAIL_HOST": settings.EMAIL_HOST,
-                "EMAIL_PORT": settings.EMAIL_PORT,
-                "EMAIL_HOST_USER": settings.EMAIL_HOST_USER,
-                "EMAIL_HOST_PASSWORD_SET": bool(settings.EMAIL_HOST_PASSWORD),
-                "EMAIL_USE_SSL": settings.EMAIL_USE_SSL,
-                "EMAIL_USE_TLS": settings.EMAIL_USE_TLS,
-                "DEFAULT_FROM_EMAIL": settings.DEFAULT_FROM_EMAIL,
+        brevo_api_key = getattr(settings, 'BREVO_API_KEY', None)
+
+        if brevo_api_key:
+            # Brevo HTTP API mode
+            result = {
+                "config": {
+                    "EMAIL_BACKEND": "anymail.backends.brevo.EmailBackend",
+                    "BREVO_API_KEY_SET": True,
+                    "DEFAULT_FROM_EMAIL": settings.DEFAULT_FROM_EMAIL,
+                }
             }
-        }
-        # Test SMTP connection + auth
-        try:
-            ctx = ssl_lib.create_default_context()
-            with smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT, context=ctx, timeout=10) as s:
-                result["smtp_connect"] = "OK"
-                s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                result["smtp_auth"] = "OK"
-        except Exception as e:
-            result["smtp_error"] = f"{type(e).__name__}: {e}"
+            import requests as req
+            try:
+                resp = req.get(
+                    "https://api.brevo.com/v3/account",
+                    headers={"api-key": brevo_api_key},
+                    timeout=10,
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    result["brevo_api"] = "OK"
+                    result["brevo_account"] = data.get("email", "")
+                else:
+                    result["brevo_api_error"] = f"HTTP {resp.status_code}: {resp.text}"
+            except Exception as e:
+                result["brevo_api_error"] = f"{type(e).__name__}: {e}"
+        else:
+            import smtplib, ssl as ssl_lib
+            result = {
+                "config": {
+                    "EMAIL_HOST": settings.EMAIL_HOST,
+                    "EMAIL_PORT": settings.EMAIL_PORT,
+                    "EMAIL_HOST_USER": settings.EMAIL_HOST_USER,
+                    "EMAIL_HOST_PASSWORD_SET": bool(settings.EMAIL_HOST_PASSWORD),
+                    "EMAIL_USE_SSL": settings.EMAIL_USE_SSL,
+                    "EMAIL_USE_TLS": settings.EMAIL_USE_TLS,
+                    "DEFAULT_FROM_EMAIL": settings.DEFAULT_FROM_EMAIL,
+                }
+            }
+            try:
+                ctx = ssl_lib.create_default_context()
+                with smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT, context=ctx, timeout=10) as s:
+                    result["smtp_connect"] = "OK"
+                    s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+                    result["smtp_auth"] = "OK"
+            except Exception as e:
+                result["smtp_error"] = f"{type(e).__name__}: {e}"
+
         return Response(result)
 
 

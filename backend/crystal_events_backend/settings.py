@@ -165,15 +165,26 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# Email settings (one.com SMTP)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get("EMAIL_HOST", "send.one.com")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "465"))
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "info@crystaleventsie.com")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False") == "True"
-EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True") == "True"
+# Email settings
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY")
 
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "info@crystaleventsie.com")
+if BREVO_API_KEY:
+    # Production: use Brevo HTTP API (avoids SMTP port blocking on Render)
+    EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
+    ANYMAIL = {
+        "BREVO_API_KEY": BREVO_API_KEY,
+    }
+    INSTALLED_APPS = INSTALLED_APPS + ['anymail']
+else:
+    # Local dev: use one.com SMTP directly
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get("EMAIL_HOST", "send.one.com")
+    EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "465"))
+    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "info@crystaleventsie.com")
+    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+    EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False") == "True"
+    EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True") == "True"
+    EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", "5"))
+
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Crystal Events <info@crystaleventsie.com>")
 NOTIFY_EMAIL = 'info@crystaleventsie.com'
-EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", "5"))
