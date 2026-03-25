@@ -1341,7 +1341,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         # 2. Staff notification
         try:
             staff_body = (
-                f"New message from the website contact form.\n\n"
+                f"You have an enquiry from {message.name}.\n\n"
                 f"Name: {message.name}\n"
                 f"Email: {message.email}\n"
                 f"Phone: {message.phone}\n"
@@ -1353,7 +1353,7 @@ class MessageViewSet(viewsets.ModelViewSet):
                 if profile.user.email and profile.user.email not in recipients:
                     recipients.append(profile.user.email)
             send_mail(
-                f'New Website Message from {message.name}',
+                f'You have an enquiry from {message.name}',
                 staff_body,
                 settings.DEFAULT_FROM_EMAIL,
                 recipients,
