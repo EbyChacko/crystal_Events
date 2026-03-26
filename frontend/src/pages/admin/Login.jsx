@@ -27,8 +27,11 @@ const Login = () => {
         }
     }, [user, navigate]);
 
-    // Ping health endpoint on mount to wake the backend
+    // Ping health endpoint on mount to wake the backend (production only)
     useEffect(() => {
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (isLocal) { setServerReady(true); return; }
+
         let bannerTimer = null;
         let cancelled = false;
 
