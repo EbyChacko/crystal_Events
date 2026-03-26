@@ -2594,11 +2594,14 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                                         {entry.menu?.items?.length > 0 && (
                                             <div className="md:col-span-2 bg-white/[0.03] border border-white/10 rounded-xl p-3">
                                                 <span className="text-xs text-orange-300/70 block mb-2 font-medium">Menu Items</span>
-                                                <div className="flex flex-wrap gap-2">
+                                                <ul className="space-y-1">
                                                     {entry.menu.items.map((item, i) => (
-                                                        <span key={i} className="text-xs bg-orange-500/10 border border-orange-500/20 text-orange-200 px-2.5 py-1 rounded-lg">{item}</span>
+                                                        <li key={i} className="flex items-center gap-2 text-xs text-gray-300">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
+                                                            {item}
+                                                        </li>
                                                     ))}
-                                                </div>
+                                                </ul>
                                             </div>
                                         )}
                                     </div>
