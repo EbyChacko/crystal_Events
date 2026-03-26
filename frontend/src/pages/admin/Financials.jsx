@@ -73,8 +73,10 @@ const Financials = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [formMode]);
 
+    const [staffList, setStaffList] = useState([]);
+
     const initialFormData = {
-        date: '', amount: '', reason: '', category: '', payer_name: '', receipt_image: null, receipt_image_url: '', is_asset: false
+        date: '', amount: '', reason: '', category: '', payer_name: '', paid_by: '', receipt_image: null, receipt_image_url: '', is_asset: false
     };
     const [formData, setFormData] = useState(initialFormData);
     const [receiptMode, setReceiptMode] = useState('file'); // 'file' | 'url'
@@ -97,9 +99,13 @@ const Financials = () => {
                 reason: e.reason,
                 category: e.category,
                 receipt_image: e.receipt_image,
+                receipt_image_url: e.receipt_image_url || '',
                 is_asset: e.is_asset || false,
                 asset_current_value: e.asset_current_value ? parseFloat(e.asset_current_value) : parseFloat(e.amount),
                 is_active_asset: e.is_active_asset !== false,
+                paid_by: e.paid_by || null,
+                paid_by_name: e.paid_by_name || null,
+                paid_back: e.paid_back || false,
                 isManual: true
             }));
             
@@ -113,6 +119,10 @@ const Financials = () => {
                 reason: i.reason,
                 category: i.category,
                 receipt_image: i.receipt_image,
+                receipt_image_url: i.receipt_image_url || '',
+                paid_by: i.paid_by || null,
+                paid_by_name: i.paid_by_name || null,
+                paid_back: i.paid_back || false,
                 isManual: true
             }));
 
@@ -175,6 +185,9 @@ const Financials = () => {
 
     useEffect(() => {
         fetchData();
+        api.get('/auth/users/').then(res => {
+            setStaffList(res.data.results || res.data);
+        }).catch(() => {});
     }, []);
 
     const handleChange = (e) => {
@@ -195,6 +208,7 @@ const Financials = () => {
             amount: transaction.amount,
             reason: transaction.reason,
             payer_name: transaction.payer_name || '',
+            paid_by: transaction.paid_by || '',
             category: transaction.category,
             receipt_image: null,
             receipt_image_url: transaction.receipt_image_url || '',
@@ -217,6 +231,9 @@ const Financials = () => {
             data.append('category', formData.category);
             if (formMode === 'income') {
                 data.append('payer_name', formData.payer_name);
+            }
+            if (formData.paid_by) {
+                data.append('paid_by', formData.paid_by);
             }
             if (formMode === 'expense') {
                 data.append('is_asset', formData.is_asset ? 'True' : 'False');
@@ -563,6 +580,19 @@ const Financials = () => {
                                             className={inputClass} placeholder="e.g. Flowers for Smith wedding" required />
                                     </div>
                                     <div className="md:col-span-2">
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">
+                                            Paid By (Staff) <span className="text-gray-600 font-normal">— leave blank if paid by company</span>
+                                        </label>
+                                        <select name="paid_by" value={formData.paid_by} onChange={handleChange} className={selectClass}>
+                                            <option value="" className="bg-gray-900">— Company / Not applicable —</option>
+                                            {staffList.map(s => (
+                                                <option key={s.id} value={s.id} className="bg-gray-900">
+                                                    {`${s.first_name} ${s.last_name}`.trim() || s.username}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Receipt Image</label>
                                         {/* Toggle */}
                                         <div className="flex rounded-xl overflow-hidden border border-white/10 mb-3 w-fit">
@@ -667,6 +697,11 @@ const Financials = () => {
                                                 <p className="text-sm font-medium text-white">{t.reason}</p>
                                                 {t.type === 'income' && t.payer_name && (
                                                     <p className="text-xs text-gray-400 mt-0.5">From: {t.payer_name}</p>
+                                                )}
+                                                {t.paid_by_name && (
+                                                    <span className={`inline-block text-xs px-2 py-0.5 rounded-md mt-0.5 ${t.paid_back ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                                                        {t.type === 'expense' ? 'Paid by' : 'Received by'}: {t.paid_by_name} {t.paid_back ? '✓' : '· pending'}
+                                                    </span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">

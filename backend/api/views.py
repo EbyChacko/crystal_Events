@@ -108,8 +108,24 @@ class IncomeViewSet(viewsets.ModelViewSet):
     serializer_class = IncomeSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        queryset = Income.objects.all()
+        paid_by = self.request.query_params.get('paid_by')
+        if paid_by:
+            queryset = queryset.filter(paid_by=paid_by)
+        return queryset
+
     def perform_create(self, serializer):
         serializer.save(added_by=self.request.user)
+
+    @action(detail=False, methods=['post'], url_path='bulk_mark_paid_back')
+    def bulk_mark_paid_back(self, request):
+        from django.utils import timezone
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'No ids provided.'}, status=400)
+        Income.objects.filter(id__in=ids).update(paid_back=True, paid_back_at=timezone.now())
+        return Response({'updated': len(ids)})
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
@@ -940,7 +956,19 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         event_id = self.request.query_params.get('event')
         if event_id:
             queryset = queryset.filter(event_id=event_id)
+        paid_by = self.request.query_params.get('paid_by')
+        if paid_by:
+            queryset = queryset.filter(paid_by=paid_by)
         return queryset
+
+    @action(detail=False, methods=['post'], url_path='bulk_mark_paid_back')
+    def bulk_mark_paid_back(self, request):
+        from django.utils import timezone
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'No ids provided.'}, status=400)
+        Expense.objects.filter(id__in=ids).update(paid_back=True, paid_back_at=timezone.now())
+        return Response({'updated': len(ids)})
 
 
 class EventImageViewSet(viewsets.ModelViewSet):

@@ -45,6 +45,7 @@ class EventImageSerializer(serializers.ModelSerializer):
 class ExpenseSerializer(serializers.ModelSerializer):
     event_name = serializers.CharField(source='event.event_name', read_only=True, default=None)
     approved_by_name = serializers.SerializerMethodField()
+    paid_by_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Expense
@@ -55,10 +56,22 @@ class ExpenseSerializer(serializers.ModelSerializer):
             return f"{obj.approved_by.first_name} {obj.approved_by.last_name}".strip() or obj.approved_by.username
         return None
 
+    def get_paid_by_name(self, obj):
+        if obj.paid_by:
+            return f"{obj.paid_by.first_name} {obj.paid_by.last_name}".strip() or obj.paid_by.username
+        return None
+
 class IncomeSerializer(serializers.ModelSerializer):
+    paid_by_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Income
         fields = '__all__'
+
+    def get_paid_by_name(self, obj):
+        if obj.paid_by:
+            return f"{obj.paid_by.first_name} {obj.paid_by.last_name}".strip() or obj.paid_by.username
+        return None
 
 class TravelRateSerializer(serializers.ModelSerializer):
     class Meta:

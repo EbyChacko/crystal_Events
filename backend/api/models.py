@@ -105,11 +105,14 @@ class Expense(models.Model):
     reason = models.CharField(max_length=255)
     category = models.CharField(max_length=100) # e.g. Decor, Catering
     event = models.ForeignKey('Event', on_delete=models.SET_NULL, null=True, blank=True, related_name='expenses')
-    approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='approved_expenses')
+    paid_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='expenses_paid')
+    paid_back = models.BooleanField(default=False)
+    paid_back_at = models.DateTimeField(null=True, blank=True)
     receipt_image = models.ImageField(upload_to='expenses/', blank=True, null=True)
     receipt_image_url = models.URLField(max_length=1000, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     # Asset Tracking Fields
     is_asset = models.BooleanField(default=False)
     asset_current_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -124,7 +127,10 @@ class Income(models.Model):
     payer_name = models.CharField(max_length=255, blank=True, default='')
     reason = models.CharField(max_length=255)
     category = models.CharField(max_length=100) # e.g. Investment, Sales, Other
-    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='added_incomes')
+    paid_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='incomes_received')
+    paid_back = models.BooleanField(default=False)
+    paid_back_at = models.DateTimeField(null=True, blank=True)
     receipt_image = models.ImageField(upload_to='incomes/', blank=True, null=True)
     receipt_image_url = models.URLField(max_length=1000, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
