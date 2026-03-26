@@ -530,10 +530,27 @@ class EventViewSet(viewsets.ModelViewSet):
     
             # We need to grab Travel Cost from the quote if there is one
             travel_cost = float(quote_to_use.travel_cost) if quote_to_use and getattr(quote_to_use, 'travel_cost', 0) else 0.0
-            
+
             if travel_cost > 0:
                 travel_col = Paragraph("Travel Expense", ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
                 table_data.append([str(len(table_data)), travel_col, f'€{travel_cost:,.2f}'])
+
+            catering_cost = float(quote_to_use.catering_cost) if quote_to_use and getattr(quote_to_use, 'catering_cost', 0) else 0.0
+            if catering_cost > 0:
+                food_menu = None
+                try:
+                    food_menu = event.food_menu
+                except Exception:
+                    food_menu = None
+                if food_menu:
+                    catering_detail = (
+                        f"Catering — {food_menu.adult_count} Adult(s) × €{float(food_menu.adult_rate):,.2f}"
+                        f" + {food_menu.kid_count} Kid(s) × €{float(food_menu.kid_rate):,.2f}"
+                    )
+                else:
+                    catering_detail = "Catering"
+                catering_col = Paragraph(catering_detail, ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
+                table_data.append([str(len(table_data)), catering_col, f'€{catering_cost:,.2f}'])
 
         svc_table = Table(table_data, colWidths=[30, 310, 100])
         svc_table.setStyle(TableStyle([
@@ -1210,7 +1227,24 @@ class QuoteViewSet(viewsets.ModelViewSet):
 
         if quote.travel_cost > 0:
             travel_col = Paragraph("Travel Expense", ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-            table_data.append([str(len(items) + 1), travel_col, f'€{quote.travel_cost:,.2f}'])
+            table_data.append([str(len(table_data)), travel_col, f'€{quote.travel_cost:,.2f}'])
+
+        if quote.catering_cost and quote.catering_cost > 0:
+            food_menu = None
+            if quote.event:
+                try:
+                    food_menu = quote.event.food_menu
+                except Exception:
+                    food_menu = None
+            if food_menu:
+                catering_detail = (
+                    f"Catering — {food_menu.adult_count} Adult(s) × €{food_menu.adult_rate:,.2f}"
+                    f" + {food_menu.kid_count} Kid(s) × €{food_menu.kid_rate:,.2f}"
+                )
+            else:
+                catering_detail = "Catering"
+            catering_col = Paragraph(catering_detail, ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
+            table_data.append([str(len(table_data)), catering_col, f'€{quote.catering_cost:,.2f}'])
 
         svc_table = Table(table_data, colWidths=[30, 310, 100])
         svc_table.setStyle(TableStyle([
