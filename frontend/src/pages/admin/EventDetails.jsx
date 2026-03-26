@@ -2419,6 +2419,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
     const isQuoteAction = entry.action === 'quote_created' || entry.action === 'quote_updated';
     const isPaymentAction = entry.action === 'payment_received';
     const isRefundAction = entry.action === 'refund_made';
+    const isMenuAction = entry.action === 'menu_added' || entry.action === 'menu_updated';
 
     const GRID_FIELDS = [
         { key: 'event_name', label: 'Event Name' },
@@ -2461,6 +2462,8 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
         if (entry.action === 'quote_updated') return 'Quote Updated';
         if (entry.action === 'payment_received') return 'Payment Received';
         if (entry.action === 'refund_made') return 'Refund Made';
+        if (entry.action === 'menu_added') return 'Food Menu Added';
+        if (entry.action === 'menu_updated') return 'Food Menu Updated';
         return entry.action;
     };
 
@@ -2469,6 +2472,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
         if (isQuoteAction) return 'bg-pink-400';
         if (isPaymentAction) return 'bg-indigo-400';
         if (isRefundAction) return 'bg-rose-400';
+        if (isMenuAction) return 'bg-orange-400';
         return 'bg-amber-400';
     };
 
@@ -2477,6 +2481,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
         if (isQuoteAction) return 'border-pink-500/20 bg-pink-500/5';
         if (isPaymentAction) return 'border-indigo-500/30 bg-indigo-500/10';
         if (isRefundAction) return 'border-rose-500/30 bg-rose-500/10';
+        if (isMenuAction) return 'border-orange-500/30 bg-orange-500/5';
         return 'border-white/10 bg-white/[0.02]';
     };
 
@@ -2565,6 +2570,27 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                                                 <p className="text-sm text-white italic">{entry.reason}</p>
                                             </div>
                                         )}
+                                    </div>
+                                </div>
+                            ) : isMenuAction ? (
+                                /* Food menu action details */
+                                <div className="mt-4">
+                                    <p className="text-xs text-orange-400/70 uppercase tracking-wider mb-3 font-medium">Food Menu Details</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3">
+                                            <span className="text-xs text-orange-300/70 block mb-1">Adults</span>
+                                            <span className="text-sm font-bold text-white">{entry.menu?.adult_count ?? '—'}</span>
+                                            <span className="text-xs text-gray-400 ml-2">× €{parseFloat(entry.menu?.adult_rate || 0).toFixed(2)} per head</span>
+                                        </div>
+                                        <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3">
+                                            <span className="text-xs text-orange-300/70 block mb-1">Kids</span>
+                                            <span className="text-sm font-bold text-white">{entry.menu?.kid_count ?? '—'}</span>
+                                            <span className="text-xs text-gray-400 ml-2">× €{parseFloat(entry.menu?.kid_rate || 0).toFixed(2)} per head</span>
+                                        </div>
+                                        <div className="md:col-span-2 bg-orange-500/15 border border-orange-500/30 rounded-xl p-3 flex items-center justify-between">
+                                            <span className="text-sm font-bold text-orange-300">Total Catering Cost</span>
+                                            <span className="text-lg font-bold text-white">€{parseFloat(entry.menu?.total_cost || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
                                     </div>
                                 </div>
                             ) : isQuoteAction ? (

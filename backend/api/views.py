@@ -1631,6 +1631,43 @@ class TwoFactorDisableView(generics.GenericAPIView):
 class FoodMenuViewSet(viewsets.ModelViewSet):
     queryset = FoodMenu.objects.all()
     serializer_class = FoodMenuSerializer
+
+    def _user_display(self, user):
+        if not user or not user.is_authenticated:
+            return 'Unknown'
+        full = f"{user.first_name} {user.last_name}".strip()
+        return full or user.username
+
+    def _log_menu_action(self, menu, action, user):
+        from django.utils import timezone
+        event = menu.event
+        if not event:
+            return
+        log_entry = {
+            'timestamp': timezone.now().isoformat(),
+            'action': action,
+            'user': self._user_display(user),
+            'menu': {
+                'adult_count': menu.adult_count,
+                'adult_rate': str(menu.adult_rate),
+                'kid_count': menu.kid_count,
+                'kid_rate': str(menu.kid_rate),
+                'total_cost': str(menu.total_cost),
+            }
+        }
+        log = list(event.audit_log or [])
+        log.append(log_entry)
+        event.audit_log = log
+        event.save(update_fields=['audit_log'])
+
+    def perform_create(self, serializer):
+        menu = serializer.save()
+        self._log_menu_action(menu, 'menu_added', self.request.user)
+
+    def perform_update(self, serializer):
+        menu = serializer.save()
+        self._log_menu_action(menu, 'menu_updated', self.request.user)
+
     def get_permissions(self):
         if self.action == 'pdf':
             return [permissions.AllowAny()]
