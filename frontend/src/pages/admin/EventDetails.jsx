@@ -128,6 +128,8 @@ const EventDetails = () => {
     const [refundReason, setRefundReason] = useState('');
     const [refundSubmitting, setRefundSubmitting] = useState(false);
 
+    const [confirmingFinish, setConfirmingFinish] = useState(false);
+
     // Gallery state
     const [showImageForm, setShowImageForm] = useState(false);
     const [imageUploadType, setImageUploadType] = useState('url');
@@ -1891,11 +1893,28 @@ const EventDetails = () => {
                                     <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
                                         <p className="text-sm font-semibold text-emerald-400 mb-1">Finish Event</p>
                                         <p className="text-xs text-gray-500 mb-3">Mark as complete once the event date has passed.</p>
-                                        <button type="button" onClick={() => { setSidebarOpen(false); handleFinishEvent(); }} disabled={!isEventOver() || finishingEvent}
-                                            className="w-full flex items-center justify-center space-x-2 text-emerald-400 font-medium bg-emerald-500/20 border border-emerald-500/30 px-4 py-2 rounded-xl hover:bg-emerald-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
-                                            <CheckCircle size={15} />
-                                            <span>{finishingEvent ? 'Processing...' : 'Finish Event'}</span>
-                                        </button>
+                                        {!confirmingFinish ? (
+                                            <button type="button" onClick={() => setConfirmingFinish(true)} disabled={!isEventOver() || finishingEvent}
+                                                className="w-full flex items-center justify-center space-x-2 text-emerald-400 font-medium bg-emerald-500/20 border border-emerald-500/30 px-4 py-2 rounded-xl hover:bg-emerald-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+                                                <CheckCircle size={15} />
+                                                <span>Finish Event</span>
+                                            </button>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                <p className="text-xs text-emerald-300 text-center font-medium">Are you sure? This will mark the event as finished.</p>
+                                                <div className="flex gap-2">
+                                                    <button type="button" onClick={() => setConfirmingFinish(false)}
+                                                        className="flex-1 text-gray-400 font-medium bg-white/5 border border-white/10 px-3 py-2 rounded-xl hover:bg-white/10 transition-all text-sm">
+                                                        Cancel
+                                                    </button>
+                                                    <button type="button" onClick={() => { setConfirmingFinish(false); setSidebarOpen(false); handleFinishEvent(); }} disabled={finishingEvent}
+                                                        className="flex-1 flex items-center justify-center space-x-1 text-emerald-400 font-medium bg-emerald-500/20 border border-emerald-500/30 px-3 py-2 rounded-xl hover:bg-emerald-500/30 transition-all text-sm">
+                                                        <CheckCircle size={14} />
+                                                        <span>{finishingEvent ? 'Processing...' : 'Confirm'}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                         {!isEventOver() && <p className="text-xs text-emerald-500/50 mt-2 text-center">Event date has not passed yet.</p>}
                                     </div>
                                 )}
@@ -2187,18 +2206,20 @@ const EventDetails = () => {
                             <button type="button" onClick={() => { setShowGalleryModal(false); setShowImageForm(false); }} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
-                            <div className="flex items-center justify-between mb-6">
-                                <div>
-                                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                        <ImageIcon className="text-purple-400" size={22} />
-                                        Gallery
-                                    </h3>
-                                    <p className="text-sm text-gray-500 mt-1">{event?.images?.length || 0} images · {event?.event_name}</p>
+                            <div className="mb-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                            <ImageIcon className="text-purple-400" size={22} />
+                                            Gallery
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mt-1">{event?.images?.length || 0} images · {event?.event_name}</p>
+                                    </div>
                                 </div>
                                 {!showImageForm && !isLocked && (
                                     <button type="button" onClick={() => setShowImageForm(true)}
-                                        className="flex items-center space-x-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 font-medium px-4 py-2 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
-                                        <Plus size={16} /><span>Add Image</span>
+                                        className="w-full flex items-center justify-center space-x-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 font-medium px-4 py-3 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
+                                        <Plus size={16} /><span>+ Add Image</span>
                                     </button>
                                 )}
                             </div>
