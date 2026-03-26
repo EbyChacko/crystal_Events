@@ -85,7 +85,7 @@ class QuoteSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'event', 'event_name',
             'client_name', 'client_email', 'client_phone', 'client_address',
-            'travel_cost', 'discount_percentage', 'status', 'notes', 'special_requirements',
+            'travel_cost', 'catering_cost', 'discount_percentage', 'status', 'notes', 'special_requirements',
             'created_at', 'updated_at',
             'items', 'subtotal', 'discount_amount', 'total',
         ]

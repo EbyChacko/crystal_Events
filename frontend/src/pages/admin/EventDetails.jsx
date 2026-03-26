@@ -98,7 +98,7 @@ const EventDetails = () => {
     const [quoteSubmitting, setQuoteSubmitting] = useState(false);
     const emptyQuoteItem = { service: '', minimum_amount: '', quoted_amount: '', comment: '' };
     const [quoteFormData, setQuoteFormData] = useState({
-        discount_percentage: '0', status: 'draft', notes: '',
+        discount_percentage: '0', status: 'draft', notes: '', catering_cost: '0',
         items: [{ ...emptyQuoteItem }],
     });
     const [isQuoteDirty, setIsQuoteDirty] = useState(false);
@@ -504,7 +504,7 @@ const EventDetails = () => {
     // ── Quote Handlers ───────────────────────────────────────────────
     const openCreateQuote = () => {
         const initialData = {
-            discount_percentage: '0', status: 'draft', notes: '',
+            discount_percentage: '0', status: 'draft', notes: '', catering_cost: '0',
             items: [{ ...emptyQuoteItem }],
         };
         setQuoteFormData(initialData);
@@ -520,6 +520,7 @@ const EventDetails = () => {
             discount_percentage: eventQuote.discount_percentage || '0',
             status: eventQuote.status,
             notes: eventQuote.notes || '',
+            catering_cost: eventQuote.catering_cost || '0',
             items: eventQuote.items.map(item => ({
                 service: item.service,
                 minimum_amount: item.minimum_amount,
@@ -599,6 +600,7 @@ const EventDetails = () => {
                 client_email: event.client_email || '',
                 client_phone: event.client_phone || '',
                 travel_cost: travelCost,
+                catering_cost: parseFloat(quoteFormData.catering_cost) || 0,
                 discount_percentage: parseFloat(quoteFormData.discount_percentage) || 0,
                 status: quoteFormData.status,
                 notes: quoteFormData.notes,
@@ -737,7 +739,7 @@ const EventDetails = () => {
     // True when the user has made at least one change in the edit modal
     const isDirty = JSON.stringify(formData) !== JSON.stringify(originalFormData.current);
 
-    const quoteSubtotal = quoteFormData.items.reduce((sum, item) => sum + (parseFloat(item.quoted_amount) || 0), 0) + quoteTravelCost;
+    const quoteSubtotal = quoteFormData.items.reduce((sum, item) => sum + (parseFloat(item.quoted_amount) || 0), 0) + quoteTravelCost + (parseFloat(quoteFormData.catering_cost) || 0);
     const quoteDiscountPct = parseFloat(quoteFormData.discount_percentage) || 0;
     const quoteDiscountAmt = quoteSubtotal * quoteDiscountPct / 100;
     const quoteTotal = quoteSubtotal - quoteDiscountAmt;
@@ -1442,6 +1444,17 @@ const EventDetails = () => {
                                         <span className="text-sm font-bold text-white">€{parseFloat(eventQuote.travel_cost).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                 )}
+                                {parseFloat(eventQuote.catering_cost) > 0 && (
+                                    <div className="flex items-center justify-between bg-white/[0.03] border border-orange-500/30 rounded-xl px-4 py-3 mt-3">
+                                        <div>
+                                            <span className="text-sm text-orange-400 font-bold block">Catering</span>
+                                            {eventFoodMenu && (
+                                                <span className="text-xs text-gray-400">{eventFoodMenu.adult_count} adults + {eventFoodMenu.kid_count} kids</span>
+                                            )}
+                                        </div>
+                                        <span className="text-sm font-bold text-white">€{parseFloat(eventQuote.catering_cost).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-col items-end space-y-1 text-sm">
                                 <div className="flex items-center space-x-6">
@@ -1545,7 +1558,7 @@ const EventDetails = () => {
                                                                             onChange={(e) => handleQuoteItemChange(index, 'service', e.target.value)}
                                                                             className={selectClass} required>
                                                                             <option value="" className="bg-gray-900">Select a service</option>
-                                                                            {services.map(s => (
+                                                                            {services.filter(s => s.name !== 'Catering').map(s => (
                                                                                 <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>
                                                                             ))}
                                                                         </select>
@@ -1627,6 +1640,36 @@ const EventDetails = () => {
                                                     </div>
                                                 </div>
                                             )}
+                                        </div>
+
+                                        {/* Catering Cost */}
+                                        <div className="bg-white/[0.03] border border-orange-500/30 rounded-xl p-4 mt-3">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div>
+                                                    <p className="text-orange-400 text-sm font-bold">Catering</p>
+                                                    {eventFoodMenu ? (
+                                                        <p className="text-xs text-gray-400 mt-0.5">
+                                                            Food menu: {eventFoodMenu.adult_count} adults × €{parseFloat(eventFoodMenu.adult_rate).toFixed(2)} + {eventFoodMenu.kid_count} kids × €{parseFloat(eventFoodMenu.kid_rate).toFixed(2)}
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-500 mt-0.5">No food menu added yet. Add a food menu to auto-fill.</p>
+                                                    )}
+                                                </div>
+                                                {eventFoodMenu && (
+                                                    <button type="button"
+                                                        onClick={() => setQuoteFormData({ ...quoteFormData, catering_cost: parseFloat(eventFoodMenu.total_cost).toFixed(2) })}
+                                                        className="text-xs text-orange-400 border border-orange-500/30 bg-orange-500/10 px-3 py-1 rounded-lg hover:bg-orange-500/20 transition-all">
+                                                        Auto-fill from menu
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="number"
+                                                value={quoteFormData.catering_cost}
+                                                onChange={(e) => setQuoteFormData({ ...quoteFormData, catering_cost: e.target.value })}
+                                                className={selectClass.replace('cursor-pointer', '')}
+                                                placeholder="0.00" step="0.01" min="0"
+                                            />
                                         </div>
 
                                         {/* Quote Details */}

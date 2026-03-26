@@ -172,6 +172,7 @@ class Quote(models.Model):
 
     # Quote details
     travel_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    catering_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     notes = models.TextField(blank=True, default='')
@@ -184,7 +185,7 @@ class Quote(models.Model):
 
     @property
     def subtotal(self):
-        return sum(item.quoted_amount for item in self.items.all()) + self.travel_cost
+        return sum(item.quoted_amount for item in self.items.all()) + self.travel_cost + self.catering_cost
 
     @property
     def discount_amount(self):
