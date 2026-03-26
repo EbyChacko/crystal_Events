@@ -1653,6 +1653,7 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
                 'kid_count': menu.kid_count,
                 'kid_rate': str(menu.kid_rate),
                 'total_cost': str(menu.total_cost),
+                'items': [item.name for item in menu.items.all()],
             }
         }
         log = list(event.audit_log or [])

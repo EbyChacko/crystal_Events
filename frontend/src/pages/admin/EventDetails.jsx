@@ -2591,6 +2591,16 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                                             <span className="text-sm font-bold text-orange-300">Total Catering Cost</span>
                                             <span className="text-lg font-bold text-white">€{parseFloat(entry.menu?.total_cost || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                         </div>
+                                        {entry.menu?.items?.length > 0 && (
+                                            <div className="md:col-span-2 bg-white/[0.03] border border-white/10 rounded-xl p-3">
+                                                <span className="text-xs text-orange-300/70 block mb-2 font-medium">Menu Items</span>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {entry.menu.items.map((item, i) => (
+                                                        <span key={i} className="text-xs bg-orange-500/10 border border-orange-500/20 text-orange-200 px-2.5 py-1 rounded-lg">{item}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ) : isQuoteAction ? (
