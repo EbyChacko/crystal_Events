@@ -164,7 +164,7 @@ class EventViewSet(viewsets.ModelViewSet):
             'timestamp': event.created_at.isoformat(),
             'action': 'created',
             'user': self._user_display(user),
-            'snapshot': self._snapshot(event),
+            'snapshot': self._build_snapshot(event),
         }]
         event.save(update_fields=['audit_log'])
 
