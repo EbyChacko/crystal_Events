@@ -164,6 +164,7 @@ class EventViewSet(viewsets.ModelViewSet):
             'timestamp': event.created_at.isoformat(),
             'action': 'created',
             'user': self._user_display(user),
+            'snapshot': self._snapshot(event),
         }]
         event.save(update_fields=['audit_log'])
 
@@ -1005,6 +1006,25 @@ class QuoteViewSet(viewsets.ModelViewSet):
                 'description': 'Calculated based on distance'
             })
             entry['services'].append('Travel Expense')
+
+        if quote.catering_cost and quote.catering_cost > 0:
+            food_menu = None
+            try:
+                food_menu = event.food_menu
+            except Exception:
+                food_menu = None
+            catering_description = ''
+            if food_menu:
+                catering_description = (
+                    f"{food_menu.adult_count} adult(s) × €{float(food_menu.adult_rate):,.2f}"
+                    f" + {food_menu.kid_count} kid(s) × €{float(food_menu.kid_rate):,.2f}"
+                )
+            entry['services_detail'].append({
+                'name': 'Catering',
+                'amount': str(quote.catering_cost),
+                'description': catering_description
+            })
+            entry['services'].append('Catering')
 
         log = list(event.audit_log or [])
         log.append(entry)
