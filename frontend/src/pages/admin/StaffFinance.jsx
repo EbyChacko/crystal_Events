@@ -110,7 +110,7 @@ const StaffFinance = () => {
     if (!selectedStaff) {
         return (
             <div>
-                <div className="max-w-3xl">
+                <div>
                     <div className="mb-8">
                         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
                             <Wallet className="text-mustard-gold" size={28} />
@@ -178,7 +178,7 @@ const StaffFinance = () => {
 
     return (
         <div>
-            <div className="max-w-3xl">
+            <div>
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-6">
                     <button onClick={() => setSelectedStaff(null)}
