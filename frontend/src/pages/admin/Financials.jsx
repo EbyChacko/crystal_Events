@@ -230,9 +230,15 @@ const Financials = () => {
             data.append('reason', formData.reason);
             data.append('category', formData.category);
             if (formMode === 'income') {
-                data.append('payer_name', formData.payer_name);
-            }
-            if (formData.paid_by) {
+                if (formData.paid_by === 'other') {
+                    data.append('payer_name', formData.payer_name);
+                    // don't send paid_by
+                } else if (formData.paid_by) {
+                    data.append('paid_by', formData.paid_by);
+                    const staff = staffList.find(s => String(s.id) === String(formData.paid_by));
+                    if (staff) data.append('payer_name', `${staff.first_name} ${staff.last_name}`.trim() || staff.username);
+                }
+            } else if (formData.paid_by) {
                 data.append('paid_by', formData.paid_by);
             }
             if (formMode === 'expense') {
@@ -541,11 +547,6 @@ const Financials = () => {
                                                 className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5"
                                             >
                                                 <div>
-                                                    <label className="block text-gray-400 text-sm font-medium mb-2">Received From (Payer Name)</label>
-                                                    <input type="text" name="payer_name" value={formData.payer_name} onChange={handleChange}
-                                                        className={inputClass} placeholder="e.g. John Doe, ABC Corp" />
-                                                </div>
-                                                <div>
                                                     <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
                                                     <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
                                                         {INCOME_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
@@ -581,16 +582,22 @@ const Financials = () => {
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">
-                                            Paid By (Staff) <span className="text-gray-600 font-normal">— leave blank if paid by company</span>
+                                            {formMode === 'income' ? 'Received From' : 'Paid By (Staff)'}
+                                            {formMode === 'expense' && <span className="text-gray-600 font-normal"> — leave blank if paid by company</span>}
                                         </label>
                                         <select name="paid_by" value={formData.paid_by} onChange={handleChange} className={selectClass}>
-                                            <option value="" className="bg-gray-900">— Company / Not applicable —</option>
+                                            <option value="" className="bg-gray-900">{formMode === 'income' ? '— Select —' : '— Company / Not applicable —'}</option>
                                             {staffList.map(s => (
                                                 <option key={s.id} value={s.id} className="bg-gray-900">
                                                     {`${s.first_name} ${s.last_name}`.trim() || s.username}
                                                 </option>
                                             ))}
+                                            {formMode === 'income' && <option value="other" className="bg-gray-900">Other (enter name)</option>}
                                         </select>
+                                        {formMode === 'income' && formData.paid_by === 'other' && (
+                                            <input type="text" name="payer_name" value={formData.payer_name} onChange={handleChange}
+                                                className={`${inputClass} mt-2`} placeholder="Enter payer name (e.g. John Doe, ABC Corp)" />
+                                        )}
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Receipt Image</label>
