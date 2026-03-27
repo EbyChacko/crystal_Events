@@ -109,8 +109,8 @@ const StaffFinance = () => {
     // ── Summary list view ──────────────────────────────────────
     if (!selectedStaff) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-[#0a1a1a] via-[#0d2424] to-[#0a1a1a] p-4 md:p-8">
-                <div className="max-w-3xl mx-auto">
+            <div>
+                <div className="max-w-3xl">
                     <div className="mb-8">
                         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
                             <Wallet className="text-mustard-gold" size={28} />
@@ -177,8 +177,8 @@ const StaffFinance = () => {
     const totalSettled = paidDetailExpenses.reduce((s, e) => s + parseFloat(e.amount), 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#0a1a1a] via-[#0d2424] to-[#0a1a1a] p-4 md:p-8">
-            <div className="max-w-3xl mx-auto">
+        <div>
+            <div className="max-w-3xl">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-6">
                     <button onClick={() => setSelectedStaff(null)}
