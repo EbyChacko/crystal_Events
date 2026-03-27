@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, CheckCircle, ChevronDown, Wallet, ArrowLeft, TrendingDown, TrendingUp } from 'lucide-react';
+import { Users, CheckCircle, ChevronDown, Wallet, ArrowLeft, TrendingDown, TrendingUp, Search } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
 
@@ -14,6 +14,7 @@ const StaffFinance = () => {
     const [allExpenses, setAllExpenses] = useState([]);
     const [allIncomes, setAllIncomes] = useState([]);
     const [summaryLoading, setSummaryLoading] = useState(true);
+    const [search, setSearch] = useState('');
     const [selectedStaff, setSelectedStaff] = useState(null); // staff object or null
     const [detailExpenses, setDetailExpenses] = useState([]);
     const [detailIncomes, setDetailIncomes] = useState([]);
@@ -119,6 +120,19 @@ const StaffFinance = () => {
                         <p className="text-gray-500 text-sm mt-1">Overview of amounts owed to each staff member. Click to view details.</p>
                     </div>
 
+                    {!summaryLoading && staffSummary.length > 0 && (
+                        <div className="relative mb-6">
+                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                placeholder="Search staff name..."
+                                className="w-full bg-white/5 border border-white/10 text-white pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                            />
+                        </div>
+                    )}
+
                     {summaryLoading ? (
                         <div className="text-center py-16 text-gray-500">Loading...</div>
                     ) : staffSummary.length === 0 ? (
@@ -128,7 +142,7 @@ const StaffFinance = () => {
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {staffSummary.map(({ staff: s, pending, settled, expCount }) => (
+                            {staffSummary.filter(({ staff: s }) => staffName(s).toLowerCase().includes(search.toLowerCase())).map(({ staff: s, pending, settled, expCount }) => (
                                 <button key={s.id} onClick={() => setSelectedStaff(s)}
                                     className="w-full text-left bg-white/5 border border-white/10 hover:border-mustard-gold/30 hover:bg-white/[0.07] rounded-2xl p-5 transition-all group">
                                     <div className="flex items-center justify-between">
