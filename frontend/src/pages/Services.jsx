@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Star, BadgeCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
@@ -7,6 +7,13 @@ import api from '../utils/api';
 const Services = () => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const { scrollY } = useScroll();
+    const sectionShadow = useTransform(
+        scrollY,
+        [0, 80],
+        ['0px -16px 60px rgba(0,0,0,0)', '0px -16px 60px rgba(0,0,0,0.5)']
+    );
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -24,9 +31,10 @@ const Services = () => {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-screen bg-off-white dark:bg-background-dark font-sans text-slate-800 dark:text-slate-100">
-            {/* Hero Section */}
-            <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+        <div className="font-sans text-white bg-background-dark">
+
+            {/* ── Hero ── z-index 1 */}
+            <section data-scroll-snap className="sticky top-0 z-[1] relative min-h-screen flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/80 via-deep-teal/60 to-background-dark z-10"></div>
                     <img
@@ -63,8 +71,8 @@ const Services = () => {
                 </div>
             </section>
 
-            {/* Services Grid */}
-            <section className="px-6 md:px-16 lg:px-40 py-24 bg-background-dark">
+            {/* ── Services Grid ── slides over hero, z-index 2 */}
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="sticky top-0 z-[2] min-h-screen px-6 md:px-16 lg:px-40 py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-[1200px] mx-auto">
                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                         <div className="max-w-xl">
@@ -112,36 +120,8 @@ const Services = () => {
                         ))}
                     </div>
                 </div>
-            </section>
+            </motion.section>
 
-
-
-            {/* Call to Action */}
-            <section className="py-24 px-6 md:px-12 lg:px-20 bg-jungle-green relative z-20">
-                <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl bg-mustard-gold p-12 md:p-20 text-center text-jungle-green relative shadow-2xl">
-                    <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight font-sans">
-                        Ready to create <span className="italic font-serif">magic?</span>
-                    </h2>
-                    <p className="mx-auto max-w-xl text-lg font-medium mb-10 text-jungle-green/80">
-                        Let's collaborate to bring your dream event to life with the precision of Crystal Events.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
-                        <Link
-                            to="/contact"
-                            className="w-full sm:w-auto px-10 py-5 bg-jungle-green text-mustard-gold font-bold uppercase tracking-widest rounded-lg hover:bg-jungle-green/90 transition-all shadow-xl"
-                        >
-                            Start Planning
-                        </Link>
-                        <Link
-                            to="/gallery"
-                            className="w-full sm:w-auto px-10 py-5 border-2 border-jungle-green text-jungle-green font-bold uppercase tracking-widest rounded-lg hover:bg-jungle-green hover:text-mustard-gold transition-all"
-                        >
-                            View Portfolio
-                        </Link>
-                    </div>
-                </div>
-            </section>
         </div>
     );
 };

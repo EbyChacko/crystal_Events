@@ -53,7 +53,7 @@ const Contact = () => {
     };
 
     return (
-        <div className="bg-background-dark text-white font-sans min-h-screen pt-32 pb-16 px-6 md:px-12 lg:px-20">
+        <div data-scroll-snap className="sticky top-0 z-[1] bg-background-dark text-white font-sans min-h-screen pt-32 pb-16 px-6 md:px-12 lg:px-20">
             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16">
                 {/* Contact Info */}
                 <motion.div

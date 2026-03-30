@@ -243,13 +243,13 @@ const ServicesAdmin = () => {
             {/* Search */}
             <div className="mb-8">
                 <div className="relative w-full">
-                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search services..."
-                        className="w-full bg-white/5 border border-white/10 text-white text-sm pl-11 pr-10 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 placeholder-gray-600 transition-all" />
+                        className="w-full bg-white/5 border border-white/10 text-white text-sm pl-9 pr-10 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 placeholder-gray-600 transition-all" />
                     {searchTerm && (
-                        <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
-                            <X size={18} />
+                        <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                            <X size={14} />
                         </button>
                     )}
                 </div>

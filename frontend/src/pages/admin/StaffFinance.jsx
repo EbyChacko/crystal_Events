@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, CheckCircle, ChevronDown, Wallet, ArrowLeft, TrendingDown, TrendingUp, Search } from 'lucide-react';
+import { Users, CheckCircle, ChevronDown, ArrowLeft, TrendingDown, TrendingUp, Search, X } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
 
@@ -112,26 +112,29 @@ const StaffFinance = () => {
         return (
             <div>
                 <div>
-                    <div className="mb-8">
-                        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-                            <Wallet className="text-mustard-gold" size={28} />
-                            Staff Finance
-                        </h1>
-                        <p className="text-gray-500 text-sm mt-1">Overview of amounts owed to each staff member. Click to view details.</p>
-                    </div>
-
-                    {!summaryLoading && staffSummary.length > 0 && (
-                        <div className="relative mb-6">
-                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                                placeholder="Search staff name..."
-                                className="w-full bg-white/5 border border-white/10 text-white pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
-                            />
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                        <div>
+                            <h1 className="text-2xl font-bold text-white">Staff Finance</h1>
+                            <p className="text-gray-400 text-sm mt-1">Overview of amounts owed to each staff member. Click to view details.</p>
                         </div>
-                    )}
+                        {!summaryLoading && staffSummary.length > 0 && (
+                            <div className="relative w-full md:w-72">
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    placeholder="Search staff name..."
+                                    className="w-full bg-white/5 border border-white/10 text-white text-sm pl-9 pr-10 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                />
+                                {search && (
+                                    <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                                        <X size={14} />
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
                     {summaryLoading ? (
                         <div className="text-center py-16 text-gray-500">Loading...</div>

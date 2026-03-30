@@ -112,7 +112,9 @@ const EventDetails = () => {
     const [paymentHistoryOpen, setPaymentHistoryOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showExpenseModal, setShowExpenseModal] = useState(false);
-    const [expenseFormData, setExpenseFormData] = useState({ date: new Date().toISOString().split('T')[0], amount: '', category: 'Catering', reason: '', approved_by: '', receipt_image_url: '' });
+    const expenseFormDefault = { date: new Date().toISOString().split('T')[0], amount: '', category: 'Catering', reason: '', paid_by: '', is_asset: false, receipt_image: null, receipt_image_url: '' };
+    const [expenseFormData, setExpenseFormData] = useState(expenseFormDefault);
+    const [expenseReceiptMode, setExpenseReceiptMode] = useState('file'); // 'file' | 'url'
     const [expenseSubmitting, setExpenseSubmitting] = useState(false);
     const [eventExpenses, setEventExpenses] = useState([]);
     const [showPaymentHistoryModal, setShowPaymentHistoryModal] = useState(false);
@@ -229,19 +231,27 @@ const EventDetails = () => {
         e.preventDefault();
         setExpenseSubmitting(true);
         try {
-            const payload = {
-                date: expenseFormData.date,
-                amount: expenseFormData.amount,
-                category: expenseFormData.category,
-                reason: expenseFormData.reason,
-                event: parseInt(id),
-                ...(expenseFormData.approved_by && { approved_by: expenseFormData.approved_by }),
-                ...(expenseFormData.receipt_image_url && { receipt_image_url: expenseFormData.receipt_image_url }),
-            };
-            await api.post('/expenses/', payload);
+            const data = new FormData();
+            data.append('date', expenseFormData.date);
+            data.append('amount', expenseFormData.amount);
+            data.append('category', expenseFormData.category);
+            data.append('reason', expenseFormData.reason);
+            data.append('event', parseInt(id));
+            data.append('is_asset', expenseFormData.is_asset ? 'True' : 'False');
+            data.append('is_active_asset', expenseFormData.is_asset ? 'True' : 'False');
+            if (expenseFormData.paid_by) data.append('paid_by', expenseFormData.paid_by);
+            if (expenseReceiptMode === 'url') {
+                data.append('receipt_image_url', expenseFormData.receipt_image_url);
+                data.append('receipt_image', '');
+            } else if (expenseFormData.receipt_image) {
+                data.append('receipt_image', expenseFormData.receipt_image);
+                data.append('receipt_image_url', '');
+            }
+            await api.post('/expenses/', data, { headers: { 'Content-Type': 'multipart/form-data' } });
             addToast('Expense recorded successfully!', 'success');
             setShowExpenseModal(false);
-            setExpenseFormData({ date: new Date().toISOString().split('T')[0], amount: '', category: 'Catering', reason: '', approved_by: '', receipt_image_url: '' });
+            setExpenseFormData(expenseFormDefault);
+            setExpenseReceiptMode('file');
             fetchEventExpenses();
         } catch (err) {
             addToast('Failed to record expense.', 'error');
@@ -2054,71 +2064,110 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowExpenseModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#0b1015] border border-amber-500/20 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
-                            <button type="button" onClick={() => setShowExpenseModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
-                                <X size={20} />
-                            </button>
-                            <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                                <PlusCircle className="text-amber-400" size={24} />
-                                Add Expense
+                            className="bg-[#0b1015] border border-amber-500/20 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                            <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <PlusCircle className="text-amber-400" size={22} />
+                                    Add Expense
+                                </div>
+                                <button type="button" onClick={() => { setShowExpenseModal(false); setExpenseFormData(expenseFormDefault); setExpenseReceiptMode('file'); }} className="text-gray-400 hover:text-white transition-colors">
+                                    <X size={20} />
+                                </button>
                             </h3>
                             <p className="text-sm text-gray-500 mb-5">Record an expense for <span className="text-amber-400 font-medium">{event?.event_name}</span></p>
                             <form onSubmit={handleAddExpense}>
-                                <div className="space-y-4 mb-6">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-gray-400 text-sm font-medium mb-2">Date *</label>
-                                            <input type="date" value={expenseFormData.date}
-                                                onChange={(e) => setExpenseFormData(p => ({...p, date: e.target.value}))}
-                                                className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
-                                                required />
-                                        </div>
-                                        <div>
-                                            <label className="block text-gray-400 text-sm font-medium mb-2">Amount (€) *</label>
-                                            <input type="number" value={expenseFormData.amount}
-                                                onChange={(e) => {
-                                                    let val = e.target.value;
-                                                    if (val.includes('.')) { const parts = val.split('.'); val = `${parts[0]}.${parts[1].slice(0, 2)}`; }
-                                                    setExpenseFormData(p => ({...p, amount: val}));
-                                                }}
-                                                className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
-                                                placeholder="0.00" step="0.01" min="0.01" required />
-                                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                                    {/* Date & Amount */}
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Date *</label>
+                                        <input type="date" value={expenseFormData.date}
+                                            onChange={(e) => setExpenseFormData(p => ({...p, date: e.target.value}))}
+                                            className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
+                                            required />
                                     </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Amount (€) *</label>
+                                        <input type="number" value={expenseFormData.amount}
+                                            onChange={(e) => {
+                                                let val = e.target.value;
+                                                if (val.includes('.')) { const parts = val.split('.'); val = `${parts[0]}.${parts[1].slice(0, 2)}`; }
+                                                setExpenseFormData(p => ({...p, amount: val}));
+                                            }}
+                                            className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
+                                            placeholder="0.00" step="0.01" min="0.01" required />
+                                    </div>
+                                    {/* Category + Asset checkbox */}
                                     <div>
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Category *</label>
                                         <select value={expenseFormData.category}
                                             onChange={(e) => setExpenseFormData(p => ({...p, category: e.target.value}))}
                                             className={`${selectClass} border-amber-500/30`} required>
-                                            {['Catering', 'Decor', 'Travel', 'Equipment', 'Staff', 'Venue', 'Entertainment', 'Marketing', 'Other'].map(c => (
-                                                <option key={c} value={c}>{c}</option>
+                                            {['Catering', 'Decor', 'Logistics', 'Travel', 'Equipment', 'Staffing', 'Venue', 'Entertainment', 'Marketing', 'Other'].map(c => (
+                                                <option key={c} value={c} className="bg-gray-900">{c}</option>
                                             ))}
                                         </select>
                                     </div>
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Description *</label>
+                                    <div className="flex items-center md:pt-6">
+                                        <label className="flex items-center space-x-3 cursor-pointer group">
+                                            <div className="relative flex items-center justify-center">
+                                                <input type="checkbox" checked={expenseFormData.is_asset}
+                                                    onChange={(e) => setExpenseFormData(p => ({...p, is_asset: e.target.checked}))}
+                                                    className="w-5 h-5 rounded border border-white/20 bg-black/20 appearance-none cursor-pointer checked:bg-mustard-gold checked:border-mustard-gold transition-all" />
+                                                <CheckCircle size={14} className={`absolute text-[#0b1015] pointer-events-none transition-opacity ${expenseFormData.is_asset ? 'opacity-100' : 'opacity-0'}`} />
+                                            </div>
+                                            <span className="text-white font-medium group-hover:text-mustard-gold transition-colors">Add to Assets List?</span>
+                                        </label>
+                                    </div>
+                                    {/* Description */}
+                                    <div className="md:col-span-2">
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Reason / Description *</label>
                                         <input type="text" value={expenseFormData.reason}
                                             onChange={(e) => setExpenseFormData(p => ({...p, reason: e.target.value}))}
                                             className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
                                             placeholder="e.g., Flowers and table decorations..." required />
                                     </div>
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Approved By</label>
-                                        <select value={expenseFormData.approved_by}
-                                            onChange={(e) => setExpenseFormData(p => ({...p, approved_by: e.target.value}))}
+                                    {/* Paid By */}
+                                    <div className="md:col-span-2">
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">
+                                            Paid By (Staff) <span className="text-gray-600 font-normal">— leave blank if paid by company</span>
+                                        </label>
+                                        <select value={expenseFormData.paid_by}
+                                            onChange={(e) => setExpenseFormData(p => ({...p, paid_by: e.target.value}))}
                                             className={`${selectClass} border-amber-500/30`}>
-                                            <option value="">— Select staff member —</option>
+                                            <option value="" className="bg-gray-900">— Company / Not applicable —</option>
                                             {staffList.map(s => (
-                                                <option key={s.id} value={s.id}>{s.first_name} {s.last_name}</option>
+                                                <option key={s.id} value={s.id} className="bg-gray-900">{`${s.first_name} ${s.last_name}`.trim() || s.username}</option>
                                             ))}
                                         </select>
                                     </div>
-                                    <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Receipt URL <span className="text-gray-600 font-normal">(optional)</span></label>
-                                        <input type="url" value={expenseFormData.receipt_image_url}
-                                            onChange={(e) => setExpenseFormData(p => ({...p, receipt_image_url: e.target.value}))}
-                                            className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50`}
-                                            placeholder="https://..." />
+                                    {/* Receipt */}
+                                    <div className="md:col-span-2">
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Receipt Image</label>
+                                        <div className="flex rounded-xl overflow-hidden border border-white/10 mb-3 w-fit">
+                                            <button type="button" onClick={() => setExpenseReceiptMode('file')}
+                                                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${expenseReceiptMode === 'file' ? 'bg-mustard-gold text-deep-teal' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                                Upload File
+                                            </button>
+                                            <button type="button" onClick={() => setExpenseReceiptMode('url')}
+                                                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${expenseReceiptMode === 'url' ? 'bg-mustard-gold text-deep-teal' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                                Paste URL
+                                            </button>
+                                        </div>
+                                        {expenseReceiptMode === 'file' ? (
+                                            <div className="relative border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-amber-500/30 transition-colors cursor-pointer">
+                                                <input type="file" onChange={(e) => setExpenseFormData(p => ({...p, receipt_image: e.target.files[0] || null}))}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf" />
+                                                <div className="flex flex-col items-center justify-center text-gray-500">
+                                                    <Upload size={20} className="mb-1" />
+                                                    <span className="text-xs">{expenseFormData.receipt_image ? expenseFormData.receipt_image.name : 'Click to upload'}</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <input type="url" value={expenseFormData.receipt_image_url}
+                                                onChange={(e) => setExpenseFormData(p => ({...p, receipt_image_url: e.target.value}))}
+                                                className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50`}
+                                                placeholder="https://example.com/receipt.jpg" />
+                                        )}
                                     </div>
                                 </div>
                                 <button type="submit" disabled={expenseSubmitting}
@@ -2514,6 +2563,19 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg transition-colors border border-indigo-500/30 text-xs font-medium"
                         >
                             <Download size={14} /> <span className="hidden sm:inline">Invoice</span>
+                        </button>
+                    )}
+                    {isRefundAction && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                const token = localStorage.getItem('access_token');
+                                const url = `${API_BASE_URL}/events/${eventId}/refund/pdf/?token=${token}&logIdx=${logIdx}`;
+                                window.open(url, '_blank');
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-colors border border-rose-500/30 text-xs font-medium"
+                        >
+                            <Download size={14} /> <span className="hidden sm:inline">Credit Note</span>
                         </button>
                     )}
                     {expanded ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}

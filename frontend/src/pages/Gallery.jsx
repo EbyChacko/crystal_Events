@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { MessageSquare, X, ChevronLeft, ChevronRight, MapPin, Calendar as CalendarIcon, Grid } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
+import heroBg from '../assets/images/hero_background.webp';
 
 const EVENT_TYPES = {
     'wedding': 'Wedding',
@@ -22,6 +23,13 @@ const Gallery = () => {
         target: targetRef,
         offset: ["start start", "end start"]
     });
+
+    const { scrollY } = useScroll();
+    const sectionShadow = useTransform(
+        scrollY,
+        [0, 80],
+        ['0px -16px 60px rgba(0,0,0,0)', '0px -16px 60px rgba(0,0,0,0.5)']
+    );
 
     const [events, setEvents] = useState([]);
     const [filter, setFilter] = useState('All');
@@ -134,9 +142,15 @@ const Gallery = () => {
     });
 
     return (
-        <div className="bg-background-dark text-white font-sans min-h-screen" ref={targetRef}>
-            {/* Hero Section */}
-            <div className="pt-32 pb-24 text-center space-y-6 px-6 md:px-12 lg:px-20 relative z-10 bg-gradient-to-b from-[#112222] to-background-dark border-b border-white/5">
+        <div className="bg-background-dark text-white font-sans">
+            {/* ── Hero ── z-index 1 */}
+            <section data-scroll-snap ref={targetRef} className="sticky top-0 z-[1] relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+                {/* Background image with overlay */}
+                <div className="absolute inset-0 -z-10">
+                    <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${heroBg})` }} />
+                    <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/70 via-deep-teal/50 to-background-dark" />
+                </div>
+                <div className="text-center space-y-6 px-6 md:px-12 lg:px-20 relative z-10 border-b-0">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -166,8 +180,11 @@ const Gallery = () => {
                         to see how we transform visions into spectacular reality. Click on any event to view the full gallery.
                     </motion.p>
                 </div>
-            </div>
+                </div>
+            </section>
 
+            {/* ── Gallery Grid ── slides over hero, z-index 2 */}
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="sticky top-0 z-[2] min-h-screen bg-background-dark rounded-t-[2rem]">
             <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-16 relative z-10">
                 {/* Filter Bar */}
                 {events.length > 0 && (
@@ -249,6 +266,7 @@ const Gallery = () => {
                     </div>
                 )}
             </div>
+            </motion.section>
 
             {/* Event Album Modal */}
             <AnimatePresence>

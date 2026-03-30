@@ -680,6 +680,285 @@ class EventViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = f'inline; filename="{filename}"'
         return response
 
+    @action(detail=True, methods=['get'], url_path='refund/pdf')
+    def generate_refund_pdf(self, request, pk=None):
+        import io
+        import os
+        import re
+        from django.conf import settings
+        from django.http import HttpResponse, HttpResponseForbidden
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib import colors
+        from reportlab.lib.units import mm
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+        from PIL import Image as PilImage
+        from rest_framework_simplejwt.authentication import JWTAuthentication
+        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
+        token_str = request.query_params.get('token')
+        if token_str:
+            try:
+                jwt_auth = JWTAuthentication()
+                validated = jwt_auth.get_validated_token(token_str)
+                request.user = jwt_auth.get_user(validated)
+            except (InvalidToken, TokenError):
+                return HttpResponseForbidden('Invalid token')
+
+        event = self.get_object()
+        log_idx = request.query_params.get('logIdx')
+
+        # Find the refund log entry
+        target_log = None
+        if log_idx is not None and event.audit_log:
+            try:
+                idx = int(log_idx)
+                actual_idx = len(event.audit_log) - 1 - idx
+                if 0 <= actual_idx < len(event.audit_log):
+                    candidate = event.audit_log[actual_idx]
+                    if candidate.get('action') == 'refund_made':
+                        target_log = candidate
+            except ValueError:
+                pass
+
+        # Fall back to the most recent refund_made entry
+        if target_log is None and event.audit_log:
+            for entry in reversed(event.audit_log):
+                if entry.get('action') == 'refund_made':
+                    target_log = entry
+                    break
+
+        if target_log is None:
+            return HttpResponse("No refund record found.", status=404)
+
+        # Extract values from log entry
+        try:
+            from dateutil.parser import parse as parse_date
+            refund_date = parse_date(target_log.get('timestamp'))
+        except Exception:
+            from django.utils.timezone import now
+            refund_date = now()
+
+        amount_refunded = float(target_log.get('amount_refunded', 0))
+        previous_paid   = float(target_log.get('previous_received_amount', 0))
+        new_paid        = float(target_log.get('new_received_amount', 0))
+        new_balance     = float(target_log.get('balance_due', 0))
+        reason          = target_log.get('reason', '')
+        user_name       = re.sub(r'\s*\(.*?\)\s*$', '', target_log.get('user', self._user_display(request.user)))
+
+        # ── Build PDF ──────────────────────────────────────────────────
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4,
+            rightMargin=20*mm, leftMargin=20*mm,
+            topMargin=20*mm, bottomMargin=20*mm
+        )
+        elems = []
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle(
+            'TitleStyle', parent=styles['Heading1'], fontName='Helvetica-Bold', fontSize=24,
+            textColor=colors.HexColor('#012d2d'), alignment=0, spaceAfter=8
+        )
+        subtitle_style = ParagraphStyle(
+            'SubtitleStyle', parent=styles['Normal'], fontName='Helvetica', fontSize=10,
+            textColor=colors.HexColor('#666666'), alignment=0, spaceAfter=4
+        )
+
+        # Logo
+        base_dir = settings.BASE_DIR
+        logo_path = os.path.join(base_dir.parent, 'frontend', 'src', 'assets', 'images', 'logo.png')
+        colored_logo_buffer = None
+        if os.path.exists(logo_path):
+            try:
+                img = PilImage.open(logo_path).convert("RGBA")
+                alpha = img.split()[-1]
+                solid_color = PilImage.new("RGBA", img.size, (1, 45, 45, 255))
+                colored_logo = PilImage.composite(solid_color, PilImage.new("RGBA", img.size, (255, 255, 255, 0)), alpha)
+                colored_logo_buffer = io.BytesIO()
+                colored_logo.save(colored_logo_buffer, format="PNG")
+                colored_logo_buffer.seek(0)
+            except Exception:
+                pass
+
+        brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="24">EVENTS</font>'
+
+        if colored_logo_buffer:
+            colored_logo_buffer.seek(0)
+            logo = Image(colored_logo_buffer, width=25*mm, height=25*mm)
+            header_text = [
+                Paragraph(brand_title, title_style),
+                Spacer(1, 4),
+                Paragraph('Ballinasloe, Galway, Ireland | Redhill, London, UK', subtitle_style),
+                Paragraph('info@crystaleventsie.com | IE: +353 892331060 / +353 894173337 | UK: +44 7436586579', subtitle_style)
+            ]
+            header_data = [[logo, header_text]]
+            header_table = Table(header_data, colWidths=[35*mm, 150*mm])
+            header_table.setStyle(TableStyle([
+                ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                ('LEFTPADDING', (0,0), (-1,-1), 0),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 10),
+            ]))
+            elems.append(header_table)
+        else:
+            elems.append(Paragraph(brand_title, title_style))
+            elems.append(Spacer(1, 4))
+            elems.append(Paragraph('Ballinasloe, Galway, Ireland | Redhill, London, UK', subtitle_style))
+            elems.append(Paragraph('info@crystaleventsie.com | IE: +353 892331060 / +353 894173337 | UK: +44 7436586579', subtitle_style))
+
+        elems.append(HRFlowable(width='100%', thickness=1, color=colors.HexColor('#EEC059'), spaceAfter=12, spaceBefore=2))
+
+        # Document title
+        doc_title_style = ParagraphStyle('DocTitle', parent=styles['Normal'], fontSize=16, leading=20, alignment=TA_CENTER, fontName='Helvetica-Bold', textColor=colors.HexColor('#8B0000'))
+        elems.append(Paragraph("CREDIT NOTE / REFUND", doc_title_style))
+        elems.append(Spacer(1, 15))
+
+        # Reference header
+        ref_date_str = refund_date.strftime('%d %B %Y')
+        ref_number = f"REF-{event.id}-{log_idx if log_idx is not None else 'F'}"
+        ref_data = [
+            ['Ref #:', ref_number, 'Date:', ref_date_str],
+            ['Event:', event.event_name, 'Processed By:', user_name]
+        ]
+        ref_table = Table(ref_data, colWidths=[80, 155, 75, 120])
+        ref_table.setStyle(TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#888888')),
+            ('TEXTCOLOR', (2, 0), (2, -1), colors.HexColor('#888888')),
+            ('TEXTCOLOR', (1, 0), (1, -1), colors.HexColor('#333333')),
+            ('TEXTCOLOR', (3, 0), (3, -1), colors.HexColor('#333333')),
+            ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elems.append(ref_table)
+        elems.append(Spacer(1, 10))
+
+        # Client details
+        info_data = [
+            ['Client Name:', event.client_name, 'Client Phone:', event.client_phone or '—'],
+            ['Client Email:', event.client_email or '—', '', ''],
+        ]
+        if event.client_address:
+            wrapped_addr = Paragraph(event.client_address, ParagraphStyle('AddrWrap', parent=styles['Normal'], fontSize=9, leading=11, textColor=colors.HexColor('#333333')))
+            info_data.append(['Address:', wrapped_addr, '', ''])
+
+        info_table = Table(info_data, colWidths=[80, 155, 75, 120])
+        info_table.setStyle(TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#888888')),
+            ('TEXTCOLOR', (2, 0), (2, -1), colors.HexColor('#888888')),
+            ('TEXTCOLOR', (1, 0), (1, -1), colors.HexColor('#333333')),
+            ('TEXTCOLOR', (3, 0), (3, -1), colors.HexColor('#333333')),
+            ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elems.append(info_table)
+        elems.append(Spacer(1, 16))
+
+        # Refund summary section heading
+        section_style = ParagraphStyle('Section', parent=styles['Normal'], fontSize=10, fontName='Helvetica-Bold', textColor=colors.HexColor('#012d2d'), spaceAfter=8)
+        elems.append(Paragraph("Refund Summary", section_style))
+
+        # Refund details table
+        refund_rows = [
+            ['Description', 'Amount (€)'],
+            ['Previous Total Paid', f'€{previous_paid:,.2f}'],
+            ['Amount Refunded', f'-€{amount_refunded:,.2f}'],
+            ['New Total Paid (After Refund)', f'€{new_paid:,.2f}'],
+        ]
+        if new_balance > 0:
+            refund_rows.append(['New Balance Due', f'€{new_balance:,.2f}'])
+
+        refund_table = Table(refund_rows, colWidths=[340, 100])
+        n = len(refund_rows)
+        refund_style = TableStyle([
+            # Header row
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#8B0000')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('TOPPADDING', (0, 0), (-1, 0), 8),
+            # Body rows
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#333333')),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 7),
+            ('TOPPADDING', (0, 1), (-1, -1), 7),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fdf5f5')]),
+            ('ALIGN', (-1, 0), (-1, -1), 'RIGHT'),
+            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.HexColor('#8B0000')),
+            ('LINEBELOW', (0, -1), (-1, -1), 1, colors.HexColor('#cccccc')),
+            ('GRID', (0, 0), (-1, -1), 0.25, colors.HexColor('#e0e0e0')),
+            # Highlight the refunded amount row (row 2)
+            ('TEXTCOLOR', (1, 2), (1, 2), colors.HexColor('#8B0000')),
+            ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
+            # Highlight the "New Total Paid" row (row 3)
+            ('FONTNAME', (0, 3), (-1, 3), 'Helvetica-Bold'),
+            ('TEXTCOLOR', (1, 3), (1, 3), colors.HexColor('#012d2d')),
+        ])
+        # If balance due row present (row 4), bold it with gold line
+        if new_balance > 0:
+            refund_style.add('FONTNAME', (0, 4), (-1, 4), 'Helvetica-Bold')
+            refund_style.add('FONTSIZE', (1, 4), (1, 4), 11)
+            refund_style.add('TEXTCOLOR', (1, 4), (1, 4), colors.HexColor('#012d2d'))
+            refund_style.add('LINEABOVE', (1, 4), (-1, 4), 1.5, colors.HexColor('#EEC059'))
+
+        refund_table.setStyle(refund_style)
+        elems.append(refund_table)
+
+        # Reason box
+        if reason:
+            elems.append(Spacer(1, 16))
+            reason_label_style = ParagraphStyle('ReasonLabel', parent=styles['Normal'], fontSize=9, fontName='Helvetica-Bold', textColor=colors.HexColor('#8B0000'), spaceAfter=4)
+            reason_text_style  = ParagraphStyle('ReasonText',  parent=styles['Normal'], fontSize=9, fontName='Helvetica-Oblique', textColor=colors.HexColor('#333333'), leading=13)
+            elems.append(Paragraph("Reason for Refund:", reason_label_style))
+            reason_para = Paragraph(reason, reason_text_style)
+            reason_box = Table([[reason_para]], colWidths=[440])
+            reason_box.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#fff5f5')),
+                ('BOX', (0,0), (-1,-1), 0.75, colors.HexColor('#8B0000')),
+                ('TOPPADDING', (0,0), (-1,-1), 8),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+                ('LEFTPADDING', (0,0), (-1,-1), 10),
+                ('RIGHTPADDING', (0,0), (-1,-1), 10),
+            ]))
+            elems.append(reason_box)
+
+        # Footer
+        elems.append(Spacer(1, 30))
+        elems.append(HRFlowable(width='100%', thickness=0.5, color=colors.HexColor('#cccccc'), spaceAfter=8))
+        footer_style = ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, textColor=colors.HexColor('#999999'), alignment=TA_CENTER)
+        elems.append(Paragraph('CRYSTAL EVENTS | Ballinasloe, Galway, Ireland & Redhill, London, UK | info@crystaleventsie.com', footer_style))
+        elems.append(Paragraph('This credit note confirms a refund has been processed. Please retain for your records.', footer_style))
+
+        # Watermark
+        def draw_watermark(canvas, doc):
+            canvas.saveState()
+            if colored_logo_buffer:
+                from reportlab.lib.utils import ImageReader
+                canvas.setFillAlpha(0.07)
+                page_width, page_height = A4
+                logo_width = 150*mm
+                logo_height = 150*mm
+                x = (page_width - logo_width) / 2
+                y = ((page_height - logo_height) / 2) - (20*mm)
+                colored_logo_buffer.seek(0)
+                ir = ImageReader(colored_logo_buffer)
+                canvas.drawImage(ir, x, y, width=logo_width, height=logo_height, mask='auto', preserveAspectRatio=True)
+            canvas.restoreState()
+
+        doc.build(elems, onFirstPage=draw_watermark, onLaterPages=draw_watermark)
+
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        filename = f"CreditNote_{event.event_name.replace(' ', '_')}_{ref_date_str.replace(' ', '_')}.pdf"
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
+
     @action(detail=False, methods=['get'])
     def staff_list(self, request):
         """Return a simple list of staff users for the assignment dropdown."""
