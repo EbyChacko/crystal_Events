@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Calendar, Gem, UtensilsCrossed, Camera, Music, Speaker, ChevronDown, Paintbrush2, Star, Layers, Heart, MapPin, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -24,10 +25,21 @@ const Landing = () => {
     );
 
     return (
+        <>
+        <Helmet>
+            <title>Crystal Events Ireland | Luxury Wedding & Event Planners</title>
+            <meta name="description" content="Crystal Events — premium wedding and event planners in Ireland and the UK. Creating unforgettable weddings, corporate events, and celebrations with elegance and precision." />
+            <meta name="robots" content="index, follow" />
+            <link rel="canonical" href="https://crystaleventsie.com/" />
+            <meta property="og:title" content="Crystal Events Ireland | Luxury Wedding & Event Planners" />
+            <meta property="og:description" content="Crystal Events — premium wedding and event planners in Ireland and the UK. Creating unforgettable weddings, corporate events, and celebrations with elegance and precision." />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://crystaleventsie.com/" />
+        </Helmet>
         <div className="font-sans text-deep-teal bg-deep-teal">
 
             {/* ── Hero ── sticky base, z-index 1 */}
-            <section data-scroll-snap ref={heroRef} className="sticky top-0 z-[1] relative h-screen flex items-center justify-center overflow-hidden">
+            <section data-scroll-snap ref={heroRef} className="lg:sticky lg:top-0 z-[1] relative h-screen flex items-center justify-center overflow-hidden">
                 {/* Parallax Background */}
                 <motion.div
                     style={{ y, opacity }}
@@ -48,7 +60,7 @@ const Landing = () => {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                         className="mx-auto mb-8"
                     >
                         <div className="w-32 h-32 mx-auto flex items-center justify-center -mb-4">
@@ -59,7 +71,7 @@ const Landing = () => {
                     <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                         className="text-4xl sm:text-5xl md:text-8xl font-black leading-[1.1] tracking-tight text-white mb-6 font-sans"
                     >
                         Create your <br />
@@ -71,7 +83,7 @@ const Landing = () => {
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
+                        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                         className="mx-auto max-w-2xl text-lg md:text-xl font-light text-white/70 mb-10 leading-relaxed"
                     >
                         Creating unforgettable weddings, corporate events, and celebrations across Ireland with elegance and precision.
@@ -80,18 +92,18 @@ const Landing = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.6 }}
+                        transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                         className="flex flex-col sm:flex-row items-center justify-center gap-6"
                     >
                         <Link
                             to="/contact"
-                            className="w-full sm:w-auto min-w-[200px] flex items-center justify-center rounded-lg bg-mustard-gold px-8 py-4 text-base font-bold uppercase tracking-widest text-deep-teal hover:brightness-110 transition-all shadow-[0_0_20px_rgba(238,192,89,0.4)]"
+                            className="w-full sm:w-auto min-w-[200px] flex items-center justify-center rounded-lg bg-mustard-gold px-8 py-4 text-base font-bold uppercase tracking-widest text-deep-teal hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.4)]"
                         >
                             Book Your Event
                         </Link>
                         <Link
                             to="/gallery"
-                            className="w-full sm:w-auto min-w-[200px] flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-base font-bold uppercase tracking-widest text-white backdrop-blur-sm hover:bg-white/10 transition-all"
+                            className="w-full sm:w-auto min-w-[200px] flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-base font-bold uppercase tracking-widest text-white backdrop-blur-sm hover:bg-white/10 transition-all duration-300"
                         >
                             View Lookbook
                         </Link>
@@ -100,7 +112,7 @@ const Landing = () => {
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 0.5 }}
-                        transition={{ delay: 1, duration: 1, repeat: Infinity, repeatType: "reverse" }}
+                        transition={{ delay: 1, duration: 1.5, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
                         className="absolute bottom-[-15vh] md:bottom-[-20vh] left-1/2 -translate-x-1/2"
                     >
                         <ChevronDown size={48} className="text-white" />
@@ -112,7 +124,7 @@ const Landing = () => {
             <motion.section
                 data-scroll-snap
                 style={{ boxShadow: sectionShadow }}
-                className="sticky top-0 z-[2] min-h-screen py-28 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center"
+                className="lg:sticky lg:top-0 z-[2] min-h-screen py-28 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center"
                 id="services"
             >
                 <div className="mx-auto max-w-7xl">
@@ -139,9 +151,10 @@ const Landing = () => {
                             <motion.div
                                 key={idx}
                                 whileHover={{ y: -5 }}
-                                className="group relative overflow-hidden rounded-xl border border-white/5 bg-white/5 p-6 md:p-7 transition-all hover:bg-white/10"
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                                className="group relative overflow-hidden rounded-xl border border-white/5 bg-white/5 p-6 md:p-7 transition-all duration-300 hover:bg-white/10"
                             >
-                                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-mustard-gold/10 text-mustard-gold transition-transform group-hover:scale-110">
+                                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-mustard-gold/10 text-mustard-gold transition-transform duration-300 ease-out group-hover:scale-110">
                                     <div className="[&>svg]:w-7 [&>svg]:h-7">{service.icon}</div>
                                 </div>
                                 <h3 className="mb-3 text-lg font-bold text-white group-hover:text-mustard-gold transition-colors">{service.title}</h3>
@@ -156,7 +169,7 @@ const Landing = () => {
             <motion.section
                 data-scroll-snap
                 style={{ boxShadow: sectionShadow }}
-                className="sticky top-0 z-[3] min-h-screen py-28 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center"
+                className="lg:sticky lg:top-0 z-[3] min-h-screen py-28 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center"
                 id="about"
             >
                 <div className="mx-auto max-w-7xl">
@@ -175,7 +188,7 @@ const Landing = () => {
                             </p>
                             <Link
                                 to="/about"
-                                className="inline-flex items-center gap-2 px-8 py-4 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all shadow-[0_0_20px_rgba(238,192,89,0.3)]"
+                                className="inline-flex items-center gap-2 px-8 py-4 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.3)]"
                             >
                                 Learn More About Us
                             </Link>
@@ -191,7 +204,7 @@ const Landing = () => {
                             ].map((stat, i) => (
                                 <div
                                     key={i}
-                                    className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center hover:bg-white/10 transition-all"
+                                    className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center hover:bg-white/10 transition-all duration-300"
                                 >
                                     <p className="text-4xl font-black text-mustard-gold mb-1">{stat.value}</p>
                                     <p className="text-white font-semibold text-sm mb-1">{stat.label}</p>
@@ -207,7 +220,7 @@ const Landing = () => {
             <motion.section
                 data-scroll-snap
                 style={{ boxShadow: sectionShadow }}
-                className="sticky top-0 z-[4] min-h-screen py-28 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center"
+                className="lg:sticky lg:top-0 z-[4] min-h-screen py-28 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center"
                 id="why-us"
             >
                 <div className="mx-auto max-w-7xl">
@@ -228,9 +241,10 @@ const Landing = () => {
                             <motion.div
                                 key={idx}
                                 whileHover={{ y: -4 }}
-                                className="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-7 hover:bg-white/10 hover:border-mustard-gold/20 transition-all"
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                                className="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-7 hover:bg-white/10 hover:border-mustard-gold/20 transition-all duration-300"
                             >
-                                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-mustard-gold/10 text-mustard-gold group-hover:bg-mustard-gold/20 transition-all">
+                                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-mustard-gold/10 text-mustard-gold group-hover:bg-mustard-gold/20 transition-all duration-300">
                                     <div className="[&>svg]:w-6 [&>svg]:h-6">{item.icon}</div>
                                 </div>
                                 <h3 className="text-base font-bold text-white mb-2 group-hover:text-mustard-gold transition-colors leading-snug">{item.title}</h3>
@@ -242,11 +256,12 @@ const Landing = () => {
             </motion.section>
 
             {/* ── CTA + Footer ── top card, z-index 5 */}
-            <motion.div data-scroll-snap style={{ boxShadow: sectionShadow }} className="sticky top-0 z-[5]">
+            <motion.div data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5]">
                 <CTAFooter />
             </motion.div>
 
         </div>
+        </>
     );
 };
 

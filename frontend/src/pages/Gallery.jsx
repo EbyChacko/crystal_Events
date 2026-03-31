@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, ChevronLeft, ChevronRight, MapPin, Calendar as CalendarIcon, Grid } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -142,9 +143,20 @@ const Gallery = () => {
     });
 
     return (
+        <>
+        <Helmet>
+            <title>Event Gallery | Crystal Events Ireland</title>
+            <meta name="description" content="Browse Crystal Events' gallery of weddings, corporate galas, birthday celebrations, and more across Ireland and the UK." />
+            <meta name="robots" content="index, follow" />
+            <link rel="canonical" href="https://crystaleventsie.com/gallery" />
+            <meta property="og:title" content="Event Gallery | Crystal Events Ireland" />
+            <meta property="og:description" content="Browse Crystal Events' gallery of weddings, corporate galas, birthday celebrations, and more across Ireland and the UK." />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://crystaleventsie.com/gallery" />
+        </Helmet>
         <div className="bg-background-dark text-white font-sans">
             {/* ── Hero ── z-index 1 */}
-            <section data-scroll-snap ref={targetRef} className="sticky top-0 z-[1] relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+            <section data-scroll-snap ref={targetRef} className="lg:sticky lg:top-0 z-[1] relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
                 {/* Background image with overlay */}
                 <div className="absolute inset-0 -z-10">
                     <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${heroBg})` }} />
@@ -154,7 +166,7 @@ const Gallery = () => {
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
                     className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase"
                 >
                     Capturing Moments <br /> <span className="text-mustard-gold italic font-light lowercase font-serif">of</span> Brilliance
@@ -163,7 +175,7 @@ const Gallery = () => {
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                         className="text-white/80 text-lg md:text-xl font-light leading-relaxed"
                     >
                         Explore our curated collection of extraordinary events that define luxury and elegance.
@@ -173,7 +185,7 @@ const Gallery = () => {
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.3 }}
+                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                         className="text-white/50 text-sm max-w-2xl mx-auto"
                     >
                         From intimate weddings to grand corporate galas, browse through our visual stories below
@@ -184,21 +196,21 @@ const Gallery = () => {
             </section>
 
             {/* ── Gallery Grid ── slides over hero, z-index 2 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="sticky top-0 z-[2] min-h-screen bg-background-dark rounded-t-[2rem]">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[2] min-h-screen bg-background-dark rounded-t-[2rem]">
             <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-16 relative z-10">
                 {/* Filter Bar */}
                 {events.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
+                        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                         className="flex flex-wrap justify-center gap-3 mb-12"
                     >
                         {activeCategories.map(cat => (
                             <button
                                 key={cat}
                                 onClick={() => setFilter(cat)}
-                                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${filter === cat
+                                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${filter === cat
                                     ? 'bg-mustard-gold text-deep-teal shadow-lg shadow-mustard-gold/20 font-bold'
                                     : 'border border-white/10 hover:border-mustard-gold hover:text-mustard-gold'
                                     }`}
@@ -234,19 +246,19 @@ const Gallery = () => {
                             return (
                                 <motion.div
                                     key={event.id}
-                                    initial={{ opacity: 0, y: 50 }}
+                                    initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: (idx % 8) * 0.1 }}
+                                    transition={{ duration: 0.5, delay: (idx % 8) * 0.08, ease: "easeOut" }}
                                     onClick={() => openAlbum(event)}
                                     className="masonry-item group relative overflow-hidden rounded-xl bg-[#1a3333] cursor-pointer"
                                 >
                                     <img
-                                        className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                                         src={coverImage}
                                         alt={event.event_name}
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out flex flex-col justify-end p-6">
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-mustard-gold text-xs font-bold uppercase tracking-widest">{category}</span>
                                             {event.images.length > 1 && (
@@ -275,6 +287,7 @@ const Gallery = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
                         className="fixed inset-0 z-50 flex flex-col bg-[#050a0a]/95 backdrop-blur-xl overflow-y-auto custom-scrollbar"
                     >
                         {/* Modal Header */}
@@ -302,17 +315,17 @@ const Gallery = () => {
                                         key={img.id}
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: idx * 0.05 }}
+                                        transition={{ duration: 0.4, delay: idx * 0.04, ease: "easeOut" }}
                                         onClick={() => openLightbox(idx)}
                                         className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group bg-white/5"
                                     >
                                         <img
                                             src={img.image || img.image_url}
                                             alt={img.description || `Gallery image ${idx + 1}`}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                                         />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <div className="w-12 h-12 rounded-full bg-mustard-gold/90 text-deep-teal flex items-center justify-center shadow-lg transform scale-50 group-hover:scale-100 transition-transform">
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out flex items-center justify-center">
+                                            <div className="w-12 h-12 rounded-full bg-mustard-gold/90 text-deep-teal flex items-center justify-center shadow-lg transform scale-50 group-hover:scale-100 transition-transform duration-300 ease-out">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
                                             </div>
                                         </div>
@@ -331,6 +344,7 @@ const Gallery = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
                         className="fixed inset-0 z-[60] bg-black flex flex-col items-center justify-center select-none"
                         onClick={closeLightbox}
                     >
@@ -348,7 +362,7 @@ const Gallery = () => {
                         {lightboxIndex > 0 && (
                             <button
                                 onClick={showPrevImage}
-                                className="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all z-50 hover:scale-110"
+                                className="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all duration-200 z-50 hover:scale-110"
                             >
                                 <ChevronLeft size={32} />
                             </button>
@@ -357,7 +371,7 @@ const Gallery = () => {
                         {lightboxIndex < selectedEvent.images.length - 1 && (
                             <button
                                 onClick={showNextImage}
-                                className="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all z-50 hover:scale-110"
+                                className="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all duration-200 z-50 hover:scale-110"
                             >
                                 <ChevronRight size={32} />
                             </button>
@@ -369,7 +383,7 @@ const Gallery = () => {
                                 key={lightboxIndex}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
                                 src={selectedEvent.images[lightboxIndex].image || selectedEvent.images[lightboxIndex].image_url}
                                 alt={selectedEvent.images[lightboxIndex].description || 'Fullscreen gallery view'}
                                 className="max-w-full max-h-full object-contain drop-shadow-2xl rounded-sm"
@@ -390,11 +404,12 @@ const Gallery = () => {
 
             {/* Floating CTA */}
             <Link to="/contact">
-                <button className="fixed bottom-8 right-8 z-[40] bg-mustard-gold text-deep-teal p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center">
+                <button className="fixed bottom-8 right-8 z-[40] bg-mustard-gold text-deep-teal p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center">
                     <MessageSquare size={24} fill="currentColor" />
                 </button>
             </Link>
         </div>
+        </>
     );
 };
 

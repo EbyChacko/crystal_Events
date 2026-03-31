@@ -7,6 +7,9 @@ import CTAFooter from './CTAFooter';
 const Layout = () => {
     const location = useLocation();
     const isLanding = location.pathname === '/';
+    // Service detail pages (e.g. /services/wedding-planning) are long-form scrolling
+    // pages — scroll snap and sticky footer don't apply to them.
+    const isServiceDetail = location.pathname.startsWith('/services/');
 
     const { scrollY } = useScroll();
     const sectionShadow = useTransform(
@@ -15,8 +18,13 @@ const Layout = () => {
         ['0px -16px 60px rgba(0,0,0,0)', '0px -16px 60px rgba(0,0,0,0.5)']
     );
 
-    // JavaScript scroll snap — fires when scroll stops, snaps to nearest section
+    // JavaScript scroll snap — fires when scroll stops, snaps to nearest section.
+    // Disabled on service detail pages and on mobile/tablet screens (<1024px) where
+    // touch inertia makes snapping feel broken and content can become unreachable.
     useEffect(() => {
+        if (isServiceDetail) return;
+        if (window.innerWidth < 1024) return;
+
         let scrollTimer;
         let isSnapping = false;
 
@@ -26,6 +34,7 @@ const Layout = () => {
 
         const snapToNearest = () => {
             if (isSnapping) return;
+            if (window.innerWidth < 1024) return;
             const points = getSnapPoints();
             if (points.length < 1) return;
 
@@ -51,20 +60,25 @@ const Layout = () => {
             window.removeEventListener('scroll', onScroll);
             clearTimeout(scrollTimer);
         };
-    }, [location.pathname]);
+    }, [location.pathname, isServiceDetail]);
 
     return (
         <div>
             <Navbar />
             <Outlet />
-            {!isLanding && (
+            {!isLanding && !isServiceDetail && (
                 <motion.div
                     data-scroll-snap
-                    className="sticky top-0 z-[10] bg-background-dark"
+                    className="lg:sticky lg:top-0 z-[10] bg-background-dark"
                     style={{ boxShadow: sectionShadow }}
                 >
                     <CTAFooter />
                 </motion.div>
+            )}
+            {!isLanding && isServiceDetail && (
+                <div className="bg-deep-teal">
+                    <CTAFooter />
+                </div>
             )}
         </div>
     );

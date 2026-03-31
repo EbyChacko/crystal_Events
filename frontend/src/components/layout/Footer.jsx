@@ -19,7 +19,7 @@ const Footer = () => {
                         Defining luxury in event management through precision, passion, and unparalleled elegance.
                     </p>
                     <div className="flex gap-4">
-                        <a href="#" className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 text-white hover:bg-mustard-gold hover:text-deep-teal transition-all">
+                        <a href="https://www.facebook.com/redhillcrystalevents" target="_blank" rel="noopener noreferrer" className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 text-white hover:bg-mustard-gold hover:text-deep-teal transition-all">
                             <Facebook size={18} />
                         </a>
                         <a href="https://instagram.com/irl_crystalevents" target="_blank" rel="noopener noreferrer" className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 text-white hover:bg-mustard-gold hover:text-deep-teal transition-all">
@@ -46,13 +46,13 @@ const Footer = () => {
                     <ul className="space-y-4 text-white/40 text-sm">
                         <li className="flex items-center gap-3">
                             <Mail size={16} className="text-mustard-gold shrink-0" />
-                            info@crystaleventsie.com
+                            <a href="mailto:info@crystaleventsie.com" className="hover:text-mustard-gold transition-colors duration-300">info@crystaleventsie.com</a>
                         </li>
                         <li className="flex items-start gap-3">
                             <Phone size={16} className="text-mustard-gold shrink-0 mt-1" />
                             <div className="flex flex-col">
-                                <span>Ireland: +353 892331060, +353 894173337</span>
-                                <span>UK: +44 7436586579</span>
+                                <span>Ireland: <a href="tel:+353892331060" className="hover:text-mustard-gold transition-colors duration-300">+353 892331060</a>, <a href="tel:+353894173337" className="hover:text-mustard-gold transition-colors duration-300">+353 894173337</a></span>
+                                <span>UK: <a href="tel:+447436586579" className="hover:text-mustard-gold transition-colors duration-300">+44 7436586579</a></span>
                             </div>
                         </li>
                         <li className="flex items-start gap-3">

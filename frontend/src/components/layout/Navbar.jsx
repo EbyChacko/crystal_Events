@@ -68,7 +68,7 @@ const Navbar = () => {
                     <div className="flex items-center ml-4 space-x-4">
                         <Link
                             to="/contact"
-                            className="inline-flex items-center justify-center rounded-lg border-2 border-mustard-gold px-6 py-2 text-sm font-bold uppercase tracking-widest text-mustard-gold hover:bg-mustard-gold hover:text-deep-teal transition-all"
+                            className="inline-flex items-center justify-center rounded-lg border-2 border-mustard-gold px-6 py-2 text-sm font-bold uppercase tracking-widest text-mustard-gold hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300"
                         >
                             Get a Quote
                         </Link>
@@ -103,6 +103,7 @@ const Navbar = () => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
                         className="lg:hidden bg-background-dark border-t border-white/10 overflow-hidden"
                     >
                         <div className="flex flex-col items-center py-8 space-y-6">

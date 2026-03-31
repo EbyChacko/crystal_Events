@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import {
     Gem,
@@ -54,10 +55,21 @@ const About = () => {
     }, []);
 
     return (
+        <>
+        <Helmet>
+            <title>About Us | Crystal Events Ireland</title>
+            <meta name="description" content="Learn about Crystal Events — a luxury event management company serving Ireland and the UK since 2021. Meet our team and discover our story." />
+            <meta name="robots" content="index, follow" />
+            <link rel="canonical" href="https://crystaleventsie.com/about" />
+            <meta property="og:title" content="About Us | Crystal Events Ireland" />
+            <meta property="og:description" content="Learn about Crystal Events — a luxury event management company serving Ireland and the UK since 2021. Meet our team and discover our story." />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://crystaleventsie.com/about" />
+        </Helmet>
         <div className="font-sans text-white bg-background-dark">
 
             {/* ── Hero ── z-index 1 */}
-            <section data-scroll-snap ref={heroRef} className="sticky top-0 z-[1] relative min-h-screen flex items-center justify-center overflow-hidden">
+            <section data-scroll-snap ref={heroRef} className="lg:sticky lg:top-0 z-[1] relative min-h-screen flex items-center justify-center overflow-hidden">
                 <motion.div
                     style={{ y, opacity }}
                     className="absolute inset-0 z-0"
@@ -72,7 +84,7 @@ const About = () => {
                     <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                         className="text-4xl md:text-7xl font-black mb-6 leading-tight"
                     >
                         Crafting <span className="bg-gradient-to-r from-[#e2c08d] to-mustard-gold bg-clip-text text-transparent">Unforgettable</span> Legacies
@@ -80,7 +92,7 @@ const About = () => {
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                         className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed"
                     >
                         Crystal Events is more than an agency; we are the architects of your most precious moments across Ireland and the United Kingdom.
@@ -89,14 +101,14 @@ const About = () => {
             </section>
 
             {/* ── Our Story ── slides over hero, z-index 2 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="sticky top-0 z-[2] min-h-screen py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[2] min-h-screen py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                 <div className="px-6 lg:px-20 max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.8 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
                             className="space-y-8"
                         >
                             <div>
@@ -124,7 +136,7 @@ const About = () => {
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.8 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
                             className="relative mt-8 lg:mt-0"
                         >
                             <div className="absolute -top-6 -left-6 w-32 h-32 border-t-2 border-l-2 border-mustard-gold/40 z-0"></div>
@@ -142,13 +154,13 @@ const About = () => {
             </motion.section>
 
             {/* ── Our Mission ── slides over story, z-index 3 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="sticky top-0 z-[3] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[3] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-4xl mx-auto text-center space-y-8">
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         whileInView={{ scale: 1, opacity: 1 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
                     >
                         <Gem className="w-16 h-16 text-mustard-gold mx-auto" strokeWidth={1} />
                     </motion.div>
@@ -156,7 +168,7 @@ const About = () => {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                         className="text-3xl md:text-5xl font-bold leading-tight"
                     >
                         Our Mission is Simple: <br />
@@ -167,7 +179,7 @@ const About = () => {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
+                        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                         className="text-white/70 text-lg max-w-2xl mx-auto"
                     >
                         We believe that true luxury lies in the details. Our mission is to alleviate every burden from our clients, allowing them to be guests at their own extraordinary celebrations while we orchestrate perfection behind the scenes.
@@ -177,7 +189,7 @@ const About = () => {
 
             {/* ── Team ── slides over mission, z-index 4 */}
             {!loadingTeam && teamMembers.length > 0 && (
-                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="sticky top-0 z-[4] min-h-screen py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[4] min-h-screen py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                     <div className="px-6 lg:px-20 max-w-7xl mx-auto min-h-[500px]">
                         <div className="text-center mb-16">
                             <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold">The Visionaries</span>
@@ -192,18 +204,18 @@ const About = () => {
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ duration: 0.6, delay: idx * 0.1 }}
+                                    transition={{ duration: 0.6, delay: idx * 0.1, ease: "easeOut" }}
                                     className="group flex flex-col items-center text-center w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.5rem)] lg:w-[calc(25%-2rem)]"
                                 >
                                     <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mb-8 w-full shadow-2xl border border-white/5">
-                                        <div className="absolute inset-0 bg-jungle-green mix-blend-color z-10 opacity-40 group-hover:opacity-0 transition-opacity duration-700"></div>
+                                        <div className="absolute inset-0 bg-jungle-green mix-blend-color z-10 opacity-40 group-hover:opacity-0 transition-opacity duration-700 ease-out"></div>
                                         <img
-                                            className="w-full h-full object-cover transition-all duration-700 scale-105 group-hover:scale-100 filter contrast-125"
+                                            className="w-full h-full object-cover transition-all duration-700 ease-out scale-105 group-hover:scale-100 filter contrast-125"
                                             src={member.user_details.profile_picture}
                                             alt={`Professional portrait of ${member.user_details.first_name}`}
                                         />
                                         {member.description && (
-                                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1a1a]/95 via-[#0a1a1a]/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-6 md:p-8 z-20 translate-y-4 group-hover:translate-y-0">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1a1a]/95 via-[#0a1a1a]/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out flex items-end p-6 md:p-8 z-20 translate-y-4 group-hover:translate-y-0">
                                                 <p className="text-sm text-mustard-gold italic font-medium leading-relaxed">
                                                     "{member.description}"
                                                 </p>
@@ -224,7 +236,7 @@ const About = () => {
             )}
 
             {/* ── Testimonials ── slides over team (or mission if no team), z-index 5 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="sticky top-0 z-[5] min-h-screen py-28 px-6 lg:px-20 bg-deep-teal border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5] min-h-screen py-28 px-6 lg:px-20 bg-deep-teal border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-6">
                         <div className="max-w-xl">
@@ -232,10 +244,10 @@ const About = () => {
                             <h2 className="text-4xl font-bold mt-4">The Words of Those We've Celebrated With</h2>
                         </div>
                         <div className="flex gap-2">
-                            <button className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all">
+                            <button className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300">
                                 <ChevronLeft className="w-6 h-6" />
                             </button>
-                            <button className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all">
+                            <button className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300">
                                 <ChevronRight className="w-6 h-6" />
                             </button>
                         </div>
@@ -263,7 +275,7 @@ const About = () => {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                                transition={{ duration: 0.5, delay: idx * 0.1, ease: "easeOut" }}
                                 className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
                             >
                                 <div className="flex text-mustard-gold">
@@ -285,6 +297,7 @@ const About = () => {
             </motion.section>
 
         </div>
+        </>
     );
 };
 

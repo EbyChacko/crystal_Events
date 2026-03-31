@@ -9,6 +9,7 @@ import About from './pages/About';
 import Services from './pages/Services';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
+import WeddingPlanning from './pages/services/WeddingPlanning';
 
 // Admin Imports
 import Login from './pages/admin/Login';
@@ -42,6 +43,7 @@ function App() {
               <Route index element={<Landing />} />
               <Route path="about" element={<About />} />
               <Route path="services" element={<Services />} />
+              <Route path="services/wedding-planning" element={<WeddingPlanning />} />
               <Route path="gallery" element={<Gallery />} />
               <Route path="contact" element={<Contact />} />
             </Route>
