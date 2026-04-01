@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Forbidden from '../pages/errors/Forbidden';
 
 const ProtectedRoute = ({ children, requireSuperUser = false }) => {
     const { user, loading } = useAuth();
@@ -20,7 +21,7 @@ const ProtectedRoute = ({ children, requireSuperUser = false }) => {
     }
 
     if (requireSuperUser && !user.is_superuser) {
-        return <Navigate to="/admin/dashboard" replace />;
+        return <Forbidden />;
     }
 
     return children;

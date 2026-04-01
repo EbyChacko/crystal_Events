@@ -2,8 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/layout/Layout';
 import ScrollToTop from './components/ScrollToTop';
+import NotFound from './pages/errors/NotFound';
+import Forbidden from './pages/errors/Forbidden';
 import Landing from './pages/Landing';
 import About from './pages/About';
 import Services from './pages/Services';
@@ -42,6 +45,7 @@ function App() {
       <ScrollToTop />
       <AuthProvider>
         <ToastProvider>
+          <ErrorBoundary>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Layout />}>
@@ -56,6 +60,7 @@ function App() {
               <Route path="services/catering" element={<Catering />} />
               <Route path="gallery" element={<Gallery />} />
               <Route path="contact" element={<Contact />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
 
             {/* Admin Login (public but redirects if logged in) */}
@@ -104,8 +109,12 @@ function App() {
                   <TravelRates />
                 </ProtectedRoute>
               } />
+              <Route path="*" element={<NotFound />} />
             </Route>
+            {/* Global catch-all */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
         </ToastProvider>
       </AuthProvider>
     </Router>
