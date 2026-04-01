@@ -5,6 +5,15 @@ import {
     Gem, Star, ChevronLeft, ChevronRight,
     Palette, Globe, Layers, CheckCircle2, ArrowRight, MapPin
 } from 'lucide-react';
+
+const cardContainer = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.07 } },
+};
+const cardItem = {
+    hidden: { opacity: 0, y: 14 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+};
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
@@ -232,21 +241,24 @@ const About = () => {
                         <p className="text-white/70 text-lg leading-relaxed mb-8">
                             We provide complete event management services, handling every detail from planning to execution. Whether it's an intimate gathering or a large-scale celebration, we ensure every event is executed with precision and creativity.
                         </p>
-                        <ul className="space-y-3">
+                        <motion.ul
+                            className="space-y-3"
+                            variants={cardContainer}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.1 }}
+                        >
                             {whatWeDo.map((item, i) => (
                                 <motion.li
                                     key={i}
-                                    initial={{ opacity: 0, x: -15 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    viewport={{ once: true, amount: 0.1 }}
-                                    transition={{ duration: 0.4, delay: i * 0.06, ease: 'easeOut' }}
+                                    variants={cardItem}
                                     className="flex items-center gap-3 text-white/70 text-sm"
                                 >
                                     <CheckCircle2 size={16} className="text-mustard-gold shrink-0" strokeWidth={2} />
                                     {item}
                                 </motion.li>
                             ))}
-                        </ul>
+                        </motion.ul>
                     </motion.div>
 
                     {/* Our Vision & Mission */}
@@ -296,14 +308,17 @@ const About = () => {
                         </h2>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+                    <motion.div
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                        variants={cardContainer}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.1 }}
+                    >
                         {whatMakesDifferent.map((item, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, y: 16 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, amount: 0.1 }}
-                                transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
+                                variants={cardItem}
                                 className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group text-center"
                             >
                                 <div className="text-mustard-gold mb-5 [&>svg]:w-8 [&>svg]:h-8 transition-transform duration-300 ease-out group-hover:scale-110 inline-block">
@@ -315,73 +330,82 @@ const About = () => {
                                 <p className="text-white/50 text-sm leading-relaxed">{item.desc}</p>
                             </motion.div>
                         ))}
-                    </div>
-
-                    {/* Who We Serve + Where We Work */}
-                    <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                        >
-                            <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold mb-4 block">Who We Serve</span>
-                            <h3 className="text-2xl md:text-3xl font-bold mb-6 leading-tight">
-                                Proudly Serving{' '}
-                                <span className="text-mustard-gold">Every Community</span>
-                            </h3>
-                            <div className="grid grid-cols-2 gap-3">
-                                {whoWeServe.map((item, i) => (
-                                    <motion.div
-                                        key={i}
-                                        initial={{ opacity: 0, y: 15 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true, amount: 0.1 }}
-                                        transition={{ duration: 0.4, delay: i * 0.07, ease: 'easeOut' }}
-                                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
-                                    >
-                                        <p className="text-white font-bold text-sm mb-1">{item.label}</p>
-                                        <p className="text-white/40 text-xs">{item.sub}</p>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                            className="space-y-8"
-                        >
-                            <div>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <MapPin className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
-                                    <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Where We Work</span>
-                                </div>
-                                <p className="text-white/70 text-lg leading-relaxed mb-6">
-                                    Based in Ballinasloe, Galway, Crystal Events provides services across all of Ireland — and beyond through our UK base in Redhill, London.
-                                </p>
-                            </div>
-                            <div className="bg-white/5 border border-mustard-gold/20 rounded-2xl p-7">
-                                <p className="text-white/60 text-sm leading-relaxed mb-6">
-                                    Browse our gallery to see real events we've delivered — from wedding stages to corporate setups and birthday celebrations.
-                                </p>
-                                <Link
-                                    to="/gallery"
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 text-xs shadow-[0_0_15px_rgba(238,192,89,0.25)]"
-                                >
-                                    View Our Work <ArrowRight size={13} />
-                                </Link>
-                            </div>
-                        </motion.div>
-                    </div>
+                    </motion.div>
                 </div>
             </motion.section>
 
-            {/* ── Team ── slides over what-makes-different, z-index 5 */}
+            {/* ── Who We Serve & Where We Work ── slides over what-makes-different, z-index 5 */}
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
+                <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+                    <motion.div
+                        initial={{ opacity: 0, x: -30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.1 }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                    >
+                        <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold mb-4 block">Who We Serve</span>
+                        <h3 className="text-3xl md:text-4xl font-bold mb-8 leading-tight">
+                            Proudly Serving{' '}
+                            <span className="text-mustard-gold">Every Community</span>
+                        </h3>
+                        <motion.div
+                            className="grid grid-cols-2 gap-4"
+                            variants={cardContainer}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.1 }}
+                        >
+                            {whoWeServe.map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    variants={cardItem}
+                                    className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
+                                >
+                                    <p className="text-white font-bold text-sm mb-1">{item.label}</p>
+                                    <p className="text-white/40 text-xs">{item.sub}</p>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, x: 30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.1 }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                        className="space-y-8"
+                    >
+                        <div>
+                            <div className="flex items-center gap-3 mb-4">
+                                <MapPin className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
+                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Where We Work</span>
+                            </div>
+                            <h3 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
+                                Serving All of{' '}
+                                <span className="text-mustard-gold">Ireland</span>
+                            </h3>
+                            <p className="text-white/70 text-lg leading-relaxed">
+                                Based in Ballinasloe, Galway, Crystal Events provides services across all of Ireland — and beyond through our UK base in Redhill, London.
+                            </p>
+                        </div>
+                        <div className="bg-white/5 border border-mustard-gold/20 rounded-2xl p-7">
+                            <p className="text-white/60 text-sm leading-relaxed mb-6">
+                                Browse our gallery to see real events we've delivered — from wedding stages to corporate setups and birthday celebrations.
+                            </p>
+                            <Link
+                                to="/gallery"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 text-xs shadow-[0_0_15px_rgba(238,192,89,0.25)]"
+                            >
+                                View Our Work <ArrowRight size={13} />
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
+            </motion.section>
+
+            {/* ── Team ── slides over who-we-serve, z-index 6 */}
             {!loadingTeam && teamMembers.length > 0 && (
-                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5] min-h-screen py-28 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
+                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[6] min-h-screen py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                     <div className="px-6 lg:px-20 max-w-7xl mx-auto min-h-[500px]">
                         <div className="text-center mb-16">
                             <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold">The Visionaries</span>
@@ -427,8 +451,8 @@ const About = () => {
                 </motion.section>
             )}
 
-            {/* ── Testimonials ── slides over team (or what-makes-different if no team), z-index 6 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[6] min-h-screen py-28 px-6 lg:px-20 bg-background-dark border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
+            {/* ── Testimonials ── slides over team (or who-we-serve if no team), z-index 7 */}
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[7] min-h-screen py-28 px-6 lg:px-20 bg-deep-teal border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-6">
                         <div className="max-w-xl">

@@ -7,6 +7,15 @@ import heroBg from '../assets/images/hero_background.webp';
 import logo from '../assets/images/logo.png';
 import CTAFooter from '../components/layout/CTAFooter';
 
+const cardContainer = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.06 } },
+};
+const cardItem = {
+    hidden: { opacity: 0, y: 14 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+};
+
 const Landing = () => {
     const heroRef = useRef(null);
     const { scrollYProgress } = useScroll({

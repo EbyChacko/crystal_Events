@@ -6,6 +6,15 @@ import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import servicesBg from '../assets/images/wedding_decoration.webp';
 
+const cardContainer = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.07 } },
+};
+const cardItem = {
+    hidden: { opacity: 0, y: 14 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+};
+
 // Static flagship services shown at the top
 const STATIC_SERVICES = [
     {
@@ -148,14 +157,17 @@ const Services = () => {
                         </div>
 
                         {/* Static service cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {STATIC_SERVICES.map((service, i) => (
+                        <motion.div
+                            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+                            variants={cardContainer}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.1 }}
+                        >
+                            {STATIC_SERVICES.map((service) => (
                                 <motion.div
                                     key={service.slug}
-                                    initial={{ opacity: 0, y: 12 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, amount: 0.1 }}
-                                    transition={{ duration: 0.5, delay: i * 0.06, ease: "easeOut" }}
+                                    variants={cardItem}
                                     className="group relative bg-deep-teal/20 border border-mustard-gold/30 rounded-xl overflow-hidden hover:border-mustard-gold/60 hover:shadow-[0_0_25px_rgba(197,160,89,0.2)] transition-all duration-500 ease-out flex flex-col"
                                 >
                                     <div className="p-8 flex flex-col flex-1">
@@ -185,7 +197,7 @@ const Services = () => {
                                     </div>
                                 </motion.div>
                             ))}
-                        </div>
+                        </motion.div>
 
                         {/* ── More Services ── dynamic from API */}
                         <div className="mt-24">
@@ -197,14 +209,17 @@ const Services = () => {
                             ) : services.length === 0 ? (
                                 <div className="text-center text-slate-400 py-12">No additional services available at the moment.</div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {services.map((service, index) => (
+                                <motion.div
+                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                                    variants={cardContainer}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true, amount: 0.1 }}
+                                >
+                                    {services.map((service) => (
                                         <motion.div
                                             key={service.id}
-                                            initial={{ opacity: 0, y: 12 }}
-                                            whileInView={{ opacity: 1, y: 0 }}
-                                            viewport={{ once: true, amount: 0.1 }}
-                                            transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
+                                            variants={cardItem}
                                             className="group relative bg-deep-teal/20 border border-mustard-gold/30 rounded-xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-2 hover:border-mustard-gold/50 hover:shadow-[0_0_15px_rgba(197,160,89,0.3)]"
                                         >
                                             <div className="h-48 overflow-hidden relative">
@@ -221,7 +236,7 @@ const Services = () => {
                                             </div>
                                         </motion.div>
                                     ))}
-                                </div>
+                                </motion.div>
                             )}
                         </div>
                     </div>
