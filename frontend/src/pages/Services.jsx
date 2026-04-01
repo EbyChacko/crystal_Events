@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Star, BadgeCheck, ArrowRight, Calendar, PartyPopper, Briefcase, Gem, Music } from 'lucide-react';
+import { Star, BadgeCheck, ArrowRight, Calendar, PartyPopper, Briefcase, Gem, Music, UtensilsCrossed } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import servicesBg from '../assets/images/wedding_decoration.webp';
@@ -51,6 +51,13 @@ const STATIC_SERVICES = [
         slug: 'live-music-dj',
         description: 'Professional DJ services, live music performances, and advanced sound & lighting solutions to create the perfect atmosphere for any event across Ireland.',
         features: ['DJ & live music for all events', 'High-quality sound systems', 'Stage & dance floor lighting'],
+    },
+    {
+        icon: <UtensilsCrossed strokeWidth={1} />,
+        title: 'Catering Services',
+        slug: 'catering',
+        description: 'Authentic Indian cuisine, multicultural menus, and bespoke dining experiences crafted for weddings, corporate events, birthdays, and private celebrations across Ireland.',
+        features: ['Authentic Indian & multicultural cuisine', 'Buffets, live stations & custom menus', 'Vegetarian, vegan & dietary-friendly options'],
     },
 ];
 

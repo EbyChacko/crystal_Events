@@ -40,6 +40,13 @@ const SERVICE_CTAS = {
         buttonText: 'Book DJ & Sound Services',
         buttonLink: '/contact',
     },
+    '/services/catering': {
+        label: 'Catering Services',
+        title: 'Ready to Delight Your Guests?',
+        description: "Let our chefs craft a bespoke menu that reflects your culture, style, and taste. Contact us for a custom catering quote.",
+        buttonText: 'Get a Catering Quote',
+        buttonLink: '/contact',
+    },
 };
 
 const Layout = () => {

@@ -14,6 +14,7 @@ import BirthdayEvents from './pages/services/BirthdayEvents';
 import CorporateEvents from './pages/services/CorporateEvents';
 import StageDecoration from './pages/services/StageDecoration';
 import LiveMusicDJ from './pages/services/LiveMusicDJ';
+import Catering from './pages/services/Catering';
 
 // Admin Imports
 import Login from './pages/admin/Login';
@@ -52,6 +53,7 @@ function App() {
               <Route path="services/corporate-events" element={<CorporateEvents />} />
               <Route path="services/stage-decoration" element={<StageDecoration />} />
               <Route path="services/live-music-dj" element={<LiveMusicDJ />} />
+              <Route path="services/catering" element={<Catering />} />
               <Route path="gallery" element={<Gallery />} />
               <Route path="contact" element={<Contact />} />
             </Route>
