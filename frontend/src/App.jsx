@@ -10,6 +10,10 @@ import Services from './pages/Services';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
 import WeddingPlanning from './pages/services/WeddingPlanning';
+import BirthdayEvents from './pages/services/BirthdayEvents';
+import CorporateEvents from './pages/services/CorporateEvents';
+import StageDecoration from './pages/services/StageDecoration';
+import LiveMusicDJ from './pages/services/LiveMusicDJ';
 
 // Admin Imports
 import Login from './pages/admin/Login';
@@ -44,6 +48,10 @@ function App() {
               <Route path="about" element={<About />} />
               <Route path="services" element={<Services />} />
               <Route path="services/wedding-planning" element={<WeddingPlanning />} />
+              <Route path="services/birthday-events" element={<BirthdayEvents />} />
+              <Route path="services/corporate-events" element={<CorporateEvents />} />
+              <Route path="services/stage-decoration" element={<StageDecoration />} />
+              <Route path="services/live-music-dj" element={<LiveMusicDJ />} />
               <Route path="gallery" element={<Gallery />} />
               <Route path="contact" element={<Contact />} />
             </Route>

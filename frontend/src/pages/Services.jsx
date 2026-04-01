@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Star, BadgeCheck, ArrowRight, Calendar, Gem, UtensilsCrossed, Camera, Music, Speaker } from 'lucide-react';
+import { Star, BadgeCheck, ArrowRight, Calendar, PartyPopper, Briefcase, Gem, Music } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
+import servicesBg from '../assets/images/wedding_decoration.webp';
 
 // Static flagship services shown at the top
 const STATIC_SERVICES = [
@@ -13,6 +14,34 @@ const STATIC_SERVICES = [
         slug: 'wedding-planning',
         description: 'Make your dream wedding a reality. We specialise in elegant, culturally rich weddings — from intimate ceremonies to grand celebrations.',
         features: ['Complete planning & coordination', 'Stage & venue decoration', 'Catering, photography & entertainment'],
+    },
+    {
+        icon: <PartyPopper strokeWidth={1} />,
+        title: 'Birthday Events',
+        slug: 'birthday-events',
+        description: 'From fun-filled kids\' parties to elegant milestone birthdays, we create unforgettable celebrations with themed decorations, catering, and entertainment.',
+        features: ['Themed decorations & balloon design', 'Catering, cakes & entertainment', 'Photography, lighting & sound'],
+    },
+    {
+        icon: <Briefcase strokeWidth={1} />,
+        title: 'Corporate Events',
+        slug: 'corporate-events',
+        description: 'Professional end-to-end corporate event management for conferences, product launches, team-building events, and company celebrations across Ireland.',
+        features: ['Conferences, seminars & product launches', 'AV, lighting & staging solutions', 'Team-building & award ceremonies'],
+    },
+    {
+        icon: <Gem strokeWidth={1} />,
+        title: 'Stage Decoration',
+        slug: 'stage-decoration',
+        description: 'Visually stunning, custom-designed stage setups for weddings, birthdays, and corporate events. From simple elegant backdrops to premium luxury designs.',
+        features: ['Wedding, birthday & corporate stages', 'Floral, LED & lighting setups', 'Cultural & themed designs'],
+    },
+    {
+        icon: <Music strokeWidth={1} />,
+        title: 'DJ, Live Music & Sound',
+        slug: 'live-music-dj',
+        description: 'Professional DJ services, live music performances, and advanced sound & lighting solutions to create the perfect atmosphere for any event across Ireland.',
+        features: ['DJ & live music for all events', 'High-quality sound systems', 'Stage & dance floor lighting'],
     },
 ];
 
@@ -65,8 +94,8 @@ const Services = () => {
                     <div className="absolute inset-0 z-0">
                         <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/80 via-deep-teal/60 to-background-dark z-10"></div>
                         <img
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtG6wjruurQ-hzQcuQpO6DkZ33TLQsjXQC5JDKOXmXQBxrPPLx8mNZ7-RZWUTdnNu_Mrqokmduqj63ibxxaeFJlFlk1cZuji7Rx4HjLETXdplfT4GwjOFzaHOQppwpavSu46_E9dlzNho-ByZrM7-GKhYZ_rQc-FwMkJlRE4wJc37UZr_PWHs6Zck2GdYWnjmXvhq8i7336UQVrtlwZA-0i-ZAtVS8s1N9g4RRwopo50ZzdDoZgzI567brYgYaOe67TWFEawPitWo9"
-                            alt="Luxury Event Hall"
+                            src={servicesBg}
+                            alt="Wedding decoration setup"
                             className="w-full h-full object-cover"
                         />
                     </div>

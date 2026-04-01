@@ -2,90 +2,97 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-    Gem, UtensilsCrossed, Camera, Music, Lightbulb,
-    CheckCircle2, Heart, Star, Globe
+    Palette, UtensilsCrossed, Camera, Music, Lightbulb,
+    CheckCircle2, PartyPopper, Star
 } from 'lucide-react';
-import weddingHero from '../../assets/images/wedding_service.webp';
+import birthdayHero from '../../assets/images/birthday_service.webp';
 
-const weddingServices = [
+const birthdayServices = [
     {
-        icon: <Gem strokeWidth={1.5} />,
-        title: 'Stage & Venue Decoration',
+        icon: <Palette strokeWidth={1.5} />,
+        title: 'Themed Decorations',
         items: [
-            'Custom-designed wedding stages',
-            'Floral and theme-based decoration',
-            'Traditional and modern setups',
+            'Custom birthday themes (kids & adults)',
+            'Balloon decoration & backdrop design',
+            'Stage and venue styling',
         ],
-        alt: 'Wedding stage decoration in Ireland',
+        alt: 'Birthday party decoration Ireland',
     },
     {
         icon: <UtensilsCrossed strokeWidth={1.5} />,
-        title: 'Catering Services',
+        title: 'Catering & Cakes',
         items: [
-            'Authentic Indian cuisine',
+            'Custom birthday cakes',
+            'Snacks and full catering services',
             'Multi-cuisine options',
-            'Custom menu planning',
         ],
-        alt: 'Indian wedding catering Ireland',
+        alt: 'Birthday catering Ireland',
+    },
+    {
+        icon: <Music strokeWidth={1.5} />,
+        title: 'Entertainment & Activities',
+        items: [
+            'DJ & music setup',
+            'Games and fun activities',
+            'Kids\' entertainment options',
+        ],
+        alt: 'Birthday entertainment Ireland',
     },
     {
         icon: <Camera strokeWidth={1.5} />,
         title: 'Photography & Videography',
         items: [
-            'Professional wedding photography',
-            'Cinematic videography',
-            'Pre-wedding shoots',
+            'Professional birthday photography',
+            'Event highlight videos',
+            'Family and candid moments',
         ],
-        alt: 'Wedding photography Ireland',
-    },
-    {
-        icon: <Music strokeWidth={1.5} />,
-        title: 'Entertainment & Music',
-        items: [
-            'DJ and sound systems',
-            'Live music bands',
-            'Cultural performances',
-        ],
-        alt: 'Wedding entertainment Ireland',
+        alt: 'Birthday photography Ireland',
     },
     {
         icon: <Lightbulb strokeWidth={1.5} />,
         title: 'Lighting & Sound',
         items: [
-            'Advanced lighting design',
-            'High-quality sound systems',
+            'Party lighting setup',
+            'Sound systems for music & announcements',
             'Indoor & outdoor setups',
         ],
-        alt: 'Wedding lighting and decoration Ireland',
+        alt: 'Birthday lighting setup Ireland',
     },
 ];
 
 const whyUs = [
-    'Fully customized wedding experiences',
-    'Expertise in Indian & multicultural weddings',
-    'Premium quality service with attention to detail',
-    'One-stop solution for all wedding needs',
-    'Serving all of Ireland from Galway',
+    'Unique and creative party themes',
+    'Fully customized event planning',
+    'High-quality decoration and setup',
+    'One-stop solution for all birthday needs',
+    'Serving all of Ireland',
 ];
 
-const WeddingPlanning = () => {
+const ageGroups = [
+    { label: 'Kids\' Parties', sub: 'Fun-filled themes', alt: 'Kids birthday party Ireland' },
+    { label: 'Teen Celebrations', sub: 'Cool & stylish', alt: 'Teen birthday Ireland' },
+    { label: 'Adult Birthdays', sub: 'Elegant & memorable', alt: 'Adult birthday Ireland' },
+    { label: 'Milestone Birthdays', sub: '18th, 30th, 50th & more', alt: 'Milestone birthday Ireland' },
+];
+
+const BirthdayEvents = () => {
     return (
         <>
             <Helmet>
-                <title>Wedding Planners in Ireland | Crystal Events</title>
+                <title>Birthday Party Planners in Ireland | Crystal Events</title>
                 <meta
                     name="description"
-                    content="Premium wedding planning services in Ireland. We provide complete solutions including decoration, catering, photography, and entertainment."
+                    content="Looking for birthday party planners in Ireland? Crystal Events offers themed decorations, catering, entertainment, and complete event management for unforgettable celebrations."
                 />
                 <meta name="robots" content="index, follow" />
-                <link rel="canonical" href="https://crystaleventsie.com/services/wedding-planning" />
-                <meta property="og:title" content="Wedding Planners in Ireland | Crystal Events" />
+                <link rel="canonical" href="https://crystaleventsie.com/services/birthday-events" />
+                <meta property="og:title" content="Birthday Party Planners in Ireland | Crystal Events" />
                 <meta
                     property="og:description"
-                    content="Premium wedding planning services in Ireland. We provide complete solutions including decoration, catering, photography, and entertainment."
+                    content="Looking for birthday party planners in Ireland? Crystal Events offers themed decorations, catering, entertainment, and complete event management for unforgettable celebrations."
                 />
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://crystaleventsie.com/services/wedding-planning" />
+                <meta property="og:url" content="https://crystaleventsie.com/services/birthday-events" />
             </Helmet>
 
             <div className="font-sans text-white bg-background-dark">
@@ -95,9 +102,7 @@ const WeddingPlanning = () => {
                     <div className="absolute inset-0 z-0">
                         <div
                             className="absolute inset-0 bg-cover bg-center"
-                            style={{
-                                backgroundImage: `url(${weddingHero})`
-                            }}
+                            style={{ backgroundImage: `url(${birthdayHero})` }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-background-dark/50 to-background-dark" />
                     </div>
@@ -109,7 +114,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                             className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
                         >
-                            Wedding Planning
+                            Birthday Events
                         </motion.span>
                         <motion.h1
                             initial={{ opacity: 0, y: 30 }}
@@ -117,9 +122,9 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.15, ease: 'easeOut' }}
                             className="text-4xl md:text-7xl font-black leading-tight mb-6"
                         >
-                            Create Your Dream{' '}
+                            Make Every Birthday{' '}
                             <span className="bg-gradient-to-r from-mustard-gold via-[#F8E0A0] to-mustard-gold bg-clip-text text-transparent">
-                                Wedding in Ireland
+                                Unforgettable
                             </span>
                         </motion.h1>
                         <motion.p
@@ -128,7 +133,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
                             className="text-white/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10"
                         >
-                            Premium wedding planning and event management tailored to your style, culture, and vision.
+                            Creative birthday party planning and decoration services across Ireland for kids and adults.
                         </motion.p>
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -140,7 +145,7 @@ const WeddingPlanning = () => {
                                 to="/contact"
                                 className="px-8 py-4 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.35)] text-sm"
                             >
-                                Book Your Wedding Consultation
+                                Plan Your Birthday Party Today
                             </Link>
                             <Link
                                 to="/services"
@@ -161,7 +166,7 @@ const WeddingPlanning = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                         >
-                            <Heart className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
+                            <PartyPopper className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
                         </motion.div>
                         <motion.h2
                             initial={{ opacity: 0, y: 20 }}
@@ -170,8 +175,8 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-3xl md:text-4xl font-black mb-6 leading-tight"
                         >
-                            Your Wedding Day,{' '}
-                            <span className="text-mustard-gold">Made Perfect</span>
+                            Every Birthday is a{' '}
+                            <span className="text-mustard-gold">Special Milestone</span>
                         </motion.h2>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -180,7 +185,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed mb-4"
                         >
-                            Your wedding day is one of the most important moments in your life — and at Crystal Events, we make sure it is nothing less than perfect.
+                            Every birthday is a special milestone, and at Crystal Events, we turn it into a memorable celebration.
                         </motion.p>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -189,12 +194,12 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed"
                         >
-                            We provide complete wedding planning services across Ireland, combining elegance, creativity, and cultural richness. Whether you are planning a traditional Indian wedding or a modern Irish celebration, our team ensures every detail is beautifully executed.
+                            From fun-filled kids' parties to elegant milestone birthdays, we provide complete birthday event planning services across Ireland. Our team focuses on creativity, detail, and personalisation to create experiences that truly stand out.
                         </motion.p>
                     </div>
                 </section>
 
-                {/* ── Our Wedding Services ── */}
+                {/* ── Our Birthday Services ── */}
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal/30">
                     <div className="max-w-7xl mx-auto">
                         <motion.div
@@ -206,15 +211,15 @@ const WeddingPlanning = () => {
                         >
                             <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block">What We Offer</span>
                             <h2 className="text-3xl md:text-4xl font-black leading-tight">
-                                Our Wedding Services
+                                Our Birthday Services
                             </h2>
                             <p className="text-white/50 mt-4 max-w-xl mx-auto">
-                                A complete range of services to make your wedding stress-free and unforgettable.
+                                We handle everything so you can enjoy the celebration stress-free.
                             </p>
                         </motion.div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {weddingServices.map((service, i) => (
+                            {birthdayServices.map((service, i) => (
                                 <motion.div
                                     key={i}
                                     initial={{ opacity: 0, y: 30 }}
@@ -243,7 +248,7 @@ const WeddingPlanning = () => {
                     </div>
                 </section>
 
-                {/* ── Destination & Cultural Weddings ── */}
+                {/* ── Customized Experiences & Perfect for All Ages ── */}
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-background-dark">
                     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -253,18 +258,18 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                         >
                             <div className="flex items-center gap-3 mb-4">
-                                <Globe className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
-                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Cultural & Destination</span>
+                                <Star className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
+                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Customized Experiences</span>
                             </div>
                             <h2 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
-                                Destination &{' '}
-                                <span className="text-mustard-gold">Cultural Weddings</span>
+                                Perfect for{' '}
+                                <span className="text-mustard-gold">All Ages</span>
                             </h2>
                             <p className="text-white/60 text-lg leading-relaxed mb-6">
-                                We specialise in culturally rich weddings, especially for the Indian community in Ireland. From Kerala-style weddings to multicultural celebrations, we bring authenticity and elegance together.
+                                We believe every birthday should reflect your personality. Whether it's a themed kids' party, a surprise celebration, or a luxury birthday event, we design everything based on your ideas and preferences.
                             </p>
                             <p className="text-white/60 text-lg leading-relaxed">
-                                We are also expanding into destination weddings, helping you celebrate your big day in unique and beautiful locations.
+                                No matter the age or occasion, Crystal Events delivers a celebration that creates lasting memories for you and your guests.
                             </p>
                         </motion.div>
                         <motion.div
@@ -274,12 +279,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="grid grid-cols-2 gap-4"
                         >
-                            {[
-                                { label: 'Kerala Weddings', sub: 'Traditional elegance', alt: 'Kerala wedding Ireland' },
-                                { label: 'Indian Weddings', sub: 'Galway & beyond', alt: 'Indian wedding setup Galway' },
-                                { label: 'Irish Weddings', sub: 'Modern & classic', alt: 'Irish wedding planning Galway' },
-                                { label: 'Multicultural', sub: 'All traditions honoured', alt: 'Multicultural wedding Ireland' },
-                            ].map((item, i) => (
+                            {ageGroups.map((group, i) => (
                                 <motion.div
                                     key={i}
                                     initial={{ opacity: 0, y: 20 }}
@@ -288,8 +288,8 @@ const WeddingPlanning = () => {
                                     transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-xl p-5 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                 >
-                                    <p className="text-white font-bold text-sm mb-1">{item.label}</p>
-                                    <p className="text-white/40 text-xs">{item.sub}</p>
+                                    <p className="text-white font-bold text-sm mb-1">{group.label}</p>
+                                    <p className="text-white/40 text-xs">{group.sub}</p>
                                 </motion.div>
                             ))}
                         </motion.div>
@@ -338,4 +338,4 @@ const WeddingPlanning = () => {
     );
 };
 
-export default WeddingPlanning;
+export default BirthdayEvents;

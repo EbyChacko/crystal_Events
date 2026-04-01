@@ -255,8 +255,77 @@ const Landing = () => {
                 </div>
             </motion.section>
 
-            {/* ── CTA + Footer ── top card, z-index 5 */}
-            <motion.div data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5]">
+            {/* ── Service Area ── slides over why-us, z-index 5 */}
+            <motion.section
+                data-scroll-snap
+                style={{ boxShadow: sectionShadow }}
+                className="lg:sticky lg:top-0 z-[5] min-h-screen py-28 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center"
+                id="service-area"
+            >
+                <div className="mx-auto max-w-7xl">
+                    <div className="text-center mb-16">
+                        <span className="text-mustard-gold font-bold uppercase tracking-[0.3em] text-sm mb-4 block">Where We Serve</span>
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-white font-sans mb-4">Our Service Area</h2>
+                        <p className="text-white/60 text-lg max-w-2xl mx-auto leading-relaxed">
+                            Based in Ballinasloe, Galway, Crystal Events brings world-class event planning and decoration to every corner of Ireland and the UK.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        {/* Locations grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            {[
+                                { city: 'Galway', note: 'Home base' },
+                                { city: 'Dublin', note: 'Capital region' },
+                                { city: 'Cork', note: 'Southern Ireland' },
+                                { city: 'Limerick', note: 'Mid-west Ireland' },
+                                { city: 'Athlone', note: 'Midlands' },
+                                { city: 'Roscommon', note: 'Connacht' },
+                                { city: 'Sligo', note: 'North-west' },
+                                { city: 'Waterford', note: 'South-east' },
+                                { city: 'London, UK', note: 'Redhill base' },
+                            ].map((loc, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }}
+                                    className="rounded-xl border border-white/10 bg-white/5 p-4 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
+                                >
+                                    <div className="flex items-center justify-center gap-1.5 mb-1">
+                                        <MapPin size={12} className="text-mustard-gold shrink-0" />
+                                        <p className="text-white font-bold text-sm">{loc.city}</p>
+                                    </div>
+                                    <p className="text-white/40 text-xs">{loc.note}</p>
+                                </motion.div>
+                            ))}
+                        </div>
+
+                        {/* Text block */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                        >
+                            <h3 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
+                                Celebrations Across{' '}
+                                <span className="text-mustard-gold">All of Ireland</span>
+                            </h3>
+                            <p className="text-white/60 text-lg leading-relaxed mb-6">
+                                No matter where you are in Ireland, our team travels to you. From intimate village gatherings to grand city celebrations, we bring the same premium experience everywhere we go.
+                            </p>
+                            <p className="text-white/60 text-lg leading-relaxed">
+                                We also serve clients in the UK through our Redhill, London base — so wherever your celebration takes place, Crystal Events will be there.
+                            </p>
+                        </motion.div>
+                    </div>
+                </div>
+            </motion.section>
+
+            {/* ── CTA + Footer ── top card, z-index 6 */}
+            <motion.div data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[6]">
                 <CTAFooter />
             </motion.div>
 

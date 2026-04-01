@@ -2,90 +2,94 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-    Gem, UtensilsCrossed, Camera, Music, Lightbulb,
-    CheckCircle2, Heart, Star, Globe
+    Music, Mic, Speaker, Lightbulb,
+    CheckCircle2, Star, ArrowRight, Headphones
 } from 'lucide-react';
-import weddingHero from '../../assets/images/wedding_service.webp';
+import liveMusicHero from '../../assets/images/live_music_dj_ligt&sound.webp';
 
-const weddingServices = [
+const djServices = [
     {
-        icon: <Gem strokeWidth={1.5} />,
-        title: 'Stage & Venue Decoration',
+        icon: <Headphones strokeWidth={1.5} />,
+        title: 'Professional DJ Services',
         items: [
-            'Custom-designed wedding stages',
-            'Floral and theme-based decoration',
-            'Traditional and modern setups',
+            'Experienced DJs for all event types',
+            'Customised playlists (Indian, Irish, international)',
+            'Dance floor setup and party lighting',
         ],
-        alt: 'Wedding stage decoration in Ireland',
+        alt: 'DJ services Ireland',
     },
     {
-        icon: <UtensilsCrossed strokeWidth={1.5} />,
-        title: 'Catering Services',
+        icon: <Mic strokeWidth={1.5} />,
+        title: 'Live Music Performances',
         items: [
-            'Authentic Indian cuisine',
-            'Multi-cuisine options',
-            'Custom menu planning',
+            'Live bands and singers',
+            'Cultural and traditional performances',
+            'Acoustic and stage performances',
         ],
-        alt: 'Indian wedding catering Ireland',
+        alt: 'Live music performance Ireland',
     },
     {
-        icon: <Camera strokeWidth={1.5} />,
-        title: 'Photography & Videography',
+        icon: <Speaker strokeWidth={1.5} />,
+        title: 'Sound System Setup',
         items: [
-            'Professional wedding photography',
-            'Cinematic videography',
-            'Pre-wedding shoots',
+            'High-quality speakers and audio systems',
+            'Microphones (corded & wireless)',
+            'Indoor & outdoor sound setup',
         ],
-        alt: 'Wedding photography Ireland',
-    },
-    {
-        icon: <Music strokeWidth={1.5} />,
-        title: 'Entertainment & Music',
-        items: [
-            'DJ and sound systems',
-            'Live music bands',
-            'Cultural performances',
-        ],
-        alt: 'Wedding entertainment Ireland',
+        alt: 'Sound system setup Galway',
     },
     {
         icon: <Lightbulb strokeWidth={1.5} />,
-        title: 'Lighting & Sound',
+        title: 'Lighting Solutions',
         items: [
-            'Advanced lighting design',
-            'High-quality sound systems',
-            'Indoor & outdoor setups',
+            'Stage lighting and ambient lighting',
+            'LED lights and effects',
+            'Dance floor lighting',
         ],
-        alt: 'Wedding lighting and decoration Ireland',
+        alt: 'Event lighting Ireland',
     },
 ];
 
 const whyUs = [
-    'Fully customized wedding experiences',
-    'Expertise in Indian & multicultural weddings',
-    'Premium quality service with attention to detail',
-    'One-stop solution for all wedding needs',
-    'Serving all of Ireland from Galway',
+    'Professional DJ and sound team',
+    'High-quality equipment',
+    'Customised music and lighting setup',
+    'Suitable for all event types',
+    'Serving all of Ireland',
 ];
 
-const WeddingPlanning = () => {
+const customFactors = [
+    { label: 'Music Preferences', sub: 'Your playlist, your vibe' },
+    { label: 'Event Size & Venue', sub: 'Scaled to your space' },
+    { label: 'Audience Type', sub: 'From kids to corporate' },
+    { label: 'Cultural Requirements', sub: 'Indian, Irish & more' },
+];
+
+const perfectFor = [
+    { label: 'Weddings & Receptions', linkTo: '/services/wedding-planning' },
+    { label: 'Birthday Parties', linkTo: '/services/birthday-events' },
+    { label: 'Corporate Events', linkTo: '/services/corporate-events' },
+    { label: 'Cultural Programs & Stage Shows', linkTo: '/services/stage-decoration' },
+];
+
+const LiveMusicDJ = () => {
     return (
         <>
             <Helmet>
-                <title>Wedding Planners in Ireland | Crystal Events</title>
+                <title>DJ, Live Music & Sound Services in Ireland | Crystal Events</title>
                 <meta
                     name="description"
-                    content="Premium wedding planning services in Ireland. We provide complete solutions including decoration, catering, photography, and entertainment."
+                    content="Professional DJ, live music, and sound system services in Ireland. Crystal Events provides lighting, sound, and entertainment for weddings, parties, and corporate events."
                 />
                 <meta name="robots" content="index, follow" />
-                <link rel="canonical" href="https://crystaleventsie.com/services/wedding-planning" />
-                <meta property="og:title" content="Wedding Planners in Ireland | Crystal Events" />
+                <link rel="canonical" href="https://crystaleventsie.com/services/live-music-dj" />
+                <meta property="og:title" content="DJ, Live Music & Sound Services in Ireland | Crystal Events" />
                 <meta
                     property="og:description"
-                    content="Premium wedding planning services in Ireland. We provide complete solutions including decoration, catering, photography, and entertainment."
+                    content="Professional DJ, live music, and sound system services in Ireland. Crystal Events provides lighting, sound, and entertainment for weddings, parties, and corporate events."
                 />
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://crystaleventsie.com/services/wedding-planning" />
+                <meta property="og:url" content="https://crystaleventsie.com/services/live-music-dj" />
             </Helmet>
 
             <div className="font-sans text-white bg-background-dark">
@@ -95,9 +99,7 @@ const WeddingPlanning = () => {
                     <div className="absolute inset-0 z-0">
                         <div
                             className="absolute inset-0 bg-cover bg-center"
-                            style={{
-                                backgroundImage: `url(${weddingHero})`
-                            }}
+                            style={{ backgroundImage: `url(${liveMusicHero})` }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-background-dark/50 to-background-dark" />
                     </div>
@@ -109,7 +111,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                             className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
                         >
-                            Wedding Planning
+                            DJ, Live Music & Sound
                         </motion.span>
                         <motion.h1
                             initial={{ opacity: 0, y: 30 }}
@@ -117,9 +119,9 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.15, ease: 'easeOut' }}
                             className="text-4xl md:text-7xl font-black leading-tight mb-6"
                         >
-                            Create Your Dream{' '}
+                            Bring Your Event to Life{' '}
                             <span className="bg-gradient-to-r from-mustard-gold via-[#F8E0A0] to-mustard-gold bg-clip-text text-transparent">
-                                Wedding in Ireland
+                                with Music & Lighting
                             </span>
                         </motion.h1>
                         <motion.p
@@ -128,7 +130,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
                             className="text-white/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10"
                         >
-                            Premium wedding planning and event management tailored to your style, culture, and vision.
+                            Professional DJ, live music, and high-quality sound & lighting services across Ireland.
                         </motion.p>
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -140,7 +142,7 @@ const WeddingPlanning = () => {
                                 to="/contact"
                                 className="px-8 py-4 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.35)] text-sm"
                             >
-                                Book Your Wedding Consultation
+                                Book DJ & Sound Services
                             </Link>
                             <Link
                                 to="/services"
@@ -161,7 +163,7 @@ const WeddingPlanning = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                         >
-                            <Heart className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
+                            <Music className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
                         </motion.div>
                         <motion.h2
                             initial={{ opacity: 0, y: 20 }}
@@ -170,8 +172,8 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-3xl md:text-4xl font-black mb-6 leading-tight"
                         >
-                            Your Wedding Day,{' '}
-                            <span className="text-mustard-gold">Made Perfect</span>
+                            Music & Lighting That{' '}
+                            <span className="text-mustard-gold">Define the Atmosphere</span>
                         </motion.h2>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -180,7 +182,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed mb-4"
                         >
-                            Your wedding day is one of the most important moments in your life — and at Crystal Events, we make sure it is nothing less than perfect.
+                            Music and lighting define the atmosphere of any event.
                         </motion.p>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -189,12 +191,12 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed"
                         >
-                            We provide complete wedding planning services across Ireland, combining elegance, creativity, and cultural richness. Whether you are planning a traditional Indian wedding or a modern Irish celebration, our team ensures every detail is beautifully executed.
+                            At Crystal Events, we provide professional DJ services, live music performances, and advanced sound and lighting solutions to create the perfect mood for your celebration. Whether it's a wedding, birthday party, or corporate event, we ensure an unforgettable experience for you and your guests.
                         </motion.p>
                     </div>
                 </section>
 
-                {/* ── Our Wedding Services ── */}
+                {/* ── Our Services ── */}
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal/30">
                     <div className="max-w-7xl mx-auto">
                         <motion.div
@@ -206,15 +208,15 @@ const WeddingPlanning = () => {
                         >
                             <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block">What We Offer</span>
                             <h2 className="text-3xl md:text-4xl font-black leading-tight">
-                                Our Wedding Services
+                                Our DJ, Music & Sound Services
                             </h2>
                             <p className="text-white/50 mt-4 max-w-xl mx-auto">
-                                A complete range of services to make your wedding stress-free and unforgettable.
+                                Everything you need to fill your venue with energy, emotion, and atmosphere.
                             </p>
                         </motion.div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {weddingServices.map((service, i) => (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {djServices.map((service, i) => (
                                 <motion.div
                                     key={i}
                                     initial={{ opacity: 0, y: 30 }}
@@ -243,9 +245,11 @@ const WeddingPlanning = () => {
                     </div>
                 </section>
 
-                {/* ── Destination & Cultural Weddings ── */}
+                {/* ── Perfect for All Events & Customized Experience ── */}
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-background-dark">
                     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+
+                        {/* Perfect for All Events */}
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
@@ -253,45 +257,70 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                         >
                             <div className="flex items-center gap-3 mb-4">
-                                <Globe className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
-                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Cultural & Destination</span>
+                                <Music className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
+                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Perfect For</span>
                             </div>
                             <h2 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
-                                Destination &{' '}
-                                <span className="text-mustard-gold">Cultural Weddings</span>
+                                Perfect for{' '}
+                                <span className="text-mustard-gold">All Events</span>
                             </h2>
-                            <p className="text-white/60 text-lg leading-relaxed mb-6">
-                                We specialise in culturally rich weddings, especially for the Indian community in Ireland. From Kerala-style weddings to multicultural celebrations, we bring authenticity and elegance together.
+                            <p className="text-white/60 text-lg leading-relaxed mb-8">
+                                Our DJ, music, and sound services work seamlessly with any event type. You can also combine this with our full event planning services for a complete experience.
                             </p>
-                            <p className="text-white/60 text-lg leading-relaxed">
-                                We are also expanding into destination weddings, helping you celebrate your big day in unique and beautiful locations.
-                            </p>
+                            <div className="space-y-3">
+                                {perfectFor.map((item, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, x: -15 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.4, delay: i * 0.07, ease: 'easeOut' }}
+                                    >
+                                        <Link
+                                            to={item.linkTo}
+                                            className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-5 py-4 hover:bg-white/10 hover:border-mustard-gold/30 hover:text-mustard-gold transition-all duration-300 group"
+                                        >
+                                            <span className="text-white/70 text-sm group-hover:text-mustard-gold transition-colors duration-300">{item.label}</span>
+                                            <ArrowRight size={14} className="text-mustard-gold shrink-0 group-hover:translate-x-1 transition-transform duration-300" />
+                                        </Link>
+                                    </motion.div>
+                                ))}
+                            </div>
                         </motion.div>
+
+                        {/* Customized Experience */}
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
-                            className="grid grid-cols-2 gap-4"
                         >
-                            {[
-                                { label: 'Kerala Weddings', sub: 'Traditional elegance', alt: 'Kerala wedding Ireland' },
-                                { label: 'Indian Weddings', sub: 'Galway & beyond', alt: 'Indian wedding setup Galway' },
-                                { label: 'Irish Weddings', sub: 'Modern & classic', alt: 'Irish wedding planning Galway' },
-                                { label: 'Multicultural', sub: 'All traditions honoured', alt: 'Multicultural wedding Ireland' },
-                            ].map((item, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
-                                    className="bg-white/5 border border-white/10 rounded-xl p-5 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
-                                >
-                                    <p className="text-white font-bold text-sm mb-1">{item.label}</p>
-                                    <p className="text-white/40 text-xs">{item.sub}</p>
-                                </motion.div>
-                            ))}
+                            <div className="flex items-center gap-3 mb-4">
+                                <Headphones className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
+                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Customized Experience</span>
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
+                                Tailored to Your{' '}
+                                <span className="text-mustard-gold">Event</span>
+                            </h2>
+                            <p className="text-white/60 text-lg leading-relaxed mb-8">
+                                From elegant background music to high-energy dance parties — we create the perfect vibe based on what matters most to you.
+                            </p>
+                            <div className="grid grid-cols-2 gap-3">
+                                {customFactors.map((f, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 15 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.4, delay: i * 0.07, ease: 'easeOut' }}
+                                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
+                                    >
+                                        <p className="text-white font-bold text-sm mb-1">{f.label}</p>
+                                        <p className="text-white/40 text-xs">{f.sub}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
                         </motion.div>
                     </div>
                 </section>
@@ -314,7 +343,7 @@ const WeddingPlanning = () => {
                             </h2>
                         </motion.div>
 
-                        <div className="grid md:grid-cols-2 gap-4 mb-16">
+                        <div className="grid md:grid-cols-2 gap-4">
                             {whyUs.map((point, i) => (
                                 <motion.div
                                     key={i}
@@ -329,7 +358,6 @@ const WeddingPlanning = () => {
                                 </motion.div>
                             ))}
                         </div>
-
                     </div>
                 </section>
 
@@ -338,4 +366,4 @@ const WeddingPlanning = () => {
     );
 };
 
-export default WeddingPlanning;
+export default LiveMusicDJ;

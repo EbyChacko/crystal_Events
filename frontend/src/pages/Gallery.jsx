@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { MessageSquare, X, ChevronLeft, ChevronRight, MapPin, Calendar as CalendarIcon, Grid } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
-import heroBg from '../assets/images/hero_background.webp';
+import heroBg from '../assets/images/gallery_hero.webp';
 
 const EVENT_TYPES = {
     'wedding': 'Wedding',

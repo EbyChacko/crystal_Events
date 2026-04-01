@@ -2,90 +2,83 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-    Gem, UtensilsCrossed, Camera, Music, Lightbulb,
-    CheckCircle2, Heart, Star, Globe
+    Gem, PartyPopper, Briefcase, Lightbulb,
+    CheckCircle2, Palette, Star, ArrowRight
 } from 'lucide-react';
-import weddingHero from '../../assets/images/wedding_service.webp';
+import stageHero from '../../assets/images/wedding_stage.webp';
 
-const weddingServices = [
+const stageServices = [
     {
         icon: <Gem strokeWidth={1.5} />,
-        title: 'Stage & Venue Decoration',
+        title: 'Wedding Stage Decoration',
         items: [
-            'Custom-designed wedding stages',
-            'Floral and theme-based decoration',
-            'Traditional and modern setups',
+            'Traditional and modern wedding stages',
+            'Floral and luxury backdrop designs',
+            'Cultural themes (including Indian & Kerala style)',
         ],
-        alt: 'Wedding stage decoration in Ireland',
+        alt: 'Wedding stage decoration Galway',
+        linkTo: '/services/wedding-planning',
+        linkLabel: 'Explore full wedding planning services',
     },
     {
-        icon: <UtensilsCrossed strokeWidth={1.5} />,
-        title: 'Catering Services',
+        icon: <PartyPopper strokeWidth={1.5} />,
+        title: 'Birthday Stage Decoration',
         items: [
-            'Authentic Indian cuisine',
-            'Multi-cuisine options',
-            'Custom menu planning',
+            "Kids' themed backdrops",
+            'Balloon decorations and creative designs',
+            'Custom birthday stage setups',
         ],
-        alt: 'Indian wedding catering Ireland',
+        alt: 'Birthday backdrop decoration Ireland',
+        linkTo: '/services/birthday-events',
+        linkLabel: 'Explore full birthday planning services',
     },
     {
-        icon: <Camera strokeWidth={1.5} />,
-        title: 'Photography & Videography',
+        icon: <Briefcase strokeWidth={1.5} />,
+        title: 'Corporate Event Stage Setup',
         items: [
-            'Professional wedding photography',
-            'Cinematic videography',
-            'Pre-wedding shoots',
+            'Professional stage and branding setup',
+            'LED screens and presentation design',
+            'Clean and modern corporate styling',
         ],
-        alt: 'Wedding photography Ireland',
-    },
-    {
-        icon: <Music strokeWidth={1.5} />,
-        title: 'Entertainment & Music',
-        items: [
-            'DJ and sound systems',
-            'Live music bands',
-            'Cultural performances',
-        ],
-        alt: 'Wedding entertainment Ireland',
-    },
-    {
-        icon: <Lightbulb strokeWidth={1.5} />,
-        title: 'Lighting & Sound',
-        items: [
-            'Advanced lighting design',
-            'High-quality sound systems',
-            'Indoor & outdoor setups',
-        ],
-        alt: 'Wedding lighting and decoration Ireland',
+        alt: 'Corporate stage setup Ireland',
+        linkTo: '/services/corporate-events',
+        linkLabel: 'See our corporate event services',
     },
 ];
 
 const whyUs = [
-    'Fully customized wedding experiences',
-    'Expertise in Indian & multicultural weddings',
-    'Premium quality service with attention to detail',
-    'One-stop solution for all wedding needs',
-    'Serving all of Ireland from Galway',
+    'Creative and eye-catching stage designs',
+    'High-quality materials and setup',
+    'Expertise in cultural and Indian events',
+    'Affordable to premium customisation options',
+    'Serving all of Ireland',
 ];
 
-const WeddingPlanning = () => {
+const customDesignFactors = [
+    { label: 'Your Theme & Vision', sub: 'We start with your ideas' },
+    { label: 'Event Type & Audience', sub: 'Tailored to the occasion' },
+    { label: 'Cultural Preferences', sub: 'Indian, Irish & more' },
+    { label: 'Budget & Style', sub: 'Simple to luxury' },
+];
+
+const StageDecoration = () => {
     return (
         <>
             <Helmet>
-                <title>Wedding Planners in Ireland | Crystal Events</title>
+                <title>Stage Decoration Services in Ireland | Crystal Events</title>
                 <meta
                     name="description"
-                    content="Premium wedding planning services in Ireland. We provide complete solutions including decoration, catering, photography, and entertainment."
+                    content="Looking for stage decoration in Ireland? Crystal Events offers custom wedding, birthday, and corporate stage designs with lighting, themes, and premium setups across Ireland."
                 />
                 <meta name="robots" content="index, follow" />
-                <link rel="canonical" href="https://crystaleventsie.com/services/wedding-planning" />
-                <meta property="og:title" content="Wedding Planners in Ireland | Crystal Events" />
+                <link rel="canonical" href="https://crystaleventsie.com/services/stage-decoration" />
+                <meta property="og:title" content="Stage Decoration Services in Ireland | Crystal Events" />
                 <meta
                     property="og:description"
-                    content="Premium wedding planning services in Ireland. We provide complete solutions including decoration, catering, photography, and entertainment."
+                    content="Looking for stage decoration in Ireland? Crystal Events offers custom wedding, birthday, and corporate stage designs with lighting, themes, and premium setups across Ireland."
                 />
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://crystaleventsie.com/services/wedding-planning" />
+                <meta property="og:url" content="https://crystaleventsie.com/services/stage-decoration" />
             </Helmet>
 
             <div className="font-sans text-white bg-background-dark">
@@ -95,9 +88,7 @@ const WeddingPlanning = () => {
                     <div className="absolute inset-0 z-0">
                         <div
                             className="absolute inset-0 bg-cover bg-center"
-                            style={{
-                                backgroundImage: `url(${weddingHero})`
-                            }}
+                            style={{ backgroundImage: `url(${stageHero})` }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-background-dark/50 to-background-dark" />
                     </div>
@@ -109,7 +100,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                             className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
                         >
-                            Wedding Planning
+                            Stage Decoration
                         </motion.span>
                         <motion.h1
                             initial={{ opacity: 0, y: 30 }}
@@ -117,9 +108,9 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.15, ease: 'easeOut' }}
                             className="text-4xl md:text-7xl font-black leading-tight mb-6"
                         >
-                            Create Your Dream{' '}
+                            Stunning Stage Decorations{' '}
                             <span className="bg-gradient-to-r from-mustard-gold via-[#F8E0A0] to-mustard-gold bg-clip-text text-transparent">
-                                Wedding in Ireland
+                                for Every Occasion
                             </span>
                         </motion.h1>
                         <motion.p
@@ -128,7 +119,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
                             className="text-white/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10"
                         >
-                            Premium wedding planning and event management tailored to your style, culture, and vision.
+                            Custom-designed stage setups for weddings, birthdays, and corporate events across Ireland.
                         </motion.p>
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -140,7 +131,7 @@ const WeddingPlanning = () => {
                                 to="/contact"
                                 className="px-8 py-4 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.35)] text-sm"
                             >
-                                Book Your Wedding Consultation
+                                Book Your Stage Decoration
                             </Link>
                             <Link
                                 to="/services"
@@ -161,7 +152,7 @@ const WeddingPlanning = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                         >
-                            <Heart className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
+                            <Palette className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
                         </motion.div>
                         <motion.h2
                             initial={{ opacity: 0, y: 20 }}
@@ -170,8 +161,8 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-3xl md:text-4xl font-black mb-6 leading-tight"
                         >
-                            Your Wedding Day,{' '}
-                            <span className="text-mustard-gold">Made Perfect</span>
+                            The Stage is Where{' '}
+                            <span className="text-mustard-gold">Memories Are Made</span>
                         </motion.h2>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -180,7 +171,7 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed mb-4"
                         >
-                            Your wedding day is one of the most important moments in your life — and at Crystal Events, we make sure it is nothing less than perfect.
+                            The stage is the centrepiece of any event — it's where memories are created and captured.
                         </motion.p>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -189,12 +180,12 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed"
                         >
-                            We provide complete wedding planning services across Ireland, combining elegance, creativity, and cultural richness. Whether you are planning a traditional Indian wedding or a modern Irish celebration, our team ensures every detail is beautifully executed.
+                            At Crystal Events, we specialise in designing and delivering visually stunning stage decorations tailored to your event theme, culture, and personal style. Whether it's an elegant wedding, a fun birthday party, or a professional corporate event, we create stage setups that leave a lasting impression.
                         </motion.p>
                     </div>
                 </section>
 
-                {/* ── Our Wedding Services ── */}
+                {/* ── Our Stage Decoration Services ── */}
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal/30">
                     <div className="max-w-7xl mx-auto">
                         <motion.div
@@ -206,22 +197,22 @@ const WeddingPlanning = () => {
                         >
                             <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block">What We Offer</span>
                             <h2 className="text-3xl md:text-4xl font-black leading-tight">
-                                Our Wedding Services
+                                Our Stage Decoration Services
                             </h2>
                             <p className="text-white/50 mt-4 max-w-xl mx-auto">
-                                A complete range of services to make your wedding stress-free and unforgettable.
+                                Complete stage decoration solutions for every type of event — with internal links to explore full service packages.
                             </p>
                         </motion.div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {weddingServices.map((service, i) => (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {stageServices.map((service, i) => (
                                 <motion.div
                                     key={i}
                                     initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
-                                    className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group"
+                                    transition={{ duration: 0.5, delay: i * 0.1, ease: 'easeOut' }}
+                                    className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group flex flex-col"
                                 >
                                     <div className="text-mustard-gold mb-5 [&>svg]:w-8 [&>svg]:h-8 transition-transform duration-300 ease-out group-hover:scale-110 inline-block">
                                         {service.icon}
@@ -229,7 +220,7 @@ const WeddingPlanning = () => {
                                     <h3 className="text-white font-bold text-lg mb-4 group-hover:text-mustard-gold transition-colors duration-300">
                                         {service.title}
                                     </h3>
-                                    <ul className="space-y-2">
+                                    <ul className="space-y-2 mb-6 flex-1">
                                         {service.items.map((item, j) => (
                                             <li key={j} className="flex items-start gap-2 text-white/60 text-sm">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-mustard-gold shrink-0 mt-1.5" />
@@ -237,15 +228,23 @@ const WeddingPlanning = () => {
                                             </li>
                                         ))}
                                     </ul>
+                                    <Link
+                                        to={service.linkTo}
+                                        className="inline-flex items-center gap-2 text-mustard-gold text-xs font-bold uppercase tracking-widest hover:gap-3 transition-all duration-300"
+                                    >
+                                        {service.linkLabel} <ArrowRight size={13} />
+                                    </Link>
                                 </motion.div>
                             ))}
                         </div>
                     </div>
                 </section>
 
-                {/* ── Destination & Cultural Weddings ── */}
+                {/* ── Lighting & Customized Designs ── */}
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-background-dark">
                     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+
+                        {/* Lighting */}
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
@@ -253,50 +252,64 @@ const WeddingPlanning = () => {
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                         >
                             <div className="flex items-center gap-3 mb-4">
-                                <Globe className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
-                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Cultural & Destination</span>
+                                <Lightbulb className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
+                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Lighting & Design</span>
                             </div>
                             <h2 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
-                                Destination &{' '}
-                                <span className="text-mustard-gold">Cultural Weddings</span>
+                                Lighting That{' '}
+                                <span className="text-mustard-gold">Elevates Every Stage</span>
                             </h2>
                             <p className="text-white/60 text-lg leading-relaxed mb-6">
-                                We specialise in culturally rich weddings, especially for the Indian community in Ireland. From Kerala-style weddings to multicultural celebrations, we bring authenticity and elegance together.
+                                We combine decoration with advanced lighting to enhance the entire experience — turning a great stage into an unforgettable one.
                             </p>
-                            <p className="text-white/60 text-lg leading-relaxed">
-                                We are also expanding into destination weddings, helping you celebrate your big day in unique and beautiful locations.
-                            </p>
+                            <ul className="space-y-3">
+                                {['Ambient and stage lighting', 'LED and spotlight setups', 'Indoor and outdoor configurations'].map((item, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-white/60 text-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-mustard-gold shrink-0 mt-1.5" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
                         </motion.div>
+
+                        {/* Customized Designs */}
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
-                            className="grid grid-cols-2 gap-4"
                         >
-                            {[
-                                { label: 'Kerala Weddings', sub: 'Traditional elegance', alt: 'Kerala wedding Ireland' },
-                                { label: 'Indian Weddings', sub: 'Galway & beyond', alt: 'Indian wedding setup Galway' },
-                                { label: 'Irish Weddings', sub: 'Modern & classic', alt: 'Irish wedding planning Galway' },
-                                { label: 'Multicultural', sub: 'All traditions honoured', alt: 'Multicultural wedding Ireland' },
-                            ].map((item, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
-                                    className="bg-white/5 border border-white/10 rounded-xl p-5 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
-                                >
-                                    <p className="text-white font-bold text-sm mb-1">{item.label}</p>
-                                    <p className="text-white/40 text-xs">{item.sub}</p>
-                                </motion.div>
-                            ))}
+                            <div className="flex items-center gap-3 mb-4">
+                                <Palette className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
+                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Fully Customized</span>
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
+                                Every Stage Is{' '}
+                                <span className="text-mustard-gold">Unique</span>
+                            </h2>
+                            <p className="text-white/60 text-lg leading-relaxed mb-8">
+                                From simple elegant setups to premium luxury designs — we bring your ideas to life based on what matters most to you.
+                            </p>
+                            <div className="grid grid-cols-2 gap-3">
+                                {customDesignFactors.map((f, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 15 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.4, delay: i * 0.07, ease: 'easeOut' }}
+                                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
+                                    >
+                                        <p className="text-white font-bold text-sm mb-1">{f.label}</p>
+                                        <p className="text-white/40 text-xs">{f.sub}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
                         </motion.div>
                     </div>
                 </section>
 
-                {/* ── Why Choose Crystal Events ── */}
+{/* ── Why Choose Crystal Events ── */}
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal rounded-t-[2rem]">
                     <div className="max-w-5xl mx-auto">
                         <motion.div
@@ -314,7 +327,7 @@ const WeddingPlanning = () => {
                             </h2>
                         </motion.div>
 
-                        <div className="grid md:grid-cols-2 gap-4 mb-16">
+                        <div className="grid md:grid-cols-2 gap-4">
                             {whyUs.map((point, i) => (
                                 <motion.div
                                     key={i}
@@ -329,7 +342,6 @@ const WeddingPlanning = () => {
                                 </motion.div>
                             ))}
                         </div>
-
                     </div>
                 </section>
 
@@ -338,4 +350,4 @@ const WeddingPlanning = () => {
     );
 };
 
-export default WeddingPlanning;
+export default StageDecoration;

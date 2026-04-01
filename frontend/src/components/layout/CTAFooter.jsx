@@ -2,27 +2,37 @@ import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-react';
 import logo from '../../assets/images/logo.png';
 
-const CTAFooter = () => {
+const defaultCta = {
+    label: "Let's Create Something Beautiful",
+    title: 'Ready to begin your next celebration?',
+    description: "Let's turn your vision into an unforgettable reality. Our team is ready to discuss your requirements.",
+    buttonText: 'Book Your Event',
+    buttonLink: '/contact',
+};
+
+const CTAFooter = ({ cta }) => {
+    const { label, title, description, buttonText, buttonLink } = cta || defaultCta;
+
     return (
         <div className="bg-jungle-green rounded-t-[2rem] text-white font-sans">
 
             {/* ── Compact CTA ── */}
             <div className="mx-auto max-w-5xl px-6 md:px-12 pt-24 pb-12 text-center">
                 <span className="text-mustard-gold font-bold uppercase tracking-[0.3em] text-xs mb-4 block">
-                    Let's Create Something Beautiful
+                    {label}
                 </span>
                 <h2 className="text-2xl md:text-4xl font-black leading-tight font-sans mb-4">
-                    Ready to begin your next celebration?
+                    {title}
                 </h2>
                 <p className="mx-auto max-w-xl text-sm md:text-base text-white/50 mb-8 leading-relaxed">
-                    Let's turn your vision into an unforgettable reality. Our team is ready to discuss your requirements.
+                    {description}
                 </p>
                 <div className="flex items-center justify-center">
                     <Link
-                        to="/contact"
+                        to={buttonLink}
                         className="px-8 py-3.5 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.25)] text-sm"
                     >
-                        Book Your Event
+                        {buttonText}
                     </Link>
                 </div>
             </div>

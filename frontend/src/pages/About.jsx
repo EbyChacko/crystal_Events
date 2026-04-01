@@ -2,19 +2,59 @@ import { useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import {
-    Gem,
-    Star,
-    ChevronLeft,
-    ChevronRight,
-    MapPin,
-    Mail,
-    Phone,
-    Share2,
-    UsersRound
+    Gem, Star, ChevronLeft, ChevronRight,
+    Palette, Globe, Layers, CheckCircle2, ArrowRight, MapPin
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
+
+const whatWeDo = [
+    'Wedding planning and coordination',
+    'Birthday and private events',
+    'Corporate event management',
+    'Stage decoration and design',
+    'Catering services',
+    'Photography and videography',
+    'DJ, live music, and sound solutions',
+];
+
+const missionPoints = [
+    'Deliver exceptional and personalised event experiences',
+    'Maintain high standards of quality and professionalism',
+    'Build long-term relationships with our clients',
+    'Continuously innovate and improve our services',
+];
+
+const whatMakesDifferent = [
+    {
+        icon: <Palette strokeWidth={1.5} />,
+        title: 'Fully Customized Events',
+        desc: 'Every event we create is designed based on your unique vision, preferences, and cultural background.',
+    },
+    {
+        icon: <Globe strokeWidth={1.5} />,
+        title: 'Cultural Expertise',
+        desc: 'We specialise in Indian and multicultural events, bringing authenticity and elegance to every celebration.',
+    },
+    {
+        icon: <Gem strokeWidth={1.5} />,
+        title: 'Premium Quality Service',
+        desc: 'From planning to execution, we focus on delivering a seamless and high-quality experience.',
+    },
+    {
+        icon: <Layers strokeWidth={1.5} />,
+        title: 'One-Stop Solution',
+        desc: 'We handle everything — so you can enjoy your event stress-free.',
+    },
+];
+
+const whoWeServe = [
+    { label: 'Families & Individuals', sub: 'Private & personal celebrations' },
+    { label: 'Indian Community', sub: 'Cultural events across Ireland' },
+    { label: 'Irish & Multicultural', sub: 'All traditions honoured' },
+    { label: 'Businesses & Corporates', sub: 'Professional event management' },
+];
 
 const About = () => {
     const heroRef = useRef(null);
@@ -57,12 +97,12 @@ const About = () => {
     return (
         <>
         <Helmet>
-            <title>About Us | Crystal Events Ireland</title>
-            <meta name="description" content="Learn about Crystal Events — a luxury event management company serving Ireland and the UK since 2021. Meet our team and discover our story." />
+            <title>About Crystal Events | Event Management Company in Ireland</title>
+            <meta name="description" content="Learn about Crystal Events, a premium event management company in Ireland specializing in weddings, corporate events, and cultural celebrations." />
             <meta name="robots" content="index, follow" />
             <link rel="canonical" href="https://crystaleventsie.com/about" />
-            <meta property="og:title" content="About Us | Crystal Events Ireland" />
-            <meta property="og:description" content="Learn about Crystal Events — a luxury event management company serving Ireland and the UK since 2021. Meet our team and discover our story." />
+            <meta property="og:title" content="About Crystal Events | Event Management Company in Ireland" />
+            <meta property="og:description" content="Learn about Crystal Events, a premium event management company in Ireland specializing in weddings, corporate events, and cultural celebrations." />
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://crystaleventsie.com/about" />
         </Helmet>
@@ -81,21 +121,32 @@ const About = () => {
                     ></div>
                 </motion.div>
                 <div className="relative z-20 text-center px-6 md:px-12 lg:px-20 max-w-4xl">
+                    <motion.span
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: 'easeOut' }}
+                        className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
+                    >
+                        About Crystal Events
+                    </motion.span>
                     <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
                         className="text-4xl md:text-7xl font-black mb-6 leading-tight"
                     >
-                        Crafting <span className="bg-gradient-to-r from-[#e2c08d] to-mustard-gold bg-clip-text text-transparent">Unforgettable</span> Legacies
+                        Creating Unforgettable Events{' '}
+                        <span className="bg-gradient-to-r from-[#e2c08d] to-mustard-gold bg-clip-text text-transparent">
+                            Across Ireland
+                        </span>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                         className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed"
                     >
-                        Crystal Events is more than an agency; we are the architects of your most precious moments across Ireland and the United Kingdom.
+                        Your trusted partner for weddings, celebrations, and corporate events.
                     </motion.p>
                 </div>
             </section>
@@ -112,24 +163,33 @@ const About = () => {
                             className="space-y-8"
                         >
                             <div>
-                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold">The Heritage</span>
-                                <h2 className="text-4xl font-bold mt-4 mb-6">Established luxury management with a personal touch.</h2>
-                                <p className="text-white/70 leading-relaxed text-lg">
-                                    Founded over a decade ago, Crystal Events began with a singular vision: to bring world-class sophistication to the landscapes of Ireland and the UK. What started as a boutique planning house in Dublin has expanded into a premier luxury event firm serving elite clientele across London, Edinburgh, and beyond.
+                                <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold">Our Story</span>
+                                <h2 className="text-4xl font-bold mt-4 mb-6 leading-tight">
+                                    From the UK to Ireland —{' '}
+                                    <span className="text-mustard-gold">Built on Passion</span>
+                                </h2>
+                                <p className="text-white/70 leading-relaxed text-lg mb-4">
+                                    Crystal Events was founded in 2021 with a passion for creating memorable experiences and beautifully crafted events. Starting our journey in the UK, we built a reputation for delivering high-quality, customised event solutions.
                                 </p>
-                                <p className="text-white/70 leading-relaxed mt-4 text-lg">
-                                    Our journey is defined by the relationships we build. From intimate countryside weddings in the Cotswolds to high-profile corporate galas in Belfast's historic venues, we treat every event as a unique masterpiece.
+                                <p className="text-white/70 leading-relaxed text-lg mb-4">
+                                    Today, we are proud to bring our expertise to Ireland, offering premium event management services tailored to diverse cultures, styles, and celebrations.
+                                </p>
+                                <p className="text-white/70 leading-relaxed text-lg">
+                                    Our mission is simple — to turn your vision into reality and create moments that last a lifetime.
                                 </p>
                             </div>
-                            <div className="grid grid-cols-2 gap-8 pt-6">
-                                <div>
-                                    <div className="text-3xl font-black text-mustard-gold mb-1">150+</div>
-                                    <div className="text-white/50 text-xs uppercase tracking-widest">Bespoke Events</div>
-                                </div>
-                                <div>
-                                    <div className="text-3xl font-black text-mustard-gold mb-1">12 Yrs</div>
-                                    <div className="text-white/50 text-xs uppercase tracking-widest">Of Excellence</div>
-                                </div>
+                            <div className="grid grid-cols-2 gap-8 pt-4">
+                                {[
+                                    { value: '2021', label: 'Founded' },
+                                    { value: '200+', label: 'Events Done' },
+                                    { value: '2', label: 'Countries' },
+                                    { value: '100%', label: 'Satisfaction' },
+                                ].map((stat, i) => (
+                                    <div key={i}>
+                                        <div className="text-3xl font-black text-mustard-gold mb-1">{stat.value}</div>
+                                        <div className="text-white/50 text-xs uppercase tracking-widest">{stat.label}</div>
+                                    </div>
+                                ))}
                             </div>
                         </motion.div>
                         <motion.div
@@ -145,7 +205,7 @@ const About = () => {
                                 <img
                                     className="w-full h-full object-cover"
                                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYGTC97_zSIg4jJFSvxBgDpyKj9V3rXaGzi2KDuFyvSHVq4BcGUnnrpDevEE6D1w9rkixkxZY4AgIhQLup0Q8FsmkftkuK6zi0M-v9b2yVG1wDDPDqDrD9EyPL65DW_NNJQKiio11-VKqJgAVTPq0X4YoFfrX_WkGxoh-70LYYDUlqOawzGly6pGvMcZ1IUiaQJ9BSG_1PMUx1PvtYtDdUxIE7R8mIBHBSR7GAqa2zJiRqcMtjZOYzXb-CNt-ozbAk11qG-cO8Uw49"
-                                    alt="Sophisticated event planner arranging high-end table settings"
+                                    alt="Event management company Ireland"
                                 />
                             </div>
                         </motion.div>
@@ -153,43 +213,175 @@ const About = () => {
                 </div>
             </motion.section>
 
-            {/* ── Our Mission ── slides over story, z-index 3 */}
+            {/* ── What We Do & Vision ── slides over story, z-index 3 */}
             <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[3] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
-                <div className="max-w-4xl mx-auto text-center space-y-8">
+                <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-start">
+
+                    {/* What We Do */}
                     <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
+                        initial={{ opacity: 0, x: -30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
                     >
-                        <Gem className="w-16 h-16 text-mustard-gold mx-auto" strokeWidth={1} />
+                        <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold">What We Do</span>
+                        <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-4 leading-tight">
+                            Complete Event Management,{' '}
+                            <span className="text-mustard-gold">End to End</span>
+                        </h2>
+                        <p className="text-white/70 text-lg leading-relaxed mb-8">
+                            We provide complete event management services, handling every detail from planning to execution. Whether it's an intimate gathering or a large-scale celebration, we ensure every event is executed with precision and creativity.
+                        </p>
+                        <ul className="space-y-3">
+                            {whatWeDo.map((item, i) => (
+                                <motion.li
+                                    key={i}
+                                    initial={{ opacity: 0, x: -15 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.4, delay: i * 0.06, ease: 'easeOut' }}
+                                    className="flex items-center gap-3 text-white/70 text-sm"
+                                >
+                                    <CheckCircle2 size={16} className="text-mustard-gold shrink-0" strokeWidth={2} />
+                                    {item}
+                                </motion.li>
+                            ))}
+                        </ul>
                     </motion.div>
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+
+                    {/* Our Vision & Mission */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                        className="text-3xl md:text-5xl font-bold leading-tight"
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                        className="space-y-10"
                     >
-                        Our Mission is Simple: <br />
-                        <span className="italic font-normal">Delivering perfection for every client, every time.</span>
-                    </motion.h2>
-                    <div className="w-24 h-px bg-mustard-gold mx-auto"></div>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                        className="text-white/70 text-lg max-w-2xl mx-auto"
-                    >
-                        We believe that true luxury lies in the details. Our mission is to alleviate every burden from our clients, allowing them to be guests at their own extraordinary celebrations while we orchestrate perfection behind the scenes.
-                    </motion.p>
+                        {/* Vision */}
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                            <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-3 block">Our Vision</span>
+                            <p className="text-white/80 text-lg leading-relaxed">
+                                To become one of the most trusted and recognised event management companies in Ireland, known for creativity, quality, and customer satisfaction.
+                            </p>
+                        </div>
+                        {/* Mission */}
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                            <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block">Our Mission</span>
+                            <ul className="space-y-3">
+                                {missionPoints.map((point, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-white/70 text-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-mustard-gold shrink-0 mt-1.5" />
+                                        {point}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </motion.div>
                 </div>
             </motion.section>
 
-            {/* ── Team ── slides over mission, z-index 4 */}
+            {/* ── What Makes Us Different ── slides over what-we-do, z-index 4 */}
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[4] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                        className="text-center mb-16"
+                    >
+                        <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold mb-4 block">The Crystal Difference</span>
+                        <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+                            What Makes Us <span className="text-mustard-gold">Different</span>
+                        </h2>
+                    </motion.div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+                        {whatMakesDifferent.map((item, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
+                                className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group text-center"
+                            >
+                                <div className="text-mustard-gold mb-5 [&>svg]:w-8 [&>svg]:h-8 transition-transform duration-300 ease-out group-hover:scale-110 inline-block">
+                                    {item.icon}
+                                </div>
+                                <h3 className="text-white font-bold text-base mb-3 group-hover:text-mustard-gold transition-colors duration-300">
+                                    {item.title}
+                                </h3>
+                                <p className="text-white/50 text-sm leading-relaxed">{item.desc}</p>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* Who We Serve + Where We Work */}
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                        >
+                            <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold mb-4 block">Who We Serve</span>
+                            <h3 className="text-2xl md:text-3xl font-bold mb-6 leading-tight">
+                                Proudly Serving{' '}
+                                <span className="text-mustard-gold">Every Community</span>
+                            </h3>
+                            <div className="grid grid-cols-2 gap-3">
+                                {whoWeServe.map((item, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 15 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.4, delay: i * 0.07, ease: 'easeOut' }}
+                                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
+                                    >
+                                        <p className="text-white font-bold text-sm mb-1">{item.label}</p>
+                                        <p className="text-white/40 text-xs">{item.sub}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                            className="space-y-8"
+                        >
+                            <div>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <MapPin className="text-mustard-gold w-6 h-6" strokeWidth={1.5} />
+                                    <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold">Where We Work</span>
+                                </div>
+                                <p className="text-white/70 text-lg leading-relaxed mb-6">
+                                    Based in Ballinasloe, Galway, Crystal Events provides services across all of Ireland — and beyond through our UK base in Redhill, London.
+                                </p>
+                            </div>
+                            <div className="bg-white/5 border border-mustard-gold/20 rounded-2xl p-7">
+                                <p className="text-white/60 text-sm leading-relaxed mb-6">
+                                    Browse our gallery to see real events we've delivered — from wedding stages to corporate setups and birthday celebrations.
+                                </p>
+                                <Link
+                                    to="/gallery"
+                                    className="inline-flex items-center gap-2 px-6 py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 text-xs shadow-[0_0_15px_rgba(238,192,89,0.25)]"
+                                >
+                                    View Our Work <ArrowRight size={13} />
+                                </Link>
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+            </motion.section>
+
+            {/* ── Team ── slides over what-makes-different, z-index 5 */}
             {!loadingTeam && teamMembers.length > 0 && (
-                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[4] min-h-screen py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5] min-h-screen py-28 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
                     <div className="px-6 lg:px-20 max-w-7xl mx-auto min-h-[500px]">
                         <div className="text-center mb-16">
                             <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold">The Visionaries</span>
@@ -235,8 +427,8 @@ const About = () => {
                 </motion.section>
             )}
 
-            {/* ── Testimonials ── slides over team (or mission if no team), z-index 5 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5] min-h-screen py-28 px-6 lg:px-20 bg-deep-teal border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
+            {/* ── Testimonials ── slides over team (or what-makes-different if no team), z-index 6 */}
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[6] min-h-screen py-28 px-6 lg:px-20 bg-background-dark border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-6">
                         <div className="max-w-xl">
@@ -260,7 +452,7 @@ const About = () => {
                                 loc: "Dublin, Ireland"
                             },
                             {
-                                text: "\"From the first consultation in London to the final toast in the Scottish Highlands, Sarah and her team provided absolute excellence.\"",
+                                text: "\"From the first consultation in London to the final toast in the Scottish Highlands, their team provided absolute excellence.\"",
                                 name: "Lord Harrington",
                                 loc: "London, UK"
                             },
