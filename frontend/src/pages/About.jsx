@@ -122,7 +122,7 @@ const About = () => {
                 </motion.div>
                 <div className="relative z-20 text-center px-6 md:px-12 lg:px-20 max-w-4xl">
                     <motion.span
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: 'easeOut' }}
                         className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
@@ -130,7 +130,7 @@ const About = () => {
                         About Crystal Events
                     </motion.span>
                     <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
                         className="text-4xl md:text-7xl font-black mb-6 leading-tight"
@@ -141,7 +141,7 @@ const About = () => {
                         </span>
                     </motion.h1>
                     <motion.p
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                         className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed"
@@ -158,7 +158,7 @@ const About = () => {
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
                             className="space-y-8"
                         >
@@ -195,7 +195,7 @@ const About = () => {
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
                             className="relative mt-8 lg:mt-0"
                         >
@@ -221,7 +221,7 @@ const About = () => {
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, amount: 0.1 }}
                         transition={{ duration: 0.8, ease: 'easeOut' }}
                     >
                         <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold">What We Do</span>
@@ -238,7 +238,7 @@ const About = () => {
                                     key={i}
                                     initial={{ opacity: 0, x: -15 }}
                                     whileInView={{ opacity: 1, x: 0 }}
-                                    viewport={{ once: true }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                     transition={{ duration: 0.4, delay: i * 0.06, ease: 'easeOut' }}
                                     className="flex items-center gap-3 text-white/70 text-sm"
                                 >
@@ -253,7 +253,7 @@ const About = () => {
                     <motion.div
                         initial={{ opacity: 0, x: 30 }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, amount: 0.1 }}
                         transition={{ duration: 0.8, ease: 'easeOut' }}
                         className="space-y-10"
                     >
@@ -284,9 +284,9 @@ const About = () => {
             <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[4] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-7xl mx-auto">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 12 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, amount: 0.1 }}
                         transition={{ duration: 0.8, ease: 'easeOut' }}
                         className="text-center mb-16"
                     >
@@ -300,10 +300,10 @@ const About = () => {
                         {whatMakesDifferent.map((item, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, y: 30 }}
+                                initial={{ opacity: 0, y: 16 }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
+                                viewport={{ once: true, amount: 0.1 }}
+                                transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                 className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group text-center"
                             >
                                 <div className="text-mustard-gold mb-5 [&>svg]:w-8 [&>svg]:h-8 transition-transform duration-300 ease-out group-hover:scale-110 inline-block">
@@ -322,7 +322,7 @@ const About = () => {
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                         >
                             <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold mb-4 block">Who We Serve</span>
@@ -336,7 +336,7 @@ const About = () => {
                                         key={i}
                                         initial={{ opacity: 0, y: 15 }}
                                         whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
+                                        viewport={{ once: true, amount: 0.1 }}
                                         transition={{ duration: 0.4, delay: i * 0.07, ease: 'easeOut' }}
                                         className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                     >
@@ -350,7 +350,7 @@ const About = () => {
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="space-y-8"
                         >
@@ -393,9 +393,9 @@ const About = () => {
                             {teamMembers.map((member, idx) => (
                                 <motion.div
                                     key={member.id}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 12 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                     transition={{ duration: 0.6, delay: idx * 0.1, ease: "easeOut" }}
                                     className="group flex flex-col items-center text-center w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.5rem)] lg:w-[calc(25%-2rem)]"
                                 >
@@ -466,7 +466,7 @@ const About = () => {
                                 key={idx}
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
+                                viewport={{ once: true, amount: 0.1 }}
                                 transition={{ duration: 0.5, delay: idx * 0.1, ease: "easeOut" }}
                                 className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
                             >

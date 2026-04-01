@@ -109,7 +109,7 @@ const BirthdayEvents = () => {
 
                     <div className="relative z-10 text-center px-6 md:px-12 max-w-4xl mx-auto pt-24">
                         <motion.span
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                             className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
@@ -117,7 +117,7 @@ const BirthdayEvents = () => {
                             Birthday Events
                         </motion.span>
                         <motion.h1
-                            initial={{ opacity: 0, y: 30 }}
+                            initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.15, ease: 'easeOut' }}
                             className="text-4xl md:text-7xl font-black leading-tight mb-6"
@@ -128,7 +128,7 @@ const BirthdayEvents = () => {
                             </span>
                         </motion.h1>
                         <motion.p
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
                             className="text-white/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10"
@@ -136,7 +136,7 @@ const BirthdayEvents = () => {
                             Creative birthday party planning and decoration services across Ireland for kids and adults.
                         </motion.p>
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.45, ease: 'easeOut' }}
                             className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -161,17 +161,17 @@ const BirthdayEvents = () => {
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-background-dark">
                     <div className="max-w-4xl mx-auto text-center">
                         <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
+                            initial={{ scale: 0.92, opacity: 0 }}
                             whileInView={{ scale: 1, opacity: 1 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                         >
                             <PartyPopper className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
                         </motion.div>
                         <motion.h2
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-3xl md:text-4xl font-black mb-6 leading-tight"
                         >
@@ -179,18 +179,18 @@ const BirthdayEvents = () => {
                             <span className="text-mustard-gold">Special Milestone</span>
                         </motion.h2>
                         <motion.p
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed mb-4"
                         >
                             Every birthday is a special milestone, and at Crystal Events, we turn it into a memorable celebration.
                         </motion.p>
                         <motion.p
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed"
                         >
@@ -203,9 +203,9 @@ const BirthdayEvents = () => {
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal/30">
                     <div className="max-w-7xl mx-auto">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-center mb-16"
                         >
@@ -222,10 +222,10 @@ const BirthdayEvents = () => {
                             {birthdayServices.map((service, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 30 }}
+                                    initial={{ opacity: 0, y: 16 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
+                                    viewport={{ once: true, amount: 0.1 }}
+                                    transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group"
                                 >
                                     <div className="text-mustard-gold mb-5 [&>svg]:w-8 [&>svg]:h-8 transition-transform duration-300 ease-out group-hover:scale-110 inline-block">
@@ -254,7 +254,7 @@ const BirthdayEvents = () => {
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                         >
                             <div className="flex items-center gap-3 mb-4">
@@ -275,17 +275,17 @@ const BirthdayEvents = () => {
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="grid grid-cols-2 gap-4"
                         >
                             {ageGroups.map((group, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 12 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
+                                    viewport={{ once: true, amount: 0.1 }}
+                                    transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-xl p-5 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                 >
                                     <p className="text-white font-bold text-sm mb-1">{group.label}</p>
@@ -300,9 +300,9 @@ const BirthdayEvents = () => {
                 <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal rounded-t-[2rem]">
                     <div className="max-w-5xl mx-auto">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-center mb-14"
                         >
@@ -318,10 +318,10 @@ const BirthdayEvents = () => {
                             {whyUs.map((point, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 12 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
+                                    viewport={{ once: true, amount: 0.1 }}
+                                    transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                 >
                                     <CheckCircle2 size={18} className="text-mustard-gold shrink-0 mt-0.5" strokeWidth={2} />

@@ -81,7 +81,7 @@ const Landing = () => {
                     </motion.h1>
 
                     <motion.p
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                         className="mx-auto max-w-2xl text-lg md:text-xl font-light text-white/70 mb-10 leading-relaxed"
@@ -90,7 +90,7 @@ const Landing = () => {
                     </motion.p>
 
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                         className="flex flex-col sm:flex-row items-center justify-center gap-6"
@@ -287,9 +287,9 @@ const Landing = () => {
                             ].map((loc, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 12 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                     transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }}
                                     className="rounded-xl border border-white/10 bg-white/5 p-4 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                 >
@@ -306,7 +306,7 @@ const Landing = () => {
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                         >
                             <h3 className="text-3xl md:text-4xl font-black mb-6 leading-tight">

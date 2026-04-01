@@ -248,7 +248,7 @@ const Gallery = () => {
                                     key={event.id}
                                     initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: (idx % 8) * 0.08, ease: "easeOut" }}
                                     onClick={() => openAlbum(event)}
                                     className="masonry-item group relative overflow-hidden rounded-xl bg-[#1a3333] cursor-pointer"

@@ -101,7 +101,7 @@ const Services = () => {
                     </div>
                     <div className="relative z-20 text-center px-4 max-w-4xl pt-20">
                         <motion.span
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, ease: "easeOut" }}
                             className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
@@ -109,7 +109,7 @@ const Services = () => {
                             Exclusivity Defined
                         </motion.span>
                         <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                             className="text-white text-4xl md:text-7xl font-extrabold mb-6 tracking-tight"
@@ -117,7 +117,7 @@ const Services = () => {
                             Our Bespoke <span className="bg-gradient-to-r from-mustard-gold via-[#e2c283] to-mustard-gold bg-clip-text text-transparent">Services</span>
                         </motion.h1>
                         <motion.p
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                             className="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
@@ -152,10 +152,10 @@ const Services = () => {
                             {STATIC_SERVICES.map((service, i) => (
                                 <motion.div
                                     key={service.slug}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 12 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+                                    viewport={{ once: true, amount: 0.1 }}
+                                    transition={{ duration: 0.5, delay: i * 0.06, ease: "easeOut" }}
                                     className="group relative bg-deep-teal/20 border border-mustard-gold/30 rounded-xl overflow-hidden hover:border-mustard-gold/60 hover:shadow-[0_0_25px_rgba(197,160,89,0.2)] transition-all duration-500 ease-out flex flex-col"
                                 >
                                     <div className="p-8 flex flex-col flex-1">
@@ -201,9 +201,9 @@ const Services = () => {
                                     {services.map((service, index) => (
                                         <motion.div
                                             key={service.id}
-                                            initial={{ opacity: 0, y: 20 }}
+                                            initial={{ opacity: 0, y: 12 }}
                                             whileInView={{ opacity: 1, y: 0 }}
-                                            viewport={{ once: true }}
+                                            viewport={{ once: true, amount: 0.1 }}
                                             transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
                                             className="group relative bg-deep-teal/20 border border-mustard-gold/30 rounded-xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-2 hover:border-mustard-gold/50 hover:shadow-[0_0_15px_rgba(197,160,89,0.3)]"
                                         >
