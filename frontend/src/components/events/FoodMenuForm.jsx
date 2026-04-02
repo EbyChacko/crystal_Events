@@ -142,6 +142,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                                         min="0"
                                         value={adultCount}
                                         onChange={(e) => setAdultCount(parseInt(e.target.value) || 0)}
+                                        onFocus={(e) => e.target.select()}
                                         className={inputClass}
                                     />
                                 </div>
@@ -153,6 +154,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                                         step="0.01"
                                         value={adultRate}
                                         onChange={(e) => setAdultRate(parseFloat(e.target.value) || 0)}
+                                        onFocus={(e) => e.target.select()}
                                         className={inputClass}
                                     />
                                 </div>
@@ -166,6 +168,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                                         min="0"
                                         value={kidCount}
                                         onChange={(e) => setKidCount(parseInt(e.target.value) || 0)}
+                                        onFocus={(e) => e.target.select()}
                                         className={inputClass}
                                     />
                                 </div>
@@ -177,6 +180,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                                         step="0.01"
                                         value={kidRate}
                                         onChange={(e) => setKidRate(parseFloat(e.target.value) || 0)}
+                                        onFocus={(e) => e.target.select()}
                                         className={inputClass}
                                     />
                                 </div>
