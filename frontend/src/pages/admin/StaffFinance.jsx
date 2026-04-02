@@ -243,7 +243,7 @@ const StaffFinance = () => {
                         </button>
                         <button onClick={() => setActiveTab('income')}
                             className={`flex-1 py-3.5 text-sm font-semibold transition-colors ${activeTab === 'income' ? 'bg-indigo-500/10 text-indigo-400 border-b-2 border-indigo-500' : 'text-gray-500 hover:text-gray-300'}`}>
-                            Income Received by {firstName(selectedStaff)}
+                            Income Received from {firstName(selectedStaff)}
                         </button>
                     </div>
 
@@ -262,7 +262,7 @@ const StaffFinance = () => {
                                             <span className="text-sm text-gray-400">Select all pending</span>
                                         </label>
                                         {selectedExpenseIds.size > 0 && (
-                                            <button onClick={handleBulkMark} disabled={markingBack}
+                                            <button onClick={() => { if (window.confirm('Are you sure you want to mark these expenses as paid back?')) handleBulkMark(); }} disabled={markingBack}
                                                 className="flex items-center gap-2 text-sm font-semibold bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-4 py-2 rounded-xl hover:bg-emerald-500/30 transition-all disabled:opacity-50">
                                                 <CheckCircle size={14} />
                                                 Mark {selectedExpenseIds.size} as Paid Back
@@ -287,7 +287,7 @@ const StaffFinance = () => {
                                                     {item.event_name && <p className="text-xs text-gray-500">Event: {item.event_name}</p>}
                                                 </div>
                                                 <span className="text-sm font-bold text-amber-400 flex-shrink-0">{fmt(item.amount)}</span>
-                                                <button onClick={() => handleSingleMark(item.id)} disabled={markingBack}
+                                                <button onClick={() => { if (window.confirm('Are you sure you want to mark this expense as paid back?')) handleSingleMark(item.id); }} disabled={markingBack}
                                                     className="flex-shrink-0 text-xs bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg hover:bg-emerald-500/30 transition-all disabled:opacity-50">
                                                     Paid Back
                                                 </button>
