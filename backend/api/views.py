@@ -2123,12 +2123,22 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
         event.audit_log = log
         event.save(update_fields=['audit_log'])
 
+    def _sync_quote_catering(self, menu):
+        """Update catering_cost on all quotes linked to this event."""
+        event = menu.event
+        if not event:
+            return
+        total = menu.total_cost
+        event.quotes.all().update(catering_cost=total)
+
     def perform_create(self, serializer):
         menu = serializer.save()
+        self._sync_quote_catering(menu)
         self._log_menu_action(menu, 'menu_added', self.request.user)
 
     def perform_update(self, serializer):
         menu = serializer.save()
+        self._sync_quote_catering(menu)
         self._log_menu_action(menu, 'menu_updated', self.request.user)
 
     def get_permissions(self):
