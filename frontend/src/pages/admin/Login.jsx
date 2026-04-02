@@ -140,7 +140,7 @@ const Login = () => {
 
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl sm:text-3xl text-white tracking-tight" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                    <h1 className="text-2xl sm:text-3xl text-white tracking-tight uppercase" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                         Crystal <span className="text-mustard-gold">Events</span>
                     </h1>
                     <p className="text-gray-500 mt-2 text-sm uppercase tracking-widest">Admin Portal</p>
