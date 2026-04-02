@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogIn, Eye, EyeOff, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { LogIn, Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { API_BASE_URL } from '../../utils/api';
@@ -15,8 +15,10 @@ const Login = () => {
     const [otp, setOtp] = useState('');
     const { addToast } = useToast();
     const [loading, setLoading] = useState(false);
-    const [serverWaking, setServerWaking] = useState(false);
-    const [serverReady, setServerReady] = useState(false);
+    // 'idle' | 'waking' | 'ready'
+    const [serverStatus, setServerStatus] = useState('idle');
+    const [showReadyBanner, setShowReadyBanner] = useState(false);
+    const wentThroughWaking = useRef(false);
     const navigate = useNavigate();
     const { login, verifyLogin2FA, user } = useAuth();
 
@@ -30,14 +32,19 @@ const Login = () => {
     // Ping health endpoint on mount to wake the backend (production only)
     useEffect(() => {
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        if (isLocal) { setServerReady(true); return; }
+        if (isLocal) return; // no banner needed locally
 
-        let bannerTimer = null;
+        let wakingTimer = null;
+        let readyTimer = null;
         let cancelled = false;
 
         const pingHealth = async () => {
-            bannerTimer = setTimeout(() => {
-                if (!cancelled) setServerWaking(true);
+            // Show "waking" banner only if server hasn't responded after 3s
+            wakingTimer = setTimeout(() => {
+                if (!cancelled) {
+                    wentThroughWaking.current = true;
+                    setServerStatus('waking');
+                }
             }, 3000);
 
             try {
@@ -49,17 +56,27 @@ const Login = () => {
                 );
                 clearTimeout(timeoutId);
                 if (!cancelled && response.ok) {
-                    clearTimeout(bannerTimer);
-                    setServerWaking(false);
-                    setServerReady(true);
+                    clearTimeout(wakingTimer);
+                    setServerStatus('ready');
+                    // Only show "active" banner if we previously showed the "waking" banner
+                    if (wentThroughWaking.current) {
+                        setShowReadyBanner(true);
+                        readyTimer = setTimeout(() => {
+                            if (!cancelled) setShowReadyBanner(false);
+                        }, 4000);
+                    }
                 }
             } catch {
-                if (!cancelled) setServerWaking(false);
+                // Server unreachable — keep waking banner if it's already showing
             }
         };
 
         pingHealth();
-        return () => { cancelled = true; clearTimeout(bannerTimer); };
+        return () => {
+            cancelled = true;
+            clearTimeout(wakingTimer);
+            clearTimeout(readyTimer);
+        };
     }, []);
 
     if (user) return null;
@@ -123,33 +140,44 @@ const Login = () => {
 
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl text-white tracking-tight" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                         Crystal <span className="text-mustard-gold">Events</span>
                     </h1>
                     <p className="text-gray-500 mt-2 text-sm uppercase tracking-widest">Admin Portal</p>
                 </div>
 
-                {/* Cold-start banner */}
-                {serverWaking && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-4 flex items-start gap-3 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 rounded-xl px-4 py-3 text-sm"
-                    >
-                        <div className="mt-0.5 w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                        <p>Server is starting up after inactivity. This usually takes up to 30 seconds. Please wait...</p>
-                    </motion.div>
-                )}
-                {serverReady && !serverWaking && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-4 flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-xl px-4 py-3 text-sm"
-                    >
-                        <CheckCircle size={16} className="flex-shrink-0" />
-                        <p>Server is ready. You can sign in now.</p>
-                    </motion.div>
-                )}
+                {/* Server status banners — only shown when needed */}
+                <AnimatePresence>
+                    {serverStatus === 'waking' && !showReadyBanner && (
+                        <motion.div
+                            key="waking"
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.3 }}
+                            className="mb-4 flex items-start gap-3 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 rounded-xl px-4 py-3 text-sm"
+                        >
+                            <div className="mt-0.5 w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                            <div>
+                                <p className="font-semibold">Server is inactive</p>
+                                <p className="text-yellow-400/70 text-xs mt-0.5">Waking up after inactivity — usually takes up to 30 seconds.</p>
+                            </div>
+                        </motion.div>
+                    )}
+                    {showReadyBanner && (
+                        <motion.div
+                            key="ready"
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.3 }}
+                            className="mb-4 flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-xl px-4 py-3 text-sm"
+                        >
+                            <CheckCircle size={16} className="flex-shrink-0" />
+                            <p><span className="font-semibold">Server is active.</span> You can sign in now.</p>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Login Card */}
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl">
@@ -211,11 +239,11 @@ const Login = () => {
 
                         <button
                             type="submit"
-                            disabled={loading || serverWaking}
+                            disabled={loading || serverStatus === 'waking'}
                             className="w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                         >
                             <LogIn size={18} />
-                            <span>{serverWaking ? 'Server starting...' : loading ? 'Signing in...' : 'Sign In'}</span>
+                            <span>{serverStatus === 'waking' ? 'Server starting...' : loading ? 'Signing in...' : 'Sign In'}</span>
                         </button>
                     </form>
                 </div>
