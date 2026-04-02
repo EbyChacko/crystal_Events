@@ -97,6 +97,9 @@ export const AuthProvider = ({ children }) => {
         };
 
         const checkInactivity = () => {
+            // Only enforce session timeout when the user is in the admin panel
+            if (!window.location.pathname.startsWith('/admin')) return;
+
             const settingsStr = localStorage.getItem('crystal_events_settings');
             let timeoutMinutes = 15;
             let autoLogoutEnabled = true;
