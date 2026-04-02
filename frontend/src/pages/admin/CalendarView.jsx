@@ -66,7 +66,11 @@ const CalendarView = () => {
 
     const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
     const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
-    const goToToday = () => setCurrentDate(new Date());
+    const goToToday = () => {
+        const now = new Date();
+        setCurrentDate(now);
+        setSelectedDate(now.getDate());
+    };
 
     const eventsByDate = useMemo(() => {
         const map = {};
