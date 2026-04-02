@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     Briefcase, Plus, X, AlertCircle, CheckCircle, Search,
-    Trash2, Edit3, DollarSign, Tag
+    Trash2, Edit3, DollarSign, Tag, Eye, EyeOff
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRef } from 'react';
@@ -134,6 +134,20 @@ const ServicesAdmin = () => {
             } else {
                 addToast('Failed to delete service.', 'error');
             }
+        }
+    };
+
+    const handleToggleVisibility = async (service) => {
+        const updated = { show_on_website: !service.show_on_website };
+        // Optimistic update
+        setServices(prev => prev.map(s => s.id === service.id ? { ...s, ...updated } : s));
+        try {
+            await api.patch(`/services/${service.id}/`, updated);
+            addToast(updated.show_on_website ? 'Service is now visible on website.' : 'Service hidden from website.', 'success');
+        } catch {
+            // Revert on failure
+            setServices(prev => prev.map(s => s.id === service.id ? service : s));
+            addToast('Failed to update visibility.', 'error');
         }
     };
 
@@ -305,13 +319,29 @@ const ServicesAdmin = () => {
                             <h3 className="text-lg font-bold text-white mb-2">{service.name}</h3>
                             <p className="text-sm text-gray-400 mb-4 line-clamp-3">{service.description}</p>
 
-                            {/* Price */}
-                            <div className="flex items-center space-x-2 pt-4 border-t border-white/10">
-                                <DollarSign size={16} className="text-mustard-gold" />
-                                <span className="text-lg font-bold text-white">
-                                    €{parseFloat(service.base_price).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </span>
-                                <span className="text-xs text-gray-500">base price</span>
+                            {/* Price + visibility toggle */}
+                            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                                <div className="flex items-center space-x-2">
+                                    <DollarSign size={16} className="text-mustard-gold" />
+                                    <span className="text-lg font-bold text-white">
+                                        €{parseFloat(service.base_price).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                    <span className="text-xs text-gray-500">base price</span>
+                                </div>
+                                <button
+                                    onClick={() => handleToggleVisibility(service)}
+                                    title={service.show_on_website ? 'Visible on website — click to hide' : 'Hidden from website — click to show'}
+                                    className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
+                                        service.show_on_website
+                                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25'
+                                            : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/10 hover:text-gray-300'
+                                    }`}
+                                >
+                                    {service.show_on_website
+                                        ? <><Eye size={12} /> Visible</>
+                                        : <><EyeOff size={12} /> Hidden</>
+                                    }
+                                </button>
                             </div>
                         </motion.div>
                     ))}

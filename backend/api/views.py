@@ -1740,18 +1740,78 @@ class MessageViewSet(viewsets.ModelViewSet):
 
         try:
             from django.utils import timezone
-            send_mail(
-                f'Re: Your message to Crystal Events',
-                reply_content,
-                settings.DEFAULT_FROM_EMAIL,
-                [message.email],
-                fail_silently=False,
+            from django.core.mail import EmailMultiAlternatives
+
+            now = timezone.now()
+            sent_at_str = now.strftime('%d %B %Y at %H:%M')
+
+            plain_body = (
+                f"Dear {message.name},\n\n"
+                f"{reply_content}\n\n"
+                f"---\n"
+                f"Crystal Events\n"
+                f"This reply was sent on {sent_at_str}.\n"
+                f"This is a reply to your original message: \"{message.message[:120]}{'...' if len(message.message) > 120 else ''}\""
             )
+
+            html_body = f"""
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:30px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <tr>
+          <td style="background:#0a2424;padding:24px 32px;">
+            <h1 style="margin:0;color:#c9a84c;font-size:22px;letter-spacing:1px;">Crystal Events</h1>
+          </td>
+        </tr>
+        <!-- Body -->
+        <tr>
+          <td style="padding:32px;">
+            <p style="margin:0 0 8px;color:#555;font-size:14px;">Dear <strong>{message.name}</strong>,</p>
+            <div style="margin:24px 0;padding:20px 24px;background:#f9f9f9;border-left:4px solid #c9a84c;border-radius:4px;">
+              <p style="margin:0;color:#222;font-size:15px;line-height:1.7;white-space:pre-wrap;">{reply_content}</p>
+            </div>
+            <p style="margin:24px 0 0;color:#999;font-size:12px;">
+              Sent on {sent_at_str}<br>
+              In reply to: <em style="color:#bbb;">"{message.message[:120]}{'...' if len(message.message) > 120 else ''}"</em>
+            </p>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f0f0f0;padding:16px 32px;border-top:1px solid #e0e0e0;">
+            <p style="margin:0;color:#aaa;font-size:11px;text-align:center;">
+              &copy; Crystal Events &bull; This email was sent in response to your enquiry.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+            email = EmailMultiAlternatives(
+                subject='Re: Your message to Crystal Events',
+                body=plain_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[message.email],
+            )
+            email.attach_alternative(html_body, 'text/html')
+            email.send(fail_silently=False)
+
             message.status = 'replied'
             message.reply_text = reply_content
-            message.replied_at = timezone.now()
+            message.replied_at = now
+            if not isinstance(message.replies, list):
+                message.replies = []
+            message.replies = message.replies + [{'text': reply_content, 'sent_at': now.isoformat()}]
             message.save()
-            return Response({'status': 'Reply sent'})
+            return Response({'status': 'Reply sent', 'sent_at': now.isoformat()})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

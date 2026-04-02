@@ -7,6 +7,7 @@ class Service(models.Model):
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='services/', null=True, blank=True)
     image_url = models.URLField(max_length=1000, blank=True, null=True)
+    show_on_website = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -83,8 +84,17 @@ class Event(models.Model):
     # Audit logbook — list of JSON snapshots
     audit_log = models.JSONField(default=list, blank=True)
 
+    # Human-readable unique reference (e.g. CE-00001)
+    event_uid = models.CharField(max_length=20, unique=True, blank=True)
+
     class Meta:
         ordering = ['-event_date']
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.event_uid:
+            self.event_uid = f'CE-{self.id:05d}'
+            type(self).objects.filter(pk=self.pk).update(event_uid=self.event_uid)
 
     def __str__(self):
         return f"{self.event_name} — {self.client_name}"
@@ -229,6 +239,7 @@ class Message(models.Model):
     phone = models.CharField(max_length=20, blank=True, default='')
     message = models.TextField()
     reply_text = models.TextField(blank=True, default='')
+    replies = models.JSONField(default=list, blank=True)  # list of {text, sent_at} dicts
     service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unread')
     replied_at = models.DateTimeField(null=True, blank=True)

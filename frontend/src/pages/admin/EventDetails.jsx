@@ -116,6 +116,12 @@ const EventDetails = () => {
     const [expenseFormData, setExpenseFormData] = useState(expenseFormDefault);
     const [expenseReceiptMode, setExpenseReceiptMode] = useState('file'); // 'file' | 'url'
     const [expenseSubmitting, setExpenseSubmitting] = useState(false);
+
+    // Staff pay state
+    const staffPayFormDefault = { date: new Date().toISOString().split('T')[0], staff_id: '', hours: '', hourly_rate: '' };
+    const [showStaffPayModal, setShowStaffPayModal] = useState(false);
+    const [staffPayFormData, setStaffPayFormData] = useState(staffPayFormDefault);
+    const [staffPaySubmitting, setStaffPaySubmitting] = useState(false);
     const [eventExpenses, setEventExpenses] = useState([]);
     const [showPaymentHistoryModal, setShowPaymentHistoryModal] = useState(false);
     const [showGalleryModal, setShowGalleryModal] = useState(false);
@@ -260,6 +266,35 @@ const EventDetails = () => {
         }
     };
 
+    const handleLogStaffPay = async (e) => {
+        e.preventDefault();
+        const hours = parseFloat(staffPayFormData.hours || 0);
+        const rate = parseFloat(staffPayFormData.hourly_rate || 0);
+        const total = (hours * rate).toFixed(2);
+        if (parseFloat(total) <= 0) { addToast('Hours and hourly rate must be greater than 0.', 'error'); return; }
+        setStaffPaySubmitting(true);
+        try {
+            const data = new FormData();
+            data.append('date', staffPayFormData.date);
+            data.append('amount', total);
+            data.append('category', 'Staffing');
+            data.append('reason', `Event pay: ${hours} hrs @ €${rate}/hr`);
+            data.append('event', parseInt(id));
+            data.append('paid_by', staffPayFormData.staff_id);
+            data.append('is_asset', 'False');
+            data.append('is_active_asset', 'False');
+            await api.post('/expenses/', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+            addToast('Staff pay logged successfully!', 'success');
+            setShowStaffPayModal(false);
+            setStaffPayFormData(staffPayFormDefault);
+            fetchEventExpenses();
+        } catch {
+            addToast('Failed to log staff pay.', 'error');
+        } finally {
+            setStaffPaySubmitting(false);
+        }
+    };
+
     useEffect(() => {
         fetchEvent();
         fetchStaff();
@@ -278,6 +313,7 @@ const EventDetails = () => {
                 setShowPaymentModal(false);
                 setShowRefundModal(false);
                 setShowExpenseModal(false);
+                setShowStaffPayModal(false);
                 setShowPaymentHistoryModal(false);
                 setShowGalleryModal(false);
                 setShowLogbookModal(false);
@@ -876,6 +912,13 @@ const EventDetails = () => {
                         <ArrowLeft size={20} />
                     </button>
                     <div>
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                            {event.event_uid && (
+                                <span className="text-xs font-mono font-semibold text-mustard-gold bg-mustard-gold/10 border border-mustard-gold/30 px-2 py-0.5 rounded">
+                                    {event.event_uid}
+                                </span>
+                            )}
+                        </div>
                         <h1 className="text-2xl font-bold text-white break-words">{event.event_name}</h1>
                         <div className="flex flex-wrap items-center gap-2 mt-1">
                             <span className="text-gray-400 text-sm">{getTypeLabel(event.event_type)}</span>
@@ -1906,6 +1949,14 @@ const EventDetails = () => {
                                                 <p className="text-xs text-gray-500">Record an event expense</p>
                                             </div>
                                         </button>
+                                        <button onClick={() => { setSidebarOpen(false); setShowStaffPayModal(true); }}
+                                            className="w-full flex items-center space-x-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-all text-left">
+                                            <div className="p-2 bg-blue-500/20 rounded-lg shrink-0"><Clock size={17} /></div>
+                                            <div>
+                                                <p className="font-semibold text-sm">Log Staff Pay</p>
+                                                <p className="text-xs text-gray-500">Record hourly pay for staff</p>
+                                            </div>
+                                        </button>
                                     </>
                                 )}
 
@@ -2173,6 +2224,81 @@ const EventDetails = () => {
                                 <button type="submit" disabled={expenseSubmitting}
                                     className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold hover:opacity-90 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
                                     {expenseSubmitting ? 'Saving...' : 'Record Expense'}
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* ── Staff Pay Modal ────────────────────────────────────────── */}
+            <AnimatePresence>
+                {showStaffPayModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                         onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowStaffPayModal(false); setStaffPayFormData(staffPayFormDefault); } }}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-[#0b1015] border border-blue-500/20 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Clock className="text-blue-400" size={22} />
+                                    Log Staff Pay
+                                </div>
+                                <button type="button" onClick={() => { setShowStaffPayModal(false); setStaffPayFormData(staffPayFormDefault); }} className="text-gray-400 hover:text-white transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-5">Record hourly pay for staff who worked <span className="text-blue-400 font-medium">{event?.event_name}</span></p>
+                            <form onSubmit={handleLogStaffPay}>
+                                <div className="space-y-4 mb-5">
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Staff Member *</label>
+                                        <select value={staffPayFormData.staff_id}
+                                            onChange={(e) => setStaffPayFormData(p => ({ ...p, staff_id: e.target.value }))}
+                                            className={`${selectClass} border-blue-500/30`} required>
+                                            <option value="" className="bg-gray-900">— Select Staff Member —</option>
+                                            {staffList.map(s => (
+                                                <option key={s.id} value={s.id} className="bg-gray-900">{`${s.first_name} ${s.last_name}`.trim() || s.username}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Date *</label>
+                                        <input type="date" value={staffPayFormData.date}
+                                            onChange={(e) => setStaffPayFormData(p => ({ ...p, date: e.target.value }))}
+                                            className={`${selectClass.replace('cursor-pointer', '')} border-blue-500/30 focus:border-blue-500/50 focus:ring-blue-500/30`}
+                                            required />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-gray-400 text-sm font-medium mb-2">Hours Worked *</label>
+                                            <input type="number" value={staffPayFormData.hours}
+                                                onChange={(e) => setStaffPayFormData(p => ({ ...p, hours: e.target.value }))}
+                                                className={`${selectClass.replace('cursor-pointer', '')} border-blue-500/30 focus:border-blue-500/50 focus:ring-blue-500/30`}
+                                                placeholder="0.0" step="0.5" min="0.5" required />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-400 text-sm font-medium mb-2">Hourly Rate (€) *</label>
+                                            <input type="number" value={staffPayFormData.hourly_rate}
+                                                onChange={(e) => setStaffPayFormData(p => ({ ...p, hourly_rate: e.target.value }))}
+                                                className={`${selectClass.replace('cursor-pointer', '')} border-blue-500/30 focus:border-blue-500/50 focus:ring-blue-500/30`}
+                                                placeholder="0.00" step="0.01" min="0.01" required />
+                                        </div>
+                                    </div>
+                                    {staffPayFormData.hours && staffPayFormData.hourly_rate && (
+                                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex justify-between items-center">
+                                            <div>
+                                                <p className="text-xs text-gray-500 mb-0.5">Total Pay</p>
+                                                <p className="text-xs text-gray-600">{staffPayFormData.hours} hrs × €{staffPayFormData.hourly_rate}/hr</p>
+                                            </div>
+                                            <span className="text-blue-400 font-bold text-2xl">
+                                                €{(parseFloat(staffPayFormData.hours || 0) * parseFloat(staffPayFormData.hourly_rate || 0)).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                <button type="submit" disabled={staffPaySubmitting}
+                                    className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold hover:opacity-90 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {staffPaySubmitting ? 'Logging...' : 'Log Staff Pay'}
                                 </button>
                             </form>
                         </motion.div>

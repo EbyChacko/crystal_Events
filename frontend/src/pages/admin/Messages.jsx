@@ -23,10 +23,16 @@ const Messages = () => {
         fetchMessages();
     }, []);
 
-    const fetchMessages = async () => {
+    const fetchMessages = async (syncSelectedId = null) => {
         try {
             const response = await api.get('/messages/');
-            setMessages(response.data);
+            const data = response.data;
+            setMessages(data);
+            // If a message is currently open, refresh it from the new data
+            if (syncSelectedId) {
+                const fresh = data.find(m => m.id === syncSelectedId);
+                if (fresh) setSelectedMessage(fresh);
+            }
         } catch (error) {
             console.error('Error fetching messages:', error);
         }
@@ -35,7 +41,7 @@ const Messages = () => {
     const handleStatusUpdate = async (id, newStatus) => {
         try {
             await api.patch(`/messages/${id}/`, { status: newStatus });
-            fetchMessages();
+            fetchMessages(id);
         } catch (error) {
             console.error('Error updating status:', error);
         }
@@ -57,13 +63,26 @@ const Messages = () => {
         setSendingReply(true);
         setReplyError('');
         setReplySuccess('');
+        const sentText = replyContent;
         try {
-            await api.post(`/messages/${selectedMessage.id}/reply/`, { reply: replyContent });
+            const res = await api.post(`/messages/${selectedMessage.id}/reply/`, { reply: sentText });
+            const sentAt = res.data?.sent_at || new Date().toISOString();
             setReplyContent('');
             setReplySuccess('Reply sent successfully!');
-            fetchMessages();
-            // Update selectedMessage status locally so the UI reflects it
-            setSelectedMessage(prev => prev ? { ...prev, status: 'replied' } : null);
+            // Update selectedMessage locally immediately so the thread updates without waiting for the API
+            setSelectedMessage(prev => {
+                if (!prev) return null;
+                const existingReplies = Array.isArray(prev.replies) ? prev.replies : [];
+                return {
+                    ...prev,
+                    status: 'replied',
+                    reply_text: sentText,
+                    replied_at: sentAt,
+                    replies: [...existingReplies, { text: sentText, sent_at: sentAt }],
+                };
+            });
+            // Refresh the list and keep selectedMessage in sync with server data
+            fetchMessages(selectedMessage.id);
         } catch (error) {
             console.error('Error sending reply:', error);
             setReplyError('Failed to send reply. Please check your email settings.');
@@ -465,80 +484,80 @@ const Messages = () => {
                                     </div>
                                 )}
 
-                                {/* Already Replied */}
-                                {selectedMessage.status === 'replied' && (
-                                    <div className="space-y-4 pt-4 border-t border-white/10">
-                                        <h4 className="text-lg font-bold text-white flex items-center space-x-2">
-                                            <Mail size={18} className="text-mustard-gold" />
-                                            <span>Our Reply</span>
+                                {/* Reply thread */}
+                                {Array.isArray(selectedMessage.replies) && selectedMessage.replies.length > 0 && (
+                                    <div className="pt-4 border-t border-white/10 space-y-3">
+                                        <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                                            <Mail size={14} className="text-mustard-gold" />
+                                            Reply Thread ({selectedMessage.replies.length})
                                         </h4>
-                                        <div className="bg-emerald-500/5 border border-emerald-500/20 p-5 rounded-xl">
-                                            <p className="text-[10px] text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                                <CheckCircle size={12} />
-                                                SENT {selectedMessage.replied_at ? `ON ${format(new Date(selectedMessage.replied_at), 'PPpp')}` : ''}
-                                            </p>
-                                            <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">{selectedMessage.reply_text}</p>
-                                        </div>
-                                        <div className="flex justify-end">
-                                            <button 
-                                                onClick={() => {
-                                                    // Allow re-replying by temporarily changing local state
-                                                    setSelectedMessage(prev => ({...prev, status: 'read'}));
-                                                    setReplyContent(selectedMessage.reply_text);
-                                                }}
-                                                className="text-sm text-gray-500 hover:text-white transition-colors flex items-center gap-1"
-                                            >
-                                                <Reply size={14} /> Send another reply
-                                            </button>
-                                        </div>
+                                        {selectedMessage.replies.map((r, i) => (
+                                            <div key={i} className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl overflow-hidden">
+                                                {/* Email header */}
+                                                <div className="flex items-center justify-between px-4 py-2.5 border-b border-emerald-500/10 bg-emerald-500/5">
+                                                    <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                                        <CheckCircle size={12} />
+                                                        <span className="font-semibold">Crystal Events</span>
+                                                        <span className="text-emerald-600">→</span>
+                                                        <span className="text-emerald-500/80">{selectedMessage.email}</span>
+                                                    </div>
+                                                    <span className="text-[10px] text-emerald-600 whitespace-nowrap">
+                                                        {r.sent_at ? format(new Date(r.sent_at), 'dd MMM yyyy, HH:mm') : ''}
+                                                    </span>
+                                                </div>
+                                                {/* Email body */}
+                                                <div className="px-4 py-3">
+                                                    <p className="text-gray-300 whitespace-pre-wrap leading-relaxed text-sm">{r.text}</p>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
 
-                                {selectedMessage.status !== 'replied' && (
-                                    <form onSubmit={handleReply} className="space-y-4 pt-4 border-t border-white/10">
-                                        <h4 className="text-lg font-bold text-white flex items-center space-x-2">
-                                            <Mail size={18} className="text-mustard-gold" />
-                                            <span>Send Reply</span>
-                                        </h4>
-                                        <textarea
-                                            value={replyContent}
-                                            onChange={(e) => setReplyContent(e.target.value)}
-                                            rows="5"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600"
-                                            placeholder="Type your reply here..."
-                                            required
-                                        />
-                                        <div className="flex flex-wrap justify-end gap-3">
-                                            <button type="button" onClick={() => setSelectedMessage(null)}
-                                                className="px-5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                                                Cancel
-                                            </button>
-                                            <button type="submit" disabled={sendingReply}
-                                                className="px-6 py-2.5 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all flex items-center gap-2 disabled:opacity-50">
-                                                {sendingReply ? (
-                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-deep-teal" />
-                                                ) : (
-                                                    <Reply size={18} />
-                                                )}
-                                                Send Reply
-                                            </button>
-                                            <a href={getWhatsAppUrl(selectedMessage)}
-                                                target="_blank" rel="noreferrer"
-                                                className={`px-5 py-2.5 border font-medium rounded-xl transition-all flex items-center gap-2 ${selectedMessage.phone
-                                                    ? 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10'
-                                                    : 'border-gray-600/30 text-gray-500 hover:bg-white/5'
-                                                    }`}
-                                                title={selectedMessage.phone
-                                                    ? `Open WhatsApp for ${selectedMessage.phone}`
-                                                    : 'No phone number provided — opens WhatsApp without a contact'}
-                                            >
-                                                <MessageSquare size={18} />
-                                                WhatsApp
-                                                {!selectedMessage.phone && <span className="text-xs">(no phone)</span>}
-                                            </a>
-                                        </div>
-                                    </form>
-                                )}
+                                {/* Reply form — always visible; shows below thread */}
+                                <form onSubmit={handleReply} className="space-y-4 pt-4 border-t border-white/10">
+                                    <h4 className="text-lg font-bold text-white flex items-center space-x-2">
+                                        <Reply size={18} className="text-mustard-gold" />
+                                        <span>{selectedMessage.replies?.length > 0 ? 'Send Another Reply' : 'Send Reply'}</span>
+                                    </h4>
+                                    <textarea
+                                        value={replyContent}
+                                        onChange={(e) => setReplyContent(e.target.value)}
+                                        rows="5"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600"
+                                        placeholder="Type your reply here..."
+                                        required
+                                    />
+                                    <div className="flex flex-wrap justify-end gap-3">
+                                        <button type="button" onClick={() => setSelectedMessage(null)}
+                                            className="px-5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" disabled={sendingReply}
+                                            className="px-6 py-2.5 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all flex items-center gap-2 disabled:opacity-50">
+                                            {sendingReply ? (
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-deep-teal" />
+                                            ) : (
+                                                <Reply size={18} />
+                                            )}
+                                            Send Reply
+                                        </button>
+                                        <a href={getWhatsAppUrl(selectedMessage)}
+                                            target="_blank" rel="noreferrer"
+                                            className={`px-5 py-2.5 border font-medium rounded-xl transition-all flex items-center gap-2 ${selectedMessage.phone
+                                                ? 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10'
+                                                : 'border-gray-600/30 text-gray-500 hover:bg-white/5'
+                                                }`}
+                                            title={selectedMessage.phone
+                                                ? `Open WhatsApp for ${selectedMessage.phone}`
+                                                : 'No phone number provided — opens WhatsApp without a contact'}
+                                        >
+                                            <MessageSquare size={18} />
+                                            WhatsApp
+                                            {!selectedMessage.phone && <span className="text-xs">(no phone)</span>}
+                                        </a>
+                                    </div>
+                                </form>
                             </div>
                         </motion.div>
                     </div>

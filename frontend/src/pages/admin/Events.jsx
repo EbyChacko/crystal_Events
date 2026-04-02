@@ -86,7 +86,8 @@ const Events = () => {
         const matchesSearch = !searchTerm ||
             ev.event_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ev.client_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ev.venue?.toLowerCase().includes(searchTerm.toLowerCase());
+            ev.venue?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ev.event_uid?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
@@ -185,6 +186,7 @@ const Events = () => {
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-white/10">
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -198,6 +200,11 @@ const Events = () => {
                                         <tr key={ev.id}
                                             onClick={() => navigate(`/admin/events/${ev.id}`)}
                                             className="hover:bg-white/10 transition-colors cursor-pointer group">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="text-xs font-mono font-semibold text-mustard-gold/80 bg-mustard-gold/10 px-2 py-1 rounded">
+                                                    {ev.event_uid || '—'}
+                                                </span>
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div>
                                                     <p className="text-sm font-medium text-white">{ev.event_name}</p>
@@ -243,6 +250,9 @@ const Events = () => {
                                     <div className="flex justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-base font-bold text-white truncate">{ev.event_name}</h3>
+                                            {ev.event_uid && (
+                                                <span className="text-xs font-mono text-mustard-gold/70">{ev.event_uid}</span>
+                                            )}
                                         </div>
                                         <div className="flex-shrink-0 text-right">
                                             <span className="text-xs text-gray-400">

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Star, BadgeCheck, ArrowRight, Calendar, PartyPopper, Briefcase, Gem, Music, UtensilsCrossed } from 'lucide-react';
+import { Star, BadgeCheck, ArrowRight, Calendar, PartyPopper, Briefcase, Gem, Music, UtensilsCrossed, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import servicesBg from '../assets/images/wedding_decoration.webp';
@@ -211,40 +211,50 @@ const Services = () => {
                             <h2 className="text-white text-2xl md:text-3xl font-bold mb-3">More Services From Us</h2>
                             <div className="h-1 w-16 bg-mustard-gold mb-10"></div>
 
-                            {loading ? (
-                                <div className="text-center text-slate-400 py-12">Loading services...</div>
-                            ) : services.length === 0 ? (
-                                <div className="text-center text-slate-400 py-12">No additional services available at the moment.</div>
-                            ) : (
-                                <motion.div
-                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                                    variants={cardContainer}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={{ once: true, amount: 0.1 }}
-                                >
-                                    {services.map((service) => (
-                                        <motion.div
-                                            key={service.id}
-                                            variants={cardItem}
-                                            className="group relative bg-deep-teal/20 border border-mustard-gold/30 rounded-xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-2 hover:border-mustard-gold/50 hover:shadow-[0_0_15px_rgba(197,160,89,0.3)]"
-                                        >
-                                            <div className="h-48 overflow-hidden relative">
-                                                <img
-                                                    src={service.image || "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162028/crystal%20events/event_sjzxpf.webp"}
-                                                    alt={service.name}
-                                                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-deep-teal to-transparent opacity-80"></div>
-                                            </div>
-                                            <div className="p-6">
-                                                <h3 className="text-white text-lg font-bold mb-2 group-hover:text-mustard-gold transition-colors duration-300">{service.name}</h3>
-                                                <p className="text-slate-400 text-sm leading-relaxed">{service.description}</p>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </motion.div>
-                            )}
+                            {(() => {
+                                const visible = services.filter(s => s.show_on_website);
+                                if (loading) return <div className="text-center text-slate-400 py-12">Loading services...</div>;
+                                if (visible.length === 0) return <div className="text-center text-slate-400 py-12">No additional services available at the moment.</div>;
+                                return (
+                                    <motion.div
+                                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                                        variants={cardContainer}
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true, amount: 0.1 }}
+                                    >
+                                        {visible.map((service) => (
+                                            <motion.div
+                                                key={service.id}
+                                                variants={cardItem}
+                                                className="group relative bg-deep-teal/20 border border-mustard-gold/30 rounded-xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-2 hover:border-mustard-gold/50 hover:shadow-[0_0_15px_rgba(197,160,89,0.3)] flex flex-col"
+                                            >
+                                                <div className="h-48 overflow-hidden relative shrink-0">
+                                                    <img
+                                                        src={service.image || service.image_url || "https://res.cloudinary.com/dgd5gtn1w/image/upload/v1772162028/crystal%20events/event_sjzxpf.webp"}
+                                                        alt={service.name}
+                                                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-deep-teal to-transparent opacity-80"></div>
+                                                </div>
+                                                <div className="p-6 flex flex-col flex-1">
+                                                    <h3 className="text-white text-lg font-bold mb-2 group-hover:text-mustard-gold transition-colors duration-300">{service.name}</h3>
+                                                    <p className="text-slate-400 text-sm leading-relaxed flex-1">{service.description}</p>
+                                                    <div className="mt-5 pt-4 border-t border-mustard-gold/10">
+                                                        <Link
+                                                            to="/contact"
+                                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-mustard-gold/10 border border-mustard-gold/30 text-mustard-gold text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300"
+                                                        >
+                                                            <Mail size={13} />
+                                                            Get More Details
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </motion.div>
+                                );
+                            })()}
                         </div>
                     </div>
                 </motion.section>
