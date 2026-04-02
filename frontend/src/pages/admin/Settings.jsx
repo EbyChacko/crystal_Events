@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-    Settings as SettingsIcon, Building2, Mail, Bell, Shield, Database,
-    Save, CheckCircle, AlertCircle, Globe, Phone, MapPin, Clock, X
+    Settings as SettingsIcon, Building2, Mail, Bell, Shield,
+    Save, AlertCircle, Globe, Phone, MapPin, Clock, X, RotateCcw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
@@ -222,33 +222,50 @@ const Settings = () => {
                     <p className="text-gray-400 mt-1">Manage your company and application preferences</p>
                 </div>
 
-                <AnimatePresence>
-                    {hasChanges && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="flex items-center space-x-3 w-full md:w-auto"
-                        >
-                            <button
-                                onClick={handleCancel}
-                                disabled={saving}
-                                className="flex-1 md:flex-none flex items-center justify-center space-x-2 bg-white/5 text-gray-400 border border-white/10 px-5 py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all font-bold disabled:opacity-50"
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <button
+                        onClick={() => {
+                            localStorage.removeItem('crystal_events_settings');
+                            const defaultSettings = loadSettings();
+                            setInitialSettings(defaultSettings);
+                            setSettings(defaultSettings);
+                            setHasChanges(false);
+                            addToast('Settings reset to defaults.', 'success');
+                        }}
+                        className="flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2.5 rounded-xl hover:bg-red-500/20 transition-all text-sm font-medium"
+                    >
+                        <RotateCcw size={15} />
+                        <span>Reset</span>
+                    </button>
+
+                    <AnimatePresence>
+                        {hasChanges && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="flex items-center gap-3 flex-1 md:flex-none"
                             >
-                                <X size={20} />
-                                <span>Cancel</span>
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={saving}
-                                className="flex-1 md:flex-none flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-bold disabled:opacity-50"
-                            >
-                                <Save size={20} />
-                                <span>{saving ? 'Saving...' : 'Save Settings'}</span>
-                            </button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                                <button
+                                    onClick={handleCancel}
+                                    disabled={saving}
+                                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white/5 text-gray-400 border border-white/10 px-4 py-2.5 rounded-xl hover:bg-white/10 hover:text-white transition-all font-bold disabled:opacity-50 text-sm"
+                                >
+                                    <X size={16} />
+                                    <span>Cancel</span>
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-bold disabled:opacity-50 text-sm"
+                                >
+                                    <Save size={16} />
+                                    <span>{saving ? 'Saving...' : 'Save'}</span>
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -433,41 +450,6 @@ const Settings = () => {
                         </div>
                     </SettingsSection>
 
-                    {/* Data Management */}
-                    <SettingsSection icon={<Database size={20} />} title="Data Management" description="Manage application data and exports" delay={0.3}>
-                        <div className="space-y-3">
-                            <button
-                                onClick={() => {
-                                    const data = JSON.stringify({ exportDate: new Date().toISOString(), settings });
-                                    const blob = new Blob([data], { type: 'application/json' });
-                                    const url = URL.createObjectURL(blob);
-                                    const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = 'crystal-events-settings.json';
-                                    a.click();
-                                    URL.revokeObjectURL(url);
-                                }}
-                                className="w-full flex items-center justify-center space-x-2 bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl hover:bg-white/10 transition-all"
-                            >
-                                <Database size={18} />
-                                <span className="text-sm font-medium">Export Settings</span>
-                            </button>
-                            <button
-                                onClick={() => {
-                                    localStorage.removeItem('crystal_events_settings');
-                                    const defaultSettings = loadSettings();
-                                    setInitialSettings(defaultSettings);
-                                    setSettings(defaultSettings);
-                                    setHasChanges(false);
-                                    addToast('Settings reset to defaults.', 'success');
-                                }}
-                                className="w-full flex items-center justify-center space-x-2 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl hover:bg-red-500/20 transition-all"
-                            >
-                                <AlertCircle size={18} />
-                                <span className="text-sm font-medium">Reset to Defaults</span>
-                            </button>
-                        </div>
-                    </SettingsSection>
                 </div>
             </div>
 
