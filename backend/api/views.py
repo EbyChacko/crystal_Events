@@ -198,6 +198,51 @@ class EventViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 print(f"Error sending booking confirmation: {e}")
 
+        # Notify staff about new event
+        try:
+            from django.core.mail import EmailMultiAlternatives
+            event_date_str = event.event_date.strftime('%d %B %Y at %H:%M') if event.event_date else 'TBC'
+            recipients = [settings.NOTIFY_EMAIL]
+            for profile in UserProfile.objects.filter(notify_new_event=True, user__is_active=True):
+                if profile.user.email and profile.user.email not in recipients:
+                    recipients.append(profile.user.email)
+            plain = (
+                f"New event created: {event.event_name}\n"
+                f"Client: {event.client_name}\n"
+                f"Date: {event_date_str}\n"
+                f"Venue: {event.venue}\n"
+                f"Status: {event.get_status_display()}\n"
+                f"Created by: {self._user_display(user)}"
+            )
+            html = f"""
+<html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+<div style="max-width:560px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+<div style="background:#1a3a3a;padding:24px 28px;">
+  <h2 style="color:#c5a059;margin:0;font-size:20px;">New Event Created</h2>
+</div>
+<div style="padding:24px 28px;">
+  <p style="font-size:15px;color:#333;"><strong>{event.event_name}</strong></p>
+  <table style="width:100%;border-collapse:collapse;font-size:14px;color:#555;">
+    <tr><td style="padding:6px 0;width:120px;color:#888;">Client</td><td>{event.client_name}</td></tr>
+    <tr><td style="padding:6px 0;color:#888;">Date</td><td>{event_date_str}</td></tr>
+    <tr><td style="padding:6px 0;color:#888;">Venue</td><td>{event.venue}</td></tr>
+    <tr><td style="padding:6px 0;color:#888;">Status</td><td>{event.get_status_display()}</td></tr>
+    <tr><td style="padding:6px 0;color:#888;">Created by</td><td>{self._user_display(user)}</td></tr>
+  </table>
+</div>
+<div style="background:#f9f9f9;padding:14px 28px;font-size:12px;color:#aaa;">Crystal Events Admin</div>
+</div></body></html>"""
+            msg = EmailMultiAlternatives(
+                subject=f'New Event: {event.event_name}',
+                body=plain,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=recipients,
+            )
+            msg.attach_alternative(html, 'text/html')
+            msg.send(fail_silently=True)
+        except Exception as e:
+            print(f"Error sending new event notification: {e}")
+
     def perform_update(self, serializer):
         user = self.request.user
         
@@ -1338,35 +1383,85 @@ class QuoteViewSet(viewsets.ModelViewSet):
         event.audit_log = log
         event.save(update_fields=['audit_log'])
 
+    def _notify_quote_accepted(self, quote):
+        try:
+            from django.core.mail import EmailMultiAlternatives
+            event_name = quote.event.event_name if quote.event else 'N/A'
+            client = quote.client_name
+            total = f"€{quote.total:,.2f}"
+            recipients = [settings.NOTIFY_EMAIL]
+            for profile in UserProfile.objects.filter(notify_quote_accepted=True, user__is_active=True):
+                if profile.user.email and profile.user.email not in recipients:
+                    recipients.append(profile.user.email)
+            plain = (
+                f"Quote #{quote.id} has been accepted.\n"
+                f"Client: {client}\n"
+                f"Event: {event_name}\n"
+                f"Total: {total}"
+            )
+            html = f"""
+<html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+<div style="max-width:560px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+<div style="background:#1a3a3a;padding:24px 28px;">
+  <h2 style="color:#10b981;margin:0;font-size:20px;">Quote Accepted ✓</h2>
+</div>
+<div style="padding:24px 28px;">
+  <p style="font-size:15px;color:#333;">Quote <strong>#{quote.id}</strong> has been accepted.</p>
+  <table style="width:100%;border-collapse:collapse;font-size:14px;color:#555;">
+    <tr><td style="padding:6px 0;width:120px;color:#888;">Client</td><td>{client}</td></tr>
+    <tr><td style="padding:6px 0;color:#888;">Event</td><td>{event_name}</td></tr>
+    <tr><td style="padding:6px 0;color:#888;">Total</td><td style="color:#10b981;font-weight:bold;">{total}</td></tr>
+  </table>
+</div>
+<div style="background:#f9f9f9;padding:14px 28px;font-size:12px;color:#aaa;">Crystal Events Admin</div>
+</div></body></html>"""
+            msg = EmailMultiAlternatives(
+                subject=f'Quote #{quote.id} Accepted — {client}',
+                body=plain,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=recipients,
+            )
+            msg.attach_alternative(html, 'text/html')
+            msg.send(fail_silently=True)
+        except Exception as e:
+            print(f"Error sending quote accepted notification: {e}")
+
     def perform_create(self, serializer):
         quote = serializer.save()
         if quote.event:
             event = quote.event
             event.budget = quote.total
-            
+
             # Recalculate event total receiving travel_cost logic handled from Quote creation
             update_fields = ['budget']
             if quote.status == 'accepted' and event.status != 'confirmed':
                 event.status = 'confirmed'
                 update_fields.append('status')
-            
+
             event.save(update_fields=update_fields)
-            
+
+        if quote.status == 'accepted':
+            self._notify_quote_accepted(quote)
+
         self._log_quote_action(quote, 'quote_created', self.request.user)
 
     def perform_update(self, serializer):
+        old_status = self.get_object().status
         quote = serializer.save()
         if quote.event:
             event = quote.event
             event.budget = quote.total
-            
+
             update_fields = ['budget']
             if quote.status == 'accepted' and event.status != 'confirmed':
                 event.status = 'confirmed'
                 update_fields.append('status')
-            
+
             event.save(update_fields=update_fields)
-            
+
+        if quote.status == 'accepted' and old_status != 'accepted':
+            self._notify_quote_accepted(quote)
+
         self._log_quote_action(quote, 'quote_updated', self.request.user)
 
     @action(detail=True, methods=['get'], url_path='pdf')

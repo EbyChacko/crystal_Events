@@ -257,6 +257,10 @@ class UserProfile(models.Model):
     designation = models.CharField(max_length=100, blank=True, default='')
     can_view_financials = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=True, help_text="Receive email when a new contact message is received")
+    notify_new_event = models.BooleanField(default=True, help_text="Receive email when a new event is created")
+    notify_quote_accepted = models.BooleanField(default=True, help_text="Receive email when a quote is accepted")
+    notify_weekly_report = models.BooleanField(default=False, help_text="Receive weekly summary report")
+    notify_daily_summary = models.BooleanField(default=False, help_text="Receive daily overview email")
 
     def __str__(self):
         return f"Profile of {self.user.username}"

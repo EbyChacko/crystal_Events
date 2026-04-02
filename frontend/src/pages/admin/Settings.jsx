@@ -65,16 +65,16 @@ const Settings = () => {
             if (user.two_factor_enabled !== undefined) {
                 setTwoFactorEnabled(user.two_factor_enabled);
             }
-            // Sync backend notification preference to state
-            if (user.email_notifications !== undefined) {
-                setSettings(prev => ({
-                    ...prev,
-                    newMessageNotification: user.email_notifications
-                }));
-                setInitialSettings(prev => ({
-                    ...prev,
-                    newMessageNotification: user.email_notifications
-                }));
+            // Sync backend notification preferences to state
+            const notifPatch = {};
+            if (user.email_notifications !== undefined) notifPatch.newMessageNotification = user.email_notifications;
+            if (user.notify_new_event !== undefined) notifPatch.newEventNotification = user.notify_new_event;
+            if (user.notify_quote_accepted !== undefined) notifPatch.quoteAcceptedNotification = user.notify_quote_accepted;
+            if (user.notify_weekly_report !== undefined) notifPatch.weeklyReportNotification = user.notify_weekly_report;
+            if (user.notify_daily_summary !== undefined) notifPatch.dailySummaryNotification = user.notify_daily_summary;
+            if (Object.keys(notifPatch).length > 0) {
+                setSettings(prev => ({ ...prev, ...notifPatch }));
+                setInitialSettings(prev => ({ ...prev, ...notifPatch }));
             }
         }
     }, [user]);
@@ -126,9 +126,13 @@ const Settings = () => {
             // 1. Save local preferences
             localStorage.setItem('crystal_events_settings', JSON.stringify(settings));
             
-            // 2. Persist email notification preference to backend
+            // 2. Persist all notification preferences to backend
             await api.patch('/auth/profile/', {
-                email_notifications: settings.newMessageNotification
+                email_notifications: settings.newMessageNotification,
+                notify_new_event: settings.newEventNotification,
+                notify_quote_accepted: settings.quoteAcceptedNotification,
+                notify_weekly_report: settings.weeklyReportNotification,
+                notify_daily_summary: settings.dailySummaryNotification,
             });
             
             // 3. Update local state

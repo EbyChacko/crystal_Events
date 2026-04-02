@@ -136,7 +136,9 @@ class MessageSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['profile_picture', 'phone', 'address', 'designation', 'can_view_financials', 'email_notifications']
+        fields = ['profile_picture', 'phone', 'address', 'designation', 'can_view_financials',
+                  'email_notifications', 'notify_new_event', 'notify_quote_accepted',
+                  'notify_weekly_report', 'notify_daily_summary']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -146,6 +148,10 @@ class UserSerializer(serializers.ModelSerializer):
     designation = serializers.CharField(source='profile.designation', read_only=True)
     can_view_financials = serializers.BooleanField(source='profile.can_view_financials', read_only=True)
     email_notifications = serializers.BooleanField(source='profile.email_notifications', read_only=True)
+    notify_new_event = serializers.BooleanField(source='profile.notify_new_event', read_only=True)
+    notify_quote_accepted = serializers.BooleanField(source='profile.notify_quote_accepted', read_only=True)
+    notify_weekly_report = serializers.BooleanField(source='profile.notify_weekly_report', read_only=True)
+    notify_daily_summary = serializers.BooleanField(source='profile.notify_daily_summary', read_only=True)
     two_factor_enabled = serializers.SerializerMethodField()
 
     class Meta:
@@ -153,7 +159,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
             'is_staff', 'is_superuser', 'is_active', 'date_joined',
-            'profile_picture', 'phone', 'address', 'designation', 'can_view_financials', 'email_notifications', 'two_factor_enabled'
+            'profile_picture', 'phone', 'address', 'designation', 'can_view_financials',
+            'email_notifications', 'notify_new_event', 'notify_quote_accepted',
+            'notify_weekly_report', 'notify_daily_summary', 'two_factor_enabled'
         ]
         read_only_fields = fields
 
@@ -242,12 +250,18 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
     address = serializers.CharField(source='profile.address', required=False, allow_blank=True)
     designation = serializers.CharField(source='profile.designation', required=False, allow_blank=True)
     email_notifications = serializers.BooleanField(source='profile.email_notifications', required=False)
+    notify_new_event = serializers.BooleanField(source='profile.notify_new_event', required=False)
+    notify_quote_accepted = serializers.BooleanField(source='profile.notify_quote_accepted', required=False)
+    notify_weekly_report = serializers.BooleanField(source='profile.notify_weekly_report', required=False)
+    notify_daily_summary = serializers.BooleanField(source='profile.notify_daily_summary', required=False)
     password = serializers.CharField(write_only=True, required=False, min_length=8)
     old_password = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'password', 'old_password', 'profile_picture', 'phone', 'address', 'designation', 'email_notifications']
+        fields = ['first_name', 'last_name', 'username', 'password', 'old_password', 'profile_picture',
+                  'phone', 'address', 'designation', 'email_notifications',
+                  'notify_new_event', 'notify_quote_accepted', 'notify_weekly_report', 'notify_daily_summary']
 
     def validate(self, attrs):
         """If a new password is being set, old_password must be provided and correct."""
@@ -287,6 +301,14 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             profile.designation = profile_data['designation']
         if 'email_notifications' in profile_data:
             profile.email_notifications = profile_data['email_notifications']
+        if 'notify_new_event' in profile_data:
+            profile.notify_new_event = profile_data['notify_new_event']
+        if 'notify_quote_accepted' in profile_data:
+            profile.notify_quote_accepted = profile_data['notify_quote_accepted']
+        if 'notify_weekly_report' in profile_data:
+            profile.notify_weekly_report = profile_data['notify_weekly_report']
+        if 'notify_daily_summary' in profile_data:
+            profile.notify_daily_summary = profile_data['notify_daily_summary']
         profile.save()
 
         return instance
