@@ -1894,6 +1894,8 @@ const EventDetails = () => {
                         onSuccess={() => {
                             setShowFoodMenuForm(false);
                             fetchFoodMenu();
+                            fetchEventQuote();
+                            fetchEvent();
                         }}
                     />
                 )}

@@ -2124,12 +2124,23 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
         event.save(update_fields=['audit_log'])
 
     def _sync_quote_catering(self, menu):
-        """Update catering_cost on all quotes linked to this event."""
+        """Update catering_cost on all quotes linked to this event, then sync event.budget."""
         event = menu.event
         if not event:
             return
         total = menu.total_cost
         event.quotes.all().update(catering_cost=total)
+
+        # Recalculate event.budget from the best quote (accepted first, otherwise most recent)
+        quote = (
+            event.quotes.filter(status='accepted').order_by('-created_at').first()
+            or event.quotes.order_by('-created_at').first()
+        )
+        if quote:
+            # Fetch fresh from DB so catering_cost reflects the bulk update above
+            quote.refresh_from_db()
+            event.budget = quote.total
+            event.save(update_fields=['budget'])
 
     def perform_create(self, serializer):
         menu = serializer.save()
