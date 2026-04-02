@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import aboutHero from '../assets/images/aboutus_hero.webp';
+import aboutStory from '../assets/images/aboutus_second_image.webp';
 import {
     Gem, Star, ChevronLeft, ChevronRight,
     Palette, Globe, Layers, CheckCircle2, ArrowRight, MapPin
@@ -124,10 +126,11 @@ const About = () => {
                     className="absolute inset-0 z-0"
                 >
                     <div className="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-background-dark/60 to-background-dark z-10"></div>
-                    <div
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuADAX7hM6V-J1rpQC5MoBKtXBMb0rmVn997ZgawBixIA1_hzcBHl0Cva28yP1REeJrObVrAX3f_hS2CgpyaxEo9qNp4n4b4FbdZDk-62ElqcVzDqZu8CPWBo9sJ0F8p9rN4FPUOR80p6m8iJlMwCB0oRB0vyQezrouocy2hOI5HbYMmjzeBDWjWI9ECwGOxxpmVX1pYJ9k2l-Pk5Y-V2PHDwvLkqSgZtTKaZMhXjSeKxUC6I--ctOMjAeVOX_dg5z8zBtbBWNr5xtd-")' }}
-                    ></div>
+                    <img
+                        src={aboutHero}
+                        alt="Crystal Events Ireland"
+                        className="w-full h-full object-cover"
+                    />
                 </motion.div>
                 <div className="relative z-20 text-center px-6 md:px-12 lg:px-20 max-w-4xl">
                     <motion.span
@@ -213,7 +216,7 @@ const About = () => {
                             <div className="relative z-10 rounded-lg overflow-hidden aspect-[4/5] shadow-2xl">
                                 <img
                                     className="w-full h-full object-cover"
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYGTC97_zSIg4jJFSvxBgDpyKj9V3rXaGzi2KDuFyvSHVq4BcGUnnrpDevEE6D1w9rkixkxZY4AgIhQLup0Q8FsmkftkuK6zi0M-v9b2yVG1wDDPDqDrD9EyPL65DW_NNJQKiio11-VKqJgAVTPq0X4YoFfrX_WkGxoh-70LYYDUlqOawzGly6pGvMcZ1IUiaQJ9BSG_1PMUx1PvtYtDdUxIE7R8mIBHBSR7GAqa2zJiRqcMtjZOYzXb-CNt-ozbAk11qG-cO8Uw49"
+                                    src={aboutStory}
                                     alt="Event management company Ireland"
                                 />
                             </div>
