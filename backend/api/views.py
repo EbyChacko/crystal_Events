@@ -369,7 +369,25 @@ class EventViewSet(viewsets.ModelViewSet):
         event.audit_log = current_log
         
         event.save(update_fields=['received_amount', 'audit_log'])
-        
+
+        # Auto-create an Expense record so the financials tally
+        from decimal import Decimal
+        from django.utils.timezone import now as tz_now
+        expense_reason = f"Refund – {event.event_name}"
+        if reason:
+            expense_reason += f": {reason}"
+        Expense.objects.create(
+            date=tz_now().date(),
+            amount=Decimal(str(refund_amount)),
+            reason=expense_reason,
+            category='Refund',
+            event=event,
+            approved_by=user,
+            paid_back=True,
+            paid_back_at=tz_now(),
+            is_asset=False,
+        )
+
         # Serialize and return updated event
         serializer = self.get_serializer(event)
         return Response(serializer.data, status=status.HTTP_200_OK)
