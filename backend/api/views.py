@@ -2050,7 +2050,7 @@ class CurrentUserView(generics.RetrieveAPIView):
 class UpdateProfileView(generics.UpdateAPIView):
     """Allows users to update their own profile (except email)."""
     serializer_class = UpdateProfileSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_object(self):
