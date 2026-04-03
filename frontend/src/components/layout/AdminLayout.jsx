@@ -47,7 +47,7 @@ const AdminLayout = () => {
     const profilePicture = user?.profile_picture || null;
 
     return (
-        <div className="flex h-screen bg-gradient-to-br from-[#0a1a1a] via-[#0d2424] to-[#0a1a1a] overflow-hidden">
+        <div className="flex h-screen bg-gradient-to-br from-[#071212] via-[#091818] to-[#071212] overflow-hidden">
             {/* Desktop Sidebar */}
             <aside className="w-72 bg-white/5 backdrop-blur-xl border-r border-white/10 hidden md:flex flex-col flex-shrink-0 z-20">
                 {/* Logo Area */}
@@ -131,7 +131,7 @@ const AdminLayout = () => {
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
                             transition={{ type: 'tween', duration: 0.3 }}
-                            className="fixed inset-y-0 left-0 w-72 bg-[#0a1a1a] border-r border-white/10 flex flex-col z-50 md:hidden shadow-2xl"
+                            className="fixed inset-y-0 left-0 w-72 bg-[#071212] border-r border-white/10 flex flex-col z-50 md:hidden shadow-2xl"
                         >
                             {/* Logo Area & Close Button */}
                             <div className="p-6 border-b border-white/10 flex items-center justify-between">
@@ -212,7 +212,7 @@ const AdminLayout = () => {
             {/* Main Content Area */}
             <main className="flex-1 overflow-y-auto w-full relative">
                 {/* Top Bar */}
-                <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0a1a1a]/80 border-b border-white/10 px-4 md:px-8 py-4 flex items-center justify-between">
+                <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#071212]/80 border-b border-white/10 px-4 md:px-8 py-4 flex items-center justify-between">
                     <div className="flex items-center space-x-4 md:hidden">
                         <button
                             onClick={() => setIsMobileMenuOpen(true)}

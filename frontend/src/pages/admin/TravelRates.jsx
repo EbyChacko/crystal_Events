@@ -225,7 +225,7 @@ const TravelRates = () => {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-md bg-[#0b1015] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                            className="relative w-full max-w-md bg-[#080c10] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
                         >
                             <div className="p-6 border-b border-white/10">
                                 <h2 className="text-xl font-bold text-white">

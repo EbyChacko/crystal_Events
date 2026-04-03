@@ -37,10 +37,10 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel }) => {
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="relative bg-[#0a1a1a] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
+                    className="relative bg-[#071212] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-white/10 z-10 bg-[#0a1a1a]">
+                    <div className="flex items-center justify-between p-4 border-b border-white/10 z-10 bg-[#071212]">
                         <div className="flex items-center space-x-2 text-white">
                             <Crop size={20} className="text-mustard-gold" />
                             <h3 className="font-bold">Crop Profile Photo</h3>

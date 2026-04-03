@@ -951,7 +951,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#0b1015] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
                             <button type="button" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
@@ -1291,7 +1291,7 @@ const EventDetails = () => {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-5xl bg-[#0b1015] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+                            className="relative w-full max-w-5xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
                         >
                             <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
@@ -1580,7 +1580,7 @@ const EventDetails = () => {
                                     initial={{ scale: 0.95, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     exit={{ scale: 0.95, opacity: 0 }}
-                                    className="relative w-full max-w-5xl bg-[#0b1015] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl pointer-events-auto"
+                                    className="relative w-full max-w-5xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl pointer-events-auto"
                                 >
                                     <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
                                         <div className="flex items-center space-x-2">
@@ -1911,7 +1911,7 @@ const EventDetails = () => {
                         <motion.div
                             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
                             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                            className="fixed right-0 top-0 h-full w-80 z-50 bg-[#090e11] border-l border-white/10 flex flex-col shadow-2xl">
+                            className="fixed right-0 top-0 h-full w-80 z-50 bg-[#060a0d] border-l border-white/10 flex flex-col shadow-2xl">
                             <div className="flex items-center justify-between p-5 border-b border-white/10">
                                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
                                     <SlidersHorizontal size={18} className="text-mustard-gold" />
@@ -2058,7 +2058,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowRefundModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#0b1015] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
                             <button type="button" onClick={() => setShowRefundModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
@@ -2117,7 +2117,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowExpenseModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#0b1015] border border-amber-500/20 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                            className="bg-[#080c10] border border-amber-500/20 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto">
                             <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <PlusCircle className="text-amber-400" size={22} />
@@ -2166,7 +2166,7 @@ const EventDetails = () => {
                                                 <input type="checkbox" checked={expenseFormData.is_asset}
                                                     onChange={(e) => setExpenseFormData(p => ({...p, is_asset: e.target.checked}))}
                                                     className="w-5 h-5 rounded border border-white/20 bg-black/20 appearance-none cursor-pointer checked:bg-mustard-gold checked:border-mustard-gold transition-all" />
-                                                <CheckCircle size={14} className={`absolute text-[#0b1015] pointer-events-none transition-opacity ${expenseFormData.is_asset ? 'opacity-100' : 'opacity-0'}`} />
+                                                <CheckCircle size={14} className={`absolute text-[#080c10] pointer-events-none transition-opacity ${expenseFormData.is_asset ? 'opacity-100' : 'opacity-0'}`} />
                                             </div>
                                             <span className="text-white font-medium group-hover:text-mustard-gold transition-colors">Add to Assets List?</span>
                                         </label>
@@ -2239,7 +2239,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowStaffPayModal(false); setStaffPayFormData(staffPayFormDefault); } }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#0b1015] border border-blue-500/20 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            className="bg-[#080c10] border border-blue-500/20 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
                             <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Clock className="text-blue-400" size={22} />
@@ -2314,7 +2314,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentHistoryModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#0b1015] border border-indigo-500/20 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative mb-8">
+                            className="bg-[#080c10] border border-indigo-500/20 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative mb-8">
                             <button type="button" onClick={() => setShowPaymentHistoryModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
@@ -2389,7 +2389,7 @@ const EventDetails = () => {
                                     const theme = THEMES[node.colorTheme];
                                     return (
                                         <div key={node.id} className="relative">
-                                            <div className={`absolute -left-[35px] mt-4 w-4 h-4 rounded-full border-2 border-[#090e11] ring-2 ring-white/10 ${theme.tag}`} />
+                                            <div className={`absolute -left-[35px] mt-4 w-4 h-4 rounded-full border-2 border-[#060a0d] ring-2 ring-white/10 ${theme.tag}`} />
                                             <div className={`bg-gradient-to-br ${theme.grad} to-white/[0.02] ${theme.border} border p-4 rounded-xl flex flex-col sm:flex-row gap-3 justify-between sm:items-center`}>
                                                 <div className="flex items-start sm:items-center space-x-3">
                                                     <div className={`p-2.5 rounded-xl shrink-0 ${theme.iconBg} ${theme.text}`}><Icon size={17} /></div>
@@ -2422,7 +2422,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowGalleryModal(false); setShowImageForm(false); } }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#0b1015] border border-purple-500/20 rounded-2xl p-6 w-full max-w-3xl shadow-2xl relative mb-8">
+                            className="bg-[#080c10] border border-purple-500/20 rounded-2xl p-6 w-full max-w-3xl shadow-2xl relative mb-8">
                             <button type="button" onClick={() => { setShowGalleryModal(false); setShowImageForm(false); }} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
@@ -2557,7 +2557,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowLogbookModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#0b1015] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative mb-8">
+                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative mb-8">
                             <button type="button" onClick={() => setShowLogbookModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>

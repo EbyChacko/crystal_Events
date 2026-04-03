@@ -186,7 +186,7 @@ const TeamAdmin = () => {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-xl bg-[#0b1015] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+                            className="relative w-full max-w-xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
                         >
                             <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
@@ -203,7 +203,7 @@ const TeamAdmin = () => {
                                     <select
                                         value={formData.user}
                                         onChange={(e) => setFormData({ ...formData, user: e.target.value })}
-                                        className="w-full bg-[#0a1a1a] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-mustard-gold outline-none"
+                                        className="w-full bg-[#071212] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-mustard-gold outline-none"
                                         required
                                     >
                                         <option value="">-- Choose a user --</option>
@@ -222,7 +222,7 @@ const TeamAdmin = () => {
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        className="w-full bg-[#0a1a1a] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-mustard-gold outline-none h-24 resize-none"
+                                        className="w-full bg-[#071212] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-mustard-gold outline-none h-24 resize-none"
                                         placeholder="Add a quote or short description to show on the About page..."
                                     />
                                 </div>
@@ -261,7 +261,7 @@ const TeamAdmin = () => {
                             <Reorder.Item
                                 key={member.id}
                                 value={member}
-                                className="bg-[#0a1a1a] border border-white/10 rounded-xl p-4 flex items-center gap-4 cursor-grab active:cursor-grabbing hover:border-mustard-gold/30 transition-colors"
+                                className="bg-[#071212] border border-white/10 rounded-xl p-4 flex items-center gap-4 cursor-grab active:cursor-grabbing hover:border-mustard-gold/30 transition-colors"
                             >
                                 <GripVertical className="text-gray-500 hidden sm:block" />
 

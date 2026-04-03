@@ -190,7 +190,7 @@ const ServicesAdmin = () => {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-2xl bg-[#0b1015] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+                            className="relative w-full max-w-2xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
                         >
                             <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
@@ -290,7 +290,7 @@ const ServicesAdmin = () => {
                             {/* Actions */}
                             <div className="absolute top-4 right-4 flex space-x-1">
                                 {deleteConfirmId === service.id ? (
-                                    <div className="flex items-center space-x-1.5 bg-[#0a1a1a]/90 rounded-lg px-2 py-1">
+                                    <div className="flex items-center space-x-1.5 bg-[#071212]/90 rounded-lg px-2 py-1">
                                         <span className="text-xs text-red-400">Delete?</span>
                                         <button onClick={() => handleDelete(service.id)}
                                             className="px-1.5 py-0.5 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors">Yes</button>

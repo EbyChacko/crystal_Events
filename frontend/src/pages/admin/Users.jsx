@@ -166,7 +166,7 @@ const Users = () => {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-3xl bg-[#0b1015] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+                            className="relative w-full max-w-3xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
                         >
                             <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
