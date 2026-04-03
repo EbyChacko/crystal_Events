@@ -2099,11 +2099,16 @@ class ProfitDistributionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        from .models import Expense, Income
+        from .models import Expense, Income, Event
         from decimal import Decimal
         from django.db.models import Sum
 
-        total_income = Income.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        # Manual income records
+        manual_income = Income.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        # Event payments (received_amount on each event, same source the frontend uses)
+        event_income = Event.objects.aggregate(total=Sum('received_amount'))['total'] or Decimal('0')
+        total_income = manual_income + event_income
+
         total_expense = Expense.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
         net_profit = total_income - total_expense
 
