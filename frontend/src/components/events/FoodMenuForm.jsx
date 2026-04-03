@@ -119,7 +119,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl transition-colors"
+                        className="p-2 bg-white/5 hover:bg-white/[0.05] text-gray-400 hover:text-white rounded-xl transition-colors"
                     >
                         <X size={20} />
                     </button>
@@ -259,7 +259,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 md:flex-none px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl transition-all"
+                                className="flex-1 md:flex-none px-6 py-3 bg-white/5 hover:bg-white/[0.05] text-white font-semibold rounded-xl transition-all"
                             >
                                 Cancel
                             </button>

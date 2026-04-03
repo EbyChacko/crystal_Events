@@ -30,7 +30,7 @@ const StatCard = ({ icon, label, value, sub, delay }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay, duration: 0.4 }}
-        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group"
+        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/[0.04] transition-all group"
     >
         <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-mustard-gold/10 flex items-center justify-center text-mustard-gold group-hover:bg-mustard-gold/20 transition-colors">
@@ -191,7 +191,7 @@ const Quotes = () => {
                                     onClick={() => setActiveFilter(tab.value)}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${activeFilter === tab.value
                                         ? 'bg-mustard-gold/20 text-mustard-gold border-mustard-gold/30'
-                                        : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'}`}>
+                                        : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/[0.05] hover:text-white'}`}>
                                     {tab.label} <span className="ml-1 opacity-60">({statusCounts[tab.value] || 0})</span>
                                 </button>
                             ))}
@@ -275,7 +275,7 @@ const Quotes = () => {
                                                         <button onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }}
                                                             className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors">Yes</button>
                                                         <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }}
-                                                            className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/20 transition-colors">No</button>
+                                                            className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/[0.08] transition-colors">No</button>
                                                     </div>
                                                 ) : (
                                                     <div className="flex items-center justify-end space-x-1.5">
@@ -336,7 +336,7 @@ const Quotes = () => {
                                             {deleteConfirmId === q.id ? (
                                                 <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
                                                     <button onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }} className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Yes</button>
-                                                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/20">No</button>
+                                                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08]">No</button>
                                                 </div>
                                             ) : (
                                                 <>

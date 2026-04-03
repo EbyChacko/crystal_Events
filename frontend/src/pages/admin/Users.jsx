@@ -319,7 +319,7 @@ const Users = () => {
                                         <tr
                                             key={u.id}
                                             onClick={() => navigate(`/admin/users/${u.id}`)}
-                                            className="hover:bg-white/10 transition-colors cursor-pointer group"
+                                            className="hover:bg-white/[0.05] transition-colors cursor-pointer group"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">

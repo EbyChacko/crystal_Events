@@ -285,7 +285,7 @@ const ServicesAdmin = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05, duration: 0.3 }}
-                            className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group relative"
+                            className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/[0.04] transition-all group relative"
                         >
                             {/* Actions */}
                             <div className="absolute top-4 right-4 flex space-x-1">
@@ -295,7 +295,7 @@ const ServicesAdmin = () => {
                                         <button onClick={() => handleDelete(service.id)}
                                             className="px-1.5 py-0.5 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors">Yes</button>
                                         <button onClick={() => setDeleteConfirmId(null)}
-                                            className="px-1.5 py-0.5 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/20 transition-colors">No</button>
+                                            className="px-1.5 py-0.5 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08] transition-colors">No</button>
                                     </div>
                                 ) : (
                                     <>
@@ -335,7 +335,7 @@ const ServicesAdmin = () => {
                                     className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
                                         service.show_on_website
                                             ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25'
-                                            : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/10 hover:text-gray-300'
+                                            : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/[0.05] hover:text-gray-300'
                                     }`}
                                 >
                                     {service.show_on_website

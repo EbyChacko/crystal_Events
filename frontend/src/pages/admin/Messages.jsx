@@ -222,7 +222,7 @@ const Messages = () => {
                                     onClick={() => setFilter(f)}
                                     className={`px-4 py-2.5 rounded-xl capitalize text-sm font-medium transition-all ${filter === f
                                         ? 'bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold'
-                                        : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                                        : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/[0.05] hover:text-white'
                                         }`}
                                 >
                                     {f}
@@ -263,7 +263,7 @@ const Messages = () => {
                                 </button>
                                 <button
                                     onClick={() => setConfirmingBulkDelete(false)}
-                                    className="bg-white/10 border border-white/10 text-gray-300 font-medium px-4 py-2 rounded-lg hover:bg-white/15 transition-colors"
+                                    className="bg-white/10 border border-white/10 text-gray-300 font-medium px-4 py-2 rounded-lg hover:bg-white/[0.06] transition-colors"
                                 >
                                     Cancel
                                 </button>
@@ -333,7 +333,7 @@ const Messages = () => {
                                                     e.stopPropagation();
                                                     openMessage(msg, true);
                                                 }}
-                                                className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-mustard-gold transition-colors"
+                                                className="p-2 hover:bg-white/[0.05] rounded-lg text-gray-400 hover:text-mustard-gold transition-colors"
                                                 title="Reply"
                                             >
                                                 <Reply size={18} />
@@ -393,7 +393,7 @@ const Messages = () => {
                                                 e.stopPropagation();
                                                 openMessage(msg, true);
                                             }}
-                                            className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-mustard-gold transition-colors"
+                                            className="p-1.5 hover:bg-white/[0.05] rounded-lg text-gray-400 hover:text-mustard-gold transition-colors"
                                             title="Reply"
                                         >
                                             <Reply size={16} />
@@ -441,7 +441,7 @@ const Messages = () => {
                                                 Yes
                                             </button>
                                             <button onClick={() => setConfirmingDeleteId(null)}
-                                                className="px-3 py-1.5 bg-white/10 text-gray-300 text-xs font-medium rounded-lg hover:bg-white/15 transition-colors">
+                                                className="px-3 py-1.5 bg-white/10 text-gray-300 text-xs font-medium rounded-lg hover:bg-white/[0.06] transition-colors">
                                                 No
                                             </button>
                                         </>
@@ -453,7 +453,7 @@ const Messages = () => {
                                         </button>
                                     )}
                                     <button onClick={() => { setSelectedMessage(null); setConfirmingDeleteId(null); }}
-                                        className="p-2 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors">
+                                        className="p-2 hover:bg-white/[0.05] rounded-xl text-gray-400 hover:text-white transition-colors">
                                         <XCircle size={22} />
                                     </button>
                                 </div>

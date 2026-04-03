@@ -319,7 +319,7 @@ const Dashboard = () => {
                     <p className="text-gray-400 mt-1 text-sm">Analytics · Cash Flow · Performance — {RANGE_LABELS[dateRange]}</p>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
-                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2 hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2 hover:bg-white/[0.05] transition-colors">
                         <Filter size={15} className="text-mustard-gold" />
                         <select value={dateRange} onChange={e => setDateRange(e.target.value)}
                             className="bg-transparent text-white text-sm font-medium focus:outline-none cursor-pointer appearance-none">

@@ -151,7 +151,7 @@ const Events = () => {
                                     onClick={() => setActiveFilter(tab.value)}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${activeFilter === tab.value
                                         ? 'bg-mustard-gold/20 text-mustard-gold border-mustard-gold/30'
-                                        : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'
+                                        : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/[0.05] hover:text-white'
                                         }`}>
                                     {tab.label} <span className="ml-1 opacity-60">({statusCounts[tab.value] || 0})</span>
                                 </button>
@@ -199,7 +199,7 @@ const Events = () => {
                                     {filteredEvents.map((ev) => (
                                         <tr key={ev.id}
                                             onClick={() => navigate(`/admin/events/${ev.id}`)}
-                                            className="hover:bg-white/10 transition-colors cursor-pointer group">
+                                            className="hover:bg-white/[0.05] transition-colors cursor-pointer group">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="text-xs font-mono font-semibold text-mustard-gold/80 bg-mustard-gold/10 px-2 py-1 rounded">
                                                     {ev.event_uid || '—'}

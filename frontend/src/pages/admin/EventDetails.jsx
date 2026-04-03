@@ -908,7 +908,7 @@ const EventDetails = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div className="flex items-start space-x-4">
                     <button onClick={() => navigate('/admin/events')}
-                        className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors flex-shrink-0 mt-1">
+                        className="p-2 bg-white/5 hover:bg-white/[0.05] rounded-xl text-gray-400 hover:text-white transition-colors flex-shrink-0 mt-1">
                         <ArrowLeft size={20} />
                     </button>
                     <div>
@@ -930,7 +930,7 @@ const EventDetails = () => {
                 </div>
                 <div className="flex items-center gap-2">
                     <button onClick={() => setShowLogbookModal(true)}
-                        className="flex items-center justify-center w-full md:w-auto space-x-2 bg-white/10 border border-white/10 text-white font-medium px-4 py-3 md:py-2.5 rounded-xl hover:bg-white/15 transition-all text-base md:text-sm">
+                        className="flex items-center justify-center w-full md:w-auto space-x-2 bg-white/10 border border-white/10 text-white font-medium px-4 py-3 md:py-2.5 rounded-xl hover:bg-white/[0.06] transition-all text-base md:text-sm">
                         <BookOpen size={16} />
                         <span className="hidden sm:inline">Logbook</span>
                         {auditLog.length > 0 && (
@@ -1535,7 +1535,7 @@ const EventDetails = () => {
                                 </button>
                                 {!isLocked && (
                                     <button onClick={openEditQuote}
-                                        className="flex items-center justify-center space-x-1.5 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/15 transition-all text-base md:text-sm">
+                                        className="flex items-center justify-center space-x-1.5 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/[0.06] transition-all text-base md:text-sm">
                                         <Pencil size={16} />
                                         <span>Edit Quote</span>
                                     </button>
@@ -1865,7 +1865,7 @@ const EventDetails = () => {
                             </button>
                             {!isLocked && (
                                 <button onClick={() => setShowFoodMenuForm(true)}
-                                    className="flex items-center justify-center space-x-1.5 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/15 transition-all text-base md:text-sm">
+                                    className="flex items-center justify-center space-x-1.5 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/[0.06] transition-all text-base md:text-sm">
                                     <Pencil size={16} />
                                     <span>Edit Menu</span>
                                 </button>
@@ -1917,7 +1917,7 @@ const EventDetails = () => {
                                     <SlidersHorizontal size={18} className="text-mustard-gold" />
                                     Actions & Details
                                 </h2>
-                                <button onClick={() => setSidebarOpen(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
+                                <button onClick={() => setSidebarOpen(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-xl transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>
@@ -1973,7 +1973,7 @@ const EventDetails = () => {
                                     </div>
                                 </button>
                                 <button onClick={() => { setSidebarOpen(false); setShowLogbookModal(true); }}
-                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 transition-all text-left">
+                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:bg-white/[0.05] transition-all text-left">
                                     <div className="p-2 bg-white/10 rounded-lg shrink-0"><BookOpen size={17} /></div>
                                     <div className="flex-1">
                                         <p className="font-semibold text-sm">Logbook</p>
@@ -2010,7 +2010,7 @@ const EventDetails = () => {
                                                 <p className="text-xs text-emerald-300 text-center font-medium">Are you sure? This will mark the event as finished.</p>
                                                 <div className="flex gap-2">
                                                     <button type="button" onClick={() => setConfirmingFinish(false)}
-                                                        className="flex-1 text-gray-400 font-medium bg-white/5 border border-white/10 px-3 py-2 rounded-xl hover:bg-white/10 transition-all text-sm">
+                                                        className="flex-1 text-gray-400 font-medium bg-white/5 border border-white/10 px-3 py-2 rounded-xl hover:bg-white/[0.05] transition-all text-sm">
                                                         Cancel
                                                     </button>
                                                     <button type="button" onClick={() => { setConfirmingFinish(false); setSidebarOpen(false); handleFinishEvent(); }} disabled={finishingEvent}
@@ -2040,7 +2040,7 @@ const EventDetails = () => {
                                                 <button type="button" onClick={handleDelete}
                                                     className="flex-1 bg-red-600 text-white font-bold py-2 rounded-xl hover:bg-red-700 text-sm">Yes, Delete</button>
                                                 <button type="button" onClick={() => setConfirmingDelete(false)}
-                                                    className="flex-1 bg-white/10 text-gray-300 py-2 rounded-xl hover:bg-white/15 text-sm">Cancel</button>
+                                                    className="flex-1 bg-white/10 text-gray-300 py-2 rounded-xl hover:bg-white/[0.06] text-sm">Cancel</button>
                                             </div>
                                         </div>
                                     )}
@@ -2513,7 +2513,7 @@ const EventDetails = () => {
                                                     <Save size={15} /><span>{imageSubmitting ? 'Saving...' : 'Save Image'}</span>
                                                 </button>
                                                 <button type="button" onClick={() => setShowImageForm(false)}
-                                                    className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-5 py-2.5 rounded-xl hover:bg-white/15 transition-all">
+                                                    className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-5 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">
                                                     <X size={15} /><span>Cancel</span>
                                                 </button>
                                             </div>

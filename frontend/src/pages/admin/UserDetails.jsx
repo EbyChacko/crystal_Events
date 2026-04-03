@@ -246,7 +246,7 @@ const UserDetails = () => {
                 <div className="flex items-center space-x-4">
                     <button
                         onClick={() => navigate('/admin/users')}
-                        className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors"
+                        className="p-2 bg-white/5 hover:bg-white/[0.05] rounded-xl text-gray-400 hover:text-white transition-colors"
                     >
                         <ArrowLeft size={20} />
                     </button>
@@ -531,7 +531,7 @@ const UserDetails = () => {
                     </div>
                     {!changingPassword && (
                         <button type="button" onClick={() => { setChangingPassword(true); }}
-                            className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-white font-medium px-5 py-3 sm:py-2.5 rounded-xl hover:bg-white/15 transition-all text-base sm:text-sm">
+                            className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-white font-medium px-5 py-3 sm:py-2.5 rounded-xl hover:bg-white/[0.06] transition-all text-base sm:text-sm">
                             <Lock size={16} />
                             <span>Set Password</span>
                         </button>
@@ -568,7 +568,7 @@ const UserDetails = () => {
                                         <span>{saving ? 'Updating...' : 'Set Password'}</span>
                                     </button>
                                     <button type="button" onClick={() => { setChangingPassword(false); setPasswordData({ password: '', confirmPassword: '' }); }}
-                                        className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 sm:py-2.5 rounded-xl hover:bg-white/15 transition-all text-base sm:text-sm">
+                                        className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 sm:py-2.5 rounded-xl hover:bg-white/[0.06] transition-all text-base sm:text-sm">
                                         <X size={18} />
                                         <span>Cancel</span>
                                     </button>
@@ -612,7 +612,7 @@ const UserDetails = () => {
                                 <button
                                     type="button"
                                     onClick={() => setConfirmingDelete(false)}
-                                    className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-5 py-3 sm:py-2.5 rounded-xl hover:bg-white/15 transition-all text-base sm:text-sm"
+                                    className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-5 py-3 sm:py-2.5 rounded-xl hover:bg-white/[0.06] transition-all text-base sm:text-sm"
                                 >
                                     <span>Cancel</span>
                                 </button>

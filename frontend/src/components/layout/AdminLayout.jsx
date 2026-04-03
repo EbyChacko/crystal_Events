@@ -59,7 +59,7 @@ const AdminLayout = () => {
                 </div>
 
                 {/* User Profile Card in Sidebar */}
-                <Link to="/admin/profile" className="mx-4 mt-4 p-3 rounded-xl bg-white/5 border border-white/10 flex items-center space-x-3 hover:bg-white/10 transition-all group">
+                <Link to="/admin/profile" className="mx-4 mt-4 p-3 rounded-xl bg-white/5 border border-white/10 flex items-center space-x-3 hover:bg-white/[0.05] transition-all group">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-mustard-gold to-deep-teal flex items-center justify-center flex-shrink-0">
                         {profilePicture ? (
                             <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
@@ -150,7 +150,7 @@ const AdminLayout = () => {
                             </div>
 
                             {/* User Profile Card */}
-                            <Link to="/admin/profile" className="mx-4 mt-4 p-3 rounded-xl bg-white/5 border border-white/10 flex items-center space-x-3 hover:bg-white/10 transition-all">
+                            <Link to="/admin/profile" className="mx-4 mt-4 p-3 rounded-xl bg-white/5 border border-white/10 flex items-center space-x-3 hover:bg-white/[0.05] transition-all">
                                 <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-mustard-gold to-deep-teal flex items-center justify-center flex-shrink-0">
                                     {profilePicture ? (
                                         <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />

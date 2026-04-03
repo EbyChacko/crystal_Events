@@ -91,7 +91,7 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel }) => {
                             <button
                                 onClick={onCancel}
                                 disabled={isCropping}
-                                className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                                className="flex-1 bg-white/5 hover:bg-white/[0.05] text-white py-3 rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
                             >
                                 Cancel
                             </button>

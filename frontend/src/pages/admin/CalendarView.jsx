@@ -132,7 +132,7 @@ const CalendarView = () => {
                         {/* Month Navigation */}
                         <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
                             <button onClick={prevMonth}
-                                className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+                                className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.05] transition-all">
                                 <ChevronLeft size={20} />
                             </button>
                             <div className="text-center">
@@ -140,7 +140,7 @@ const CalendarView = () => {
                                 <p className="text-xs text-gray-500">{monthEventCount} event{monthEventCount !== 1 ? 's' : ''} this month</p>
                             </div>
                             <button onClick={nextMonth}
-                                className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+                                className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.05] transition-all">
                                 <ChevronRight size={20} />
                             </button>
                         </div>
@@ -262,7 +262,7 @@ const CalendarView = () => {
                                     <div
                                         key={ev.id}
                                         onClick={() => navigate(`/admin/events/${ev.id}`)}
-                                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer group"
+                                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/[0.05] transition-all cursor-pointer group"
                                     >
                                         <div className="flex items-start justify-between mb-2">
                                             <h4 className="text-sm font-semibold text-white group-hover:text-mustard-gold transition-colors">

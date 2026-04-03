@@ -203,7 +203,7 @@ const Profile = () => {
                             <button
                                 type="button"
                                 onClick={() => { setEditing(true); }}
-                                className="flex items-center justify-center space-x-2 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/15 transition-all w-full md:w-auto text-base md:text-sm"
+                                className="flex items-center justify-center space-x-2 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/[0.06] transition-all w-full md:w-auto text-base md:text-sm"
                             >
                                 <Pencil size={16} />
                                 <span>Edit Profile</span>
@@ -281,7 +281,7 @@ const Profile = () => {
                                 <span>{saving ? 'Saving...' : 'Save Changes'}</span>
                             </button>
                             <button type="button" onClick={handleCancelEdit}
-                                className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 rounded-xl hover:bg-white/15 transition-all">
+                                className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 rounded-xl hover:bg-white/[0.06] transition-all">
                                 <X size={18} />
                                 <span>Cancel</span>
                             </button>
@@ -301,7 +301,7 @@ const Profile = () => {
                         <button
                             type="button"
                             onClick={() => { setChangingPassword(true); }}
-                            className="flex items-center justify-center space-x-2 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/15 transition-all w-full md:w-auto text-base md:text-sm"
+                            className="flex items-center justify-center space-x-2 text-white font-medium bg-white/10 border border-white/10 px-5 py-3 md:py-2.5 rounded-xl hover:opacity-80 hover:bg-white/[0.06] transition-all w-full md:w-auto text-base md:text-sm"
                         >
                             <Lock size={16} />
                             <span>Change Password</span>
@@ -353,7 +353,7 @@ const Profile = () => {
                                         <span>{saving ? 'Updating...' : 'Update Password'}</span>
                                     </button>
                                     <button type="button" onClick={() => { setChangingPassword(false); setPasswordData({ oldPassword: '', password: '', confirmPassword: '' }); }}
-                                        className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 rounded-xl hover:bg-white/15 transition-all">
+                                        className="flex items-center space-x-2 bg-white/10 border border-white/10 text-gray-300 font-medium px-6 py-3 rounded-xl hover:bg-white/[0.06] transition-all">
                                         <X size={18} />
                                         <span>Cancel</span>
                                     </button>

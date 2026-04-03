@@ -173,7 +173,7 @@ const TravelRates = () => {
                                                         <button onClick={handleDelete} className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
                                                             Yes
                                                         </button>
-                                                        <button onClick={() => setRateToDelete(null)} className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
+                                                        <button onClick={() => setRateToDelete(null)} className="text-xs bg-white/10 hover:bg-white/[0.08] text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
                                                             No
                                                         </button>
                                                     </motion.div>
@@ -186,14 +186,14 @@ const TravelRates = () => {
                                                     >
                                                         <button
                                                             onClick={() => handleOpenForm(rate)}
-                                                            className="p-2 text-gray-400 hover:text-blue-400 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                                                            className="p-2 text-gray-400 hover:text-blue-400 bg-white/5 hover:bg-white/[0.05] rounded-lg transition-colors"
                                                             title="Edit Rate"
                                                         >
                                                             <Edit2 size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => setRateToDelete(rate.id)}
-                                                            className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                                                            className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-white/[0.05] rounded-lg transition-colors"
                                                             title="Delete Rate"
                                                         >
                                                             <Trash2 size={16} />
@@ -289,7 +289,7 @@ const TravelRates = () => {
                                     <button
                                         type="button"
                                         onClick={handleCloseForm}
-                                        className="flex-1 py-2.5 px-4 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
+                                        className="flex-1 py-2.5 px-4 bg-white/5 hover:bg-white/[0.05] text-white rounded-xl transition-colors font-medium"
                                     >
                                         Cancel
                                     </button>

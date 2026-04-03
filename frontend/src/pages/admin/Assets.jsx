@@ -109,7 +109,7 @@ const Assets = () => {
                 {/* Mobile Overview Toggle */}
                 <button
                     onClick={() => setIsOverviewOpen(!isOverviewOpen)}
-                    className="md:hidden flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all font-medium w-full"
+                    className="md:hidden flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/[0.05] hover:text-white transition-all font-medium w-full"
                 >
                     {isOverviewOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     <span>{isOverviewOpen ? 'Hide Overview' : 'Show Overview'}</span>
@@ -184,7 +184,7 @@ const Assets = () => {
                                                     <div className="flex justify-end items-center space-x-2 border border-red-500/30 p-1.5 rounded-xl bg-red-500/5">
                                                         <span className="text-xs text-red-400 font-medium">Remove?</span>
                                                         <button onClick={() => removeAsset(a)} className="px-3 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 font-bold transition-colors">Yes</button>
-                                                        <button onClick={() => setConfirmRemoveAssetId(null)} className="px-3 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/20 font-bold transition-colors">No</button>
+                                                        <button onClick={() => setConfirmRemoveAssetId(null)} className="px-3 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/[0.08] font-bold transition-colors">No</button>
                                                     </div>
                                                 ) : (
                                                     <div className="flex justify-end space-x-2 transition-opacity">
@@ -243,7 +243,7 @@ const Assets = () => {
                                             {confirmRemoveAssetId === a.originalId ? (
                                                 <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
                                                     <button onClick={() => removeAsset(a)} className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Yes</button>
-                                                    <button onClick={() => setConfirmRemoveAssetId(null)} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/20">No</button>
+                                                    <button onClick={() => setConfirmRemoveAssetId(null)} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08]">No</button>
                                                 </div>
                                             ) : editingAssetId === a.originalId ? (
                                                 <div className="flex space-x-1">

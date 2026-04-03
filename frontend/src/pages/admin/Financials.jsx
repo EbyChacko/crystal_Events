@@ -23,7 +23,7 @@ const StatCard = ({ icon, label, value, sub, delay, isPositive }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay, duration: 0.4 }}
-        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group"
+        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/[0.04] transition-all group"
     >
         <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-mustard-gold/10 flex items-center justify-center text-mustard-gold group-hover:bg-mustard-gold/20 transition-colors">
@@ -366,7 +366,7 @@ const Financials = () => {
                     <div className="sm:hidden relative">
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors"
+                            className="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/[0.05] rounded-xl transition-colors"
                         >
                             {isMobileMenuOpen ? <X size={24} /> : <MoreVertical size={24} />}
                         </button>
@@ -422,7 +422,7 @@ const Financials = () => {
                 <div className="hidden sm:flex flex-row items-center space-x-3 w-auto">
                     <button
                         onClick={handleExportCSV}
-                        className="flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition-all font-medium"
+                        className="flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/[0.05] hover:text-white transition-all font-medium"
                     >
                         <Download size={18} />
                         <span>Export CSV</span>
@@ -649,7 +649,7 @@ const Financials = () => {
                                     onClick={() => setActiveCategory(tab.value)}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${activeCategory === tab.value
                                         ? 'bg-mustard-gold/20 text-mustard-gold border-mustard-gold/30'
-                                        : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'}`}>
+                                        : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/[0.05] hover:text-white'}`}>
                                     {tab.label}
                                 </button>
                             ))}
@@ -728,7 +728,7 @@ const Financials = () => {
                                                         <button onClick={() => handleDelete(t)}
                                                             className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors">Yes</button>
                                                         <button onClick={() => setDeleteConfirmId(null)}
-                                                            className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/20 transition-colors">No</button>
+                                                            className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded-lg hover:bg-white/[0.08] transition-colors">No</button>
                                                     </div>
                                                 ) : (
                                                     <div className="flex items-center justify-end space-x-2">
@@ -812,7 +812,7 @@ const Financials = () => {
                                             {deleteConfirmId === t.id ? (
                                                 <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
                                                     <button onClick={(e) => { e.stopPropagation(); handleDelete(t); }} className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Yes</button>
-                                                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/20">No</button>
+                                                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08]">No</button>
                                                 </div>
                                             ) : (
                                                 <>

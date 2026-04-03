@@ -249,7 +249,7 @@ const Settings = () => {
                                 <button
                                     onClick={handleCancel}
                                     disabled={saving}
-                                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white/5 text-gray-400 border border-white/10 px-4 py-2.5 rounded-xl hover:bg-white/10 hover:text-white transition-all font-bold disabled:opacity-50 text-sm"
+                                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white/5 text-gray-400 border border-white/10 px-4 py-2.5 rounded-xl hover:bg-white/[0.05] hover:text-white transition-all font-bold disabled:opacity-50 text-sm"
                                 >
                                     <X size={16} />
                                     <span>Cancel</span>
@@ -473,7 +473,7 @@ const Settings = () => {
                             <div className="flex space-x-3">
                                 <button
                                     onClick={() => setConfirmDisable2FA(false)}
-                                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2.5 rounded-xl transition-colors text-sm font-medium"
+                                    className="flex-1 bg-white/5 hover:bg-white/[0.05] text-white py-2.5 rounded-xl transition-colors text-sm font-medium"
                                 >
                                     Cancel
                                 </button>
