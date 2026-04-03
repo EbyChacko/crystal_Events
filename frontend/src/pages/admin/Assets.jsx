@@ -9,7 +9,7 @@ const StatCard = ({ icon, label, value, isPositive = null, delay = 0 }) => (
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay, duration: 0.4 }}
-        className="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl relative overflow-hidden group hover:border-white/20 transition-all"
+        className="bg-black/25 backdrop-blur-sm border border-white/10 p-5 rounded-2xl relative overflow-hidden group hover:border-white/20 transition-all"
     >
         <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-mustard-gold/10 transition-colors" />
         <div className="flex items-start justify-between relative z-10">
@@ -124,7 +124,7 @@ const Assets = () => {
             </div>
 
             {/* Assets Table */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 <div className="px-6 py-4 border-b border-white/10">
                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
                         <PieChart size={18} className="text-purple-400" />

@@ -1082,7 +1082,7 @@ const EventDetails = () => {
             </AnimatePresence>
 
             {/* Event Detail Form */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 relative">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 relative">
                 <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
                     <div>
                         <h2 className="text-lg font-bold text-white">Event Information</h2>
@@ -1441,7 +1441,7 @@ const EventDetails = () => {
             </AnimatePresence>
 
             {/* ── Quote Section ──────────────────────────────────────── */}
-            < div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6" >
+            < div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6" >
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
                     <div>
                         <h2 className="text-lg font-bold text-white flex items-center space-x-2">
@@ -1798,7 +1798,7 @@ const EventDetails = () => {
             </AnimatePresence>
 
             {/* ── Food Menu Section ──────────────────────────────────────── */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
                     <div>
                         <h2 className="text-lg font-bold text-white flex items-center space-x-2">

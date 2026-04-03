@@ -258,7 +258,7 @@ const UserDetails = () => {
             </div>
 
             {/* User Info Form */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 relative">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 relative">
                 {/* Avatar & Edit Toggles */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-8 border-b border-white/10 gap-6">
                     <div className="flex items-center space-x-6">
@@ -520,7 +520,7 @@ const UserDetails = () => {
             </AnimatePresence>
 
             {/* Set New Password functionality */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h3 className="text-lg font-bold text-white flex items-center space-x-2">

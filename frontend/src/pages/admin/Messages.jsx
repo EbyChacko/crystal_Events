@@ -187,7 +187,7 @@ const Messages = () => {
             </div>
 
             {/* Controls */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden mb-6">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden mb-6">
                 {/* Mobile Filter Toggle */}
                 <div className="md:hidden border-b border-white/10">
                     <button
@@ -274,7 +274,7 @@ const Messages = () => {
             </AnimatePresence>
 
             {/* Messages Table */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 <div className="w-full">
                     {/* Desktop Table View */}
                     <div className="hidden md:block overflow-x-auto min-h-[400px]">

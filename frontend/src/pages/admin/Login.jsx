@@ -189,7 +189,7 @@ const Login = () => {
                 </AnimatePresence>
 
                 {/* Login Card */}
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl">
+                <div className="bg-black/35 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl">
                     <h2 className="text-xl font-bold text-white mb-1">Welcome Back</h2>
                     <p className="text-gray-500 text-sm mb-6">
                         {requires2FA ? 'Enter your 2FA code to continue' : 'Sign in to your admin account'}

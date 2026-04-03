@@ -127,7 +127,7 @@ const CalendarView = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4 }}
-                        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden"
+                        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden"
                     >
                         {/* Month Navigation */}
                         <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
@@ -238,7 +238,7 @@ const CalendarView = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, duration: 0.4 }}
-                        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sticky top-24"
+                        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sticky top-24"
                     >
                         <div className="flex items-center space-x-2 mb-4">
                             <Calendar size={20} className="text-mustard-gold" />

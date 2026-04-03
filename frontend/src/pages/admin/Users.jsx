@@ -287,7 +287,7 @@ const Users = () => {
             </AnimatePresence>
 
             {/* Users Table */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 <div className="px-6 py-5 border-b border-white/10">
                     <h2 className="text-lg font-bold text-white flex items-center space-x-2">
                         <UsersIcon size={20} className="text-mustard-gold" />

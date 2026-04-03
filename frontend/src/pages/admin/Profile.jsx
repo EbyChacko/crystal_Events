@@ -159,7 +159,7 @@ const Profile = () => {
             </div>
 
             {/* Profile Info Card */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 md:p-8 mb-6">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 md:p-8 mb-6">
                 <form onSubmit={handleSaveProfile}>
                     {/* Avatar Section */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -291,7 +291,7 @@ const Profile = () => {
             </div>
 
             {/* Change Password Card */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 md:p-8">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 md:p-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h3 className="text-lg font-bold text-white flex items-center space-x-2">
                         <Lock size={20} className="text-mustard-gold" />

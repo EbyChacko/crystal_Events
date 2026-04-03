@@ -23,7 +23,7 @@ const StatCard = ({ icon, label, value, sub, delay, isPositive }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay, duration: 0.4 }}
-        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group"
+        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group"
     >
         <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-mustard-gold/10 flex items-center justify-center text-mustard-gold group-hover:bg-mustard-gold/20 transition-colors">
@@ -458,7 +458,7 @@ const Financials = () => {
             </div>
 
             {/* Date Filters */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <div className="flex items-center space-x-2 text-gray-400 w-full sm:w-auto">
                     <Calendar size={18} className="text-mustard-gold" />
                     <span className="font-medium text-sm">Date Range:</span>
@@ -640,7 +640,7 @@ const Financials = () => {
             </AnimatePresence>
 
             {/* Filters & Table */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 <div className="px-6 py-4 border-b border-white/10">
                     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                         <div className="flex flex-wrap gap-2">

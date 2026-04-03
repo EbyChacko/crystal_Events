@@ -49,7 +49,7 @@ const AdminLayout = () => {
     return (
         <div className="flex h-screen bg-gradient-to-br from-[#071212] via-[#091818] to-[#071212] overflow-hidden">
             {/* Desktop Sidebar */}
-            <aside className="w-72 bg-white/5 backdrop-blur-xl border-r border-white/10 hidden md:flex flex-col flex-shrink-0 z-20">
+            <aside className="w-72 bg-black/35 backdrop-blur-xl border-r border-white/10 hidden md:flex flex-col flex-shrink-0 z-20">
                 {/* Logo Area */}
                 <div className="p-6 border-b border-white/10">
                     <h2 className="text-2xl font-bold text-white tracking-tight">

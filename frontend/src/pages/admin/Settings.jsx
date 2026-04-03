@@ -15,7 +15,7 @@ const SettingsSection = ({ icon, title, description, children, delay = 0 }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay, duration: 0.4 }}
-        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-6"
+        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-6"
     >
         <div className="flex items-center space-x-3 mb-1">
             <div className="w-10 h-10 rounded-xl bg-mustard-gold/10 flex items-center justify-center text-mustard-gold">

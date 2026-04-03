@@ -131,7 +131,7 @@ const Events = () => {
 
 
             {/* Filters & Search */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 {/* Mobile Filter Toggle */}
                 <div className="md:hidden border-b border-white/10">
                     <button

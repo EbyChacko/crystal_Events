@@ -30,7 +30,7 @@ const StatCard = ({ icon, label, value, sub, delay }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay, duration: 0.4 }}
-        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group"
+        className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group"
     >
         <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-mustard-gold/10 flex items-center justify-center text-mustard-gold group-hover:bg-mustard-gold/20 transition-colors">
@@ -172,7 +172,7 @@ const Quotes = () => {
             </AnimatePresence>
 
             {/* Filters & Table */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 {/* Mobile Filter Toggle */}
                 <div className="md:hidden border-b border-white/10">
                     <button

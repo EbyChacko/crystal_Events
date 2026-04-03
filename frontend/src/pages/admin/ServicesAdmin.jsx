@@ -285,7 +285,7 @@ const ServicesAdmin = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05, duration: 0.3 }}
-                            className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group relative"
+                            className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all group relative"
                         >
                             {/* Actions */}
                             <div className="absolute top-4 right-4 flex space-x-1">
