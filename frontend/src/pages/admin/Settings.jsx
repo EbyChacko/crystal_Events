@@ -144,7 +144,12 @@ const Settings = () => {
             fetchUser();
         } catch (err) {
             console.error('Failed to save settings:', err);
-            addToast('Failed to save some settings to the server.', 'error');
+            const detail = err.response?.data
+                ? (typeof err.response.data === 'object'
+                    ? JSON.stringify(err.response.data)
+                    : String(err.response.data).slice(0, 120))
+                : err.message;
+            addToast(`Failed to save settings: ${detail}`, 'error');
         } finally {
             setSaving(false);
         }
