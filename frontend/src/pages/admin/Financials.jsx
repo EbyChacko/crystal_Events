@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     DollarSign, Plus, X, AlertCircle, Search, CheckCircle,
-    Trash2, Edit3, Upload, TrendingUp, PieChart, Receipt, Calendar, ExternalLink, Download, Filter, ChevronDown, ChevronUp, RefreshCw, Link as LinkIcon, MoreVertical
+    Trash2, Edit3, Upload, TrendingUp, PieChart, Receipt, Calendar, ExternalLink, Download, Filter, ChevronDown, ChevronUp, RefreshCw, Link as LinkIcon, MoreVertical, Crown, BarChart3, Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
@@ -50,6 +50,9 @@ const Financials = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statsTimeframe, setStatsTimeframe] = useState('month'); // 'month', 'year', 'all'
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [profitData, setProfitData] = useState(null);
+    const [profitLoading, setProfitLoading] = useState(false);
 
     // Date Filters
     const [fromDate, setFromDate] = useState('');
@@ -183,8 +186,21 @@ const Financials = () => {
         }
     };
 
+    const fetchProfitData = async () => {
+        setProfitLoading(true);
+        try {
+            const res = await api.get('/financials/profit-distribution/');
+            setProfitData(res.data);
+        } catch {
+            // silently fail — not all users have this endpoint access
+        } finally {
+            setProfitLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchData();
+        fetchProfitData();
         api.get('/auth/users/').then(res => {
             setStaffList(res.data.results || res.data);
         }).catch(() => {});
@@ -352,109 +368,143 @@ const Financials = () => {
     const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
     const netBalance = totalIncome - totalExpense;
 
-    return (
-        <div>
-            {/* Header */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h1 className="text-2xl font-bold text-white">Financial Report</h1>
-                        <p className="text-gray-400 mt-1">Track comprehensive income and expenses</p>
-                    </div>
-                    
-                    {/* Mobile 3-dot Menu Toggle */}
-                    <div className="sm:hidden relative">
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/[0.05] rounded-xl transition-colors"
-                        >
-                            {isMobileMenuOpen ? <X size={24} /> : <MoreVertical size={24} />}
-                        </button>
-                        
-                        {/* Mobile Dropdown */}
-                        {isMobileMenuOpen && (
+    // Sidebar content extracted as a reusable block
+    const sidebarContent = (onClose) => (
+        <div className="flex flex-col gap-3">
+            <div className="mb-2">
+                <h1 className="text-lg font-bold text-white">Financial Report</h1>
+                <p className="text-gray-500 text-xs mt-0.5">Income &amp; expenses</p>
+            </div>
+
+            {/* Action Buttons */}
+            <button
+                onClick={() => { setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); onClose && onClose(); }}
+                className="flex items-center space-x-2.5 w-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-2.5 rounded-xl hover:bg-emerald-500/20 transition-all font-semibold text-sm"
+            >
+                <Plus size={16} /><span>Add Income</span>
+            </button>
+            <button
+                onClick={() => { setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); onClose && onClose(); }}
+                className="flex items-center space-x-2.5 w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-semibold text-sm"
+            >
+                <Plus size={16} /><span>Add Expense</span>
+            </button>
+            <button
+                onClick={() => { handleExportCSV(); onClose && onClose(); }}
+                className="flex items-center space-x-2.5 w-full bg-white/5 text-gray-300 border border-white/10 px-4 py-2.5 rounded-xl hover:bg-white/[0.08] hover:text-white transition-all font-semibold text-sm"
+            >
+                <Download size={16} /><span>Export CSV</span>
+            </button>
+            <button
+                onClick={() => { navigate('/admin/assets'); onClose && onClose(); }}
+                className="flex items-center space-x-2.5 w-full bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-2.5 rounded-xl hover:bg-purple-500/20 transition-all font-semibold text-sm"
+            >
+                <PieChart size={16} /><span>View Assets</span>
+            </button>
+
+            {/* Profit Distribution Panel */}
+            <div className="mt-2 bg-black/30 border border-white/10 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                        <BarChart3 size={14} className="text-mustard-gold" /> Profit
+                    </h3>
+                    <button onClick={fetchProfitData} className="text-gray-500 hover:text-gray-300 transition-colors" title="Refresh">
+                        <RefreshCw size={12} />
+                    </button>
+                </div>
+                {profitLoading ? (
+                    <p className="text-xs text-gray-500">Loading...</p>
+                ) : profitData ? (
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-400">Net Profit</span>
+                            <span className={`text-sm font-bold ${profitData.net_profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                €{profitData.net_profit.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                        </div>
+                        {profitData.distribution && profitData.distribution.length > 0 && (
                             <>
-                                <div className="fixed inset-0 z-40" onClick={() => setIsMobileMenuOpen(false)} />
-                                <div className="absolute right-0 top-full mt-2 w-56 bg-[#1a1c23] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden flex flex-col p-2 space-y-1">
-                                    <button
-                                        onClick={() => { handleExportCSV(); setIsMobileMenuOpen(false); }}
-                                        className="flex items-center space-x-3 text-gray-300 hover:bg-white/5 hover:text-white px-3 py-2.5 rounded-lg transition-colors w-full text-left text-sm"
-                                    >
-                                        <Download size={16} />
-                                        <span>Export CSV</span>
-                                    </button>
-                                    <button
-                                        onClick={() => { navigate('/admin/assets'); setIsMobileMenuOpen(false); }}
-                                        className="flex items-center space-x-3 text-purple-400 hover:bg-purple-500/10 px-3 py-2.5 rounded-lg transition-colors w-full text-left text-sm"
-                                    >
-                                        <PieChart size={16} />
-                                        <span>View Assets List</span>
-                                    </button>
-                                    <button
-                                        onClick={() => { 
-                                            if (formMode === 'income') { setFormMode('none'); } 
-                                            else { setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); } 
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                        className="flex items-center space-x-3 text-emerald-400 hover:bg-emerald-500/10 px-3 py-2.5 rounded-lg transition-colors w-full text-left text-sm"
-                                    >
-                                        <Plus size={16} />
-                                        <span>Add Income</span>
-                                    </button>
-                                    <button
-                                        onClick={() => { 
-                                            if (formMode === 'expense') { setFormMode('none'); } 
-                                            else { setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); } 
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                        className="flex items-center space-x-3 text-mustard-gold hover:bg-mustard-gold/10 px-3 py-2.5 rounded-lg transition-colors w-full text-left text-sm"
-                                    >
-                                        <Plus size={16} />
-                                        <span>Add Expense</span>
-                                    </button>
+                                <div className="border-t border-white/10 pt-2 mt-2">
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                        <Crown size={10} className="text-yellow-400" /> Owner Shares
+                                    </p>
+                                    {profitData.distribution.map(owner => (
+                                        <div key={owner.id} className="mb-2">
+                                            <div className="flex justify-between items-center mb-0.5">
+                                                <span className="text-xs text-gray-300 truncate max-w-[100px]">{owner.name}</span>
+                                                <span className="text-xs font-semibold text-mustard-gold">{owner.profit_percentage}%</span>
+                                            </div>
+                                            <div className="w-full bg-white/5 rounded-full h-1.5">
+                                                <div
+                                                    className="bg-gradient-to-r from-mustard-gold to-yellow-400 h-1.5 rounded-full transition-all"
+                                                    style={{ width: `${Math.min(owner.profit_percentage, 100)}%` }}
+                                                />
+                                            </div>
+                                            <p className={`text-[10px] mt-0.5 ${owner.share >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                €{owner.share.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </p>
+                                        </div>
+                                    ))}
                                 </div>
                             </>
                         )}
+                        {(!profitData.distribution || profitData.distribution.length === 0) && (
+                            <p className="text-xs text-gray-500 mt-1">No owners set yet.</p>
+                        )}
                     </div>
-                </div>
+                ) : (
+                    <p className="text-xs text-gray-500">Unable to load.</p>
+                )}
+            </div>
+        </div>
+    );
 
-                {/* Desktop Buttons */}
-                <div className="hidden sm:flex flex-row items-center space-x-3 w-auto">
-                    <button
-                        onClick={handleExportCSV}
-                        className="flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/[0.05] hover:text-white transition-all font-medium"
-                    >
-                        <Download size={18} />
-                        <span>Export CSV</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/admin/assets')}
-                        className="flex items-center justify-center space-x-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-3 rounded-xl hover:bg-purple-500/20 transition-all font-bold"
-                    >
-                        <PieChart size={20} />
-                        <span>View Assets List</span>
-                    </button>
-                    <button
-                        onClick={() => { 
-                            if (formMode === 'income') { setFormMode('none'); } 
-                            else { setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); } 
-                        }}
-                        className="flex items-center justify-center space-x-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-3 rounded-xl hover:bg-emerald-500/20 transition-all font-bold"
-                    >
-                        {formMode === 'income' ? <X size={20} /> : <Plus size={20} />}
-                        <span>Add Income</span>
-                    </button>
-                    <button
-                        onClick={() => { 
-                            if (formMode === 'expense') { setFormMode('none'); } 
-                            else { setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); } 
-                        }}
-                        className="flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-bold"
-                    >
-                        {formMode === 'expense' ? <X size={20} /> : <Plus size={20} />}
-                        <span>Add Expense</span>
-                    </button>
+    return (
+        <div className="flex gap-0 lg:gap-6 relative">
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:block w-56 xl:w-64 shrink-0">
+                <div className="sticky top-6">
+                    {sidebarContent(null)}
                 </div>
+            </aside>
+
+            {/* Mobile Sidebar Drawer */}
+            <AnimatePresence>
+                {isSidebarOpen && (
+                    <div className="fixed inset-0 z-[60] flex lg:hidden">
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            onClick={() => setIsSidebarOpen(false)}
+                        />
+                        <motion.aside
+                            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            className="relative ml-auto w-72 h-full bg-[#080c10] border-l border-white/10 p-5 overflow-y-auto"
+                        >
+                            <button onClick={() => setIsSidebarOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
+                                <X size={20} />
+                            </button>
+                            {sidebarContent(() => setIsSidebarOpen(false))}
+                        </motion.aside>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Main Content */}
+            <div className="flex-1 min-w-0">
+            {/* Mobile Header */}
+            <div className="flex items-center justify-between mb-6 lg:hidden">
+                <div>
+                    <h1 className="text-2xl font-bold text-white">Financial Report</h1>
+                    <p className="text-gray-400 mt-1 text-sm">Track income and expenses</p>
+                </div>
+                <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="p-2.5 text-gray-400 hover:text-white bg-black/30 border border-white/10 rounded-xl transition-colors"
+                >
+                    <Menu size={20} />
+                </button>
             </div>
 
             {/* Date Filters */}
@@ -845,6 +895,7 @@ const Financials = () => {
                         </div>
                     </div>
                 )}
+            </div>
             </div>
         </div>
     );

@@ -2094,6 +2094,40 @@ class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
             )
         return super().destroy(request, *args, **kwargs)
 
+class ProfitDistributionView(APIView):
+    """Returns total profit (income - expenses) and per-owner distribution."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from .models import Expense, Income
+        from decimal import Decimal
+        from django.db.models import Sum
+
+        total_income = Income.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        total_expense = Expense.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        net_profit = total_income - total_expense
+
+        owners = User.objects.filter(profile__is_owner=True).select_related('profile')
+        distribution = []
+        for owner in owners:
+            pct = owner.profile.profit_percentage or Decimal('0')
+            share = (net_profit * pct / Decimal('100')).quantize(Decimal('0.01'))
+            distribution.append({
+                'id': owner.id,
+                'name': f"{owner.first_name} {owner.last_name}".strip() or owner.username,
+                'username': owner.username,
+                'profit_percentage': float(pct),
+                'share': float(share),
+            })
+
+        return Response({
+            'total_income': float(total_income),
+            'total_expense': float(total_expense),
+            'net_profit': float(net_profit),
+            'distribution': distribution,
+        })
+
+
 # ── Two-Factor Authentication Views ───────────────────────────────
 
 import pyotp

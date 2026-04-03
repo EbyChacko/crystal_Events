@@ -147,6 +147,8 @@ class UserSerializer(serializers.ModelSerializer):
     address = serializers.CharField(source='profile.address', read_only=True)
     designation = serializers.CharField(source='profile.designation', read_only=True)
     can_view_financials = serializers.BooleanField(source='profile.can_view_financials', read_only=True)
+    is_owner = serializers.BooleanField(source='profile.is_owner', read_only=True)
+    profit_percentage = serializers.DecimalField(source='profile.profit_percentage', max_digits=5, decimal_places=2, read_only=True)
     email_notifications = serializers.BooleanField(source='profile.email_notifications', read_only=True)
     notify_new_event = serializers.BooleanField(source='profile.notify_new_event', read_only=True)
     notify_quote_accepted = serializers.BooleanField(source='profile.notify_quote_accepted', read_only=True)
@@ -160,6 +162,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'first_name', 'last_name',
             'is_staff', 'is_superuser', 'is_active', 'date_joined',
             'profile_picture', 'phone', 'address', 'designation', 'can_view_financials',
+            'is_owner', 'profit_percentage',
             'email_notifications', 'notify_new_event', 'notify_quote_accepted',
             'notify_weekly_report', 'notify_daily_summary', 'two_factor_enabled'
         ]
@@ -215,10 +218,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
     is_superuser = serializers.BooleanField(required=False, default=False)
     designation = serializers.CharField(required=False, default='', allow_blank=True)
     can_view_financials = serializers.BooleanField(required=False, default=False)
+    is_owner = serializers.BooleanField(required=False, default=False)
+    profit_percentage = serializers.DecimalField(required=False, default=0, max_digits=5, decimal_places=2)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password', 'profile_picture', 'is_staff', 'is_superuser', 'designation', 'can_view_financials']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password', 'profile_picture', 'is_staff', 'is_superuser', 'designation', 'can_view_financials', 'is_owner', 'profit_percentage']
 
     def create(self, validated_data):
         profile_picture = validated_data.pop('profile_picture', None)
@@ -226,6 +231,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
         is_superuser = validated_data.pop('is_superuser', False)
         designation = validated_data.pop('designation', '')
         can_view_financials = validated_data.pop('can_view_financials', False)
+        is_owner = validated_data.pop('is_owner', False)
+        profit_percentage = validated_data.pop('profit_percentage', 0)
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
@@ -238,6 +245,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
         profile = user.profile
         profile.designation = designation
         profile.can_view_financials = can_view_financials
+        profile.is_owner = is_owner
+        profile.profit_percentage = profit_percentage
         if profile_picture:
             profile.profile_picture = profile_picture
         profile.save()
@@ -321,6 +330,8 @@ class AdminUpdateUserSerializer(serializers.ModelSerializer):
     address = serializers.CharField(source='profile.address', required=False, allow_blank=True)
     designation = serializers.CharField(source='profile.designation', required=False, allow_blank=True)
     can_view_financials = serializers.BooleanField(source='profile.can_view_financials', required=False)
+    is_owner = serializers.BooleanField(source='profile.is_owner', required=False)
+    profit_percentage = serializers.DecimalField(source='profile.profit_percentage', max_digits=5, decimal_places=2, required=False)
     password = serializers.CharField(write_only=True, required=False, min_length=8)
 
     class Meta:
@@ -328,7 +339,8 @@ class AdminUpdateUserSerializer(serializers.ModelSerializer):
         fields = [
             'first_name', 'last_name', 'username', 'email',
             'is_active', 'is_staff', 'is_superuser',
-            'password', 'profile_picture', 'phone', 'address', 'designation', 'can_view_financials'
+            'password', 'profile_picture', 'phone', 'address', 'designation', 'can_view_financials',
+            'is_owner', 'profit_percentage'
         ]
 
     def validate(self, attrs):
@@ -367,6 +379,10 @@ class AdminUpdateUserSerializer(serializers.ModelSerializer):
             profile.designation = profile_data['designation']
         if 'can_view_financials' in profile_data:
             profile.can_view_financials = profile_data['can_view_financials']
+        if 'is_owner' in profile_data:
+            profile.is_owner = profile_data['is_owner']
+        if 'profit_percentage' in profile_data:
+            profile.profit_percentage = profile_data['profit_percentage']
         profile.save()
 
         return instance

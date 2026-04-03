@@ -256,6 +256,8 @@ class UserProfile(models.Model):
     address = models.TextField(blank=True, default='')
     designation = models.CharField(max_length=100, blank=True, default='')
     can_view_financials = models.BooleanField(default=False)
+    is_owner = models.BooleanField(default=False, help_text="Company owner — included in profit distribution")
+    profit_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Percentage of net profit allocated to this owner")
     email_notifications = models.BooleanField(default=True, help_text="Receive email when a new contact message is received")
     notify_new_event = models.BooleanField(default=True, help_text="Receive email when a new event is created")
     notify_quote_accepted = models.BooleanField(default=True, help_text="Receive email when a quote is accepted")

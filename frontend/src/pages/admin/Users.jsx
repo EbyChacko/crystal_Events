@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserPlus, Users as UsersIcon, Shield, ShieldCheck, AlertCircle, CheckCircle, Camera, X } from 'lucide-react';
+import { UserPlus, Users as UsersIcon, Shield, ShieldCheck, AlertCircle, CheckCircle, Camera, X, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
@@ -21,6 +21,8 @@ const Users = () => {
         role: 'staff',
         designation: '',
         can_view_financials: false,
+        is_owner: false,
+        profit_percentage: '',
     });
     const [profilePicture, setProfilePicture] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -108,6 +110,10 @@ const Users = () => {
             data.append('is_superuser', formData.role === 'superadmin');
             data.append('designation', formData.designation);
             data.append('can_view_financials', formData.can_view_financials);
+            data.append('is_owner', formData.is_owner);
+            if (formData.is_owner && formData.profit_percentage !== '') {
+                data.append('profit_percentage', formData.profit_percentage);
+            }
             if (profilePicture) {
                 data.append('profile_picture', profilePicture);
             }
@@ -116,7 +122,7 @@ const Users = () => {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             addToast(`User "${formData.username}" created successfully!`, 'success');
-            setFormData({ first_name: '', last_name: '', username: '', email: '', password: '', confirmPassword: '', role: 'staff', designation: '', can_view_financials: false });
+            setFormData({ first_name: '', last_name: '', username: '', email: '', password: '', confirmPassword: '', role: 'staff', designation: '', can_view_financials: false, is_owner: false, profit_percentage: '' });
             clearImage();
             setShowForm(false);
             fetchUsers();
@@ -267,6 +273,32 @@ const Users = () => {
                                             </div>
                                         </label>
                                     </div>
+                                    <div className="md:col-span-2">
+                                        <label className={`flex items-center space-x-3 cursor-pointer`}>
+                                            <input type="checkbox" name="is_owner" checked={formData.is_owner} onChange={handleChange}
+                                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold" />
+                                            <div>
+                                                <p className="text-white text-sm font-medium flex items-center gap-1.5"><Crown size={14} className="text-yellow-400" /> Company Owner</p>
+                                                <p className="text-xs text-gray-500">Include in profit distribution calculations</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <AnimatePresence>
+                                        {formData.is_owner && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="md:col-span-2"
+                                            >
+                                                <label className="block text-gray-400 text-sm font-medium mb-2">Profit Share (%)</label>
+                                                <input type="number" name="profit_percentage" value={formData.profit_percentage} onChange={handleChange}
+                                                    className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                                    placeholder="e.g. 50" min="0" max="100" step="0.01" />
+                                                <p className="text-xs text-gray-500 mt-1">Percentage of net profit allocated to this owner</p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Designation</label>
                                         <input type="text" name="designation" value={formData.designation} onChange={handleChange}
