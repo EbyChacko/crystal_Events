@@ -2109,7 +2109,9 @@ class ProfitDistributionView(APIView):
         event_income = Event.objects.aggregate(total=Sum('received_amount'))['total'] or Decimal('0')
         total_income = manual_income + event_income
 
-        total_expense = Expense.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        # Exclude 'Refund' expenses — refunds are already deducted from event.received_amount,
+        # so counting them as expenses too would double-subtract them.
+        total_expense = Expense.objects.exclude(category='Refund').aggregate(total=Sum('amount'))['total'] or Decimal('0')
         net_profit = total_income - total_expense
 
         owners = User.objects.filter(profile__is_owner=True).select_related('profile')
