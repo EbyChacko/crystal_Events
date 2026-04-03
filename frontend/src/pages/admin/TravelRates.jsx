@@ -124,7 +124,7 @@ const TravelRates = () => {
             </div>
 
             {/* Travel Rates List */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+            <div className="bg-black/25 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
                 {loading ? (
                     <div className="flex justify-center items-center p-12 text-mustard-gold">
                         <RefreshCw className="animate-spin" size={32} />

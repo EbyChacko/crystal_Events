@@ -388,7 +388,7 @@ const Dashboard = () => {
 
                 {/* Cash Flow Area Chart */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                    className="xl:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                    className="xl:col-span-2 bg-black/25 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                         <SectionHeader
                             icon={<TrendingUp size={18} />}
@@ -449,7 +449,7 @@ const Dashboard = () => {
 
                 {/* Event Status Donut */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                    className="bg-black/25 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
                     <SectionHeader icon={<PieIcon size={18} />} title="Event Status" sub={`${fEvts.length} total events`} />
                     {eventStatusData.length > 0 ? (
                         <>
@@ -489,7 +489,7 @@ const Dashboard = () => {
 
                 {/* Expense by Category */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                    className="bg-black/25 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
                     <SectionHeader icon={<BarChart2 size={18} />} title="Expenses by Category" sub={`${fmt(totalExpenses)} total`} />
                     {expenseCategoryData.length > 0 ? (
                         <div className="space-y-2.5">
@@ -516,7 +516,7 @@ const Dashboard = () => {
 
                 {/* Quote Pipeline */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                    className="bg-black/25 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
                     <SectionHeader icon={<FileText size={18} />} title="Quote Pipeline"
                         sub={`${pct(quoteConversion)} conversion`}
                         action={
@@ -557,7 +557,7 @@ const Dashboard = () => {
 
                 {/* Revenue by Event Type */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                    className="bg-black/25 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
                     <SectionHeader icon={<Zap size={18} />} title="Revenue by Event Type" sub="Breakdown by category" />
                     {eventTypeRevenue.length > 0 ? (
                         <div className="h-52">
@@ -587,7 +587,7 @@ const Dashboard = () => {
 
                 {/* Top Events by Revenue */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                    className="bg-black/25 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
                     <SectionHeader icon={<Star size={18} />} title="Top Events by Revenue"
                         sub="Highest earning events"
                         action={
@@ -619,7 +619,7 @@ const Dashboard = () => {
 
                 {/* Upcoming Events */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                    className="bg-black/25 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
                     <SectionHeader icon={<Clock size={18} />} title="Upcoming Events"
                         sub="Next scheduled events"
                         action={
@@ -657,7 +657,7 @@ const Dashboard = () => {
 
                 {/* Recent Messages */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                    className="bg-black/25 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
                     <SectionHeader icon={<Mail size={18} />} title="Recent Messages"
                         sub={unreadMsgs.length > 0 ? `${unreadMsgs.length} unread` : 'All read'}
                         action={

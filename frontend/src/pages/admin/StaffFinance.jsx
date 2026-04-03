@@ -173,7 +173,7 @@ const StaffFinance = () => {
                                     const totalPending = pendingEventPay + pendingReimb;
                                     return (
                                         <button key={s.id} onClick={() => setSelectedStaff(s)}
-                                            className="w-full text-left bg-white/5 border border-white/10 hover:border-mustard-gold/30 hover:bg-white/[0.07] rounded-2xl p-5 transition-all group">
+                                            className="w-full text-left bg-black/25 border border-white/10 hover:border-mustard-gold/30 hover:bg-white/[0.07] rounded-2xl p-5 transition-all group">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-10 h-10 rounded-full bg-mustard-gold/20 border border-mustard-gold/30 flex items-center justify-center text-mustard-gold font-bold text-sm">
@@ -293,7 +293,7 @@ const StaffFinance = () => {
                 </div>
 
                 {/* Tabs */}
-                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                <div className="bg-black/25 border border-white/10 rounded-2xl overflow-hidden">
                     <div className="flex border-b border-white/10">
                         <button onClick={() => setActiveTab('payments')}
                             className={`flex-1 py-3.5 px-3 text-sm font-semibold transition-colors ${activeTab === 'payments' ? 'bg-white/5 text-white border-b-2 border-mustard-gold' : 'text-gray-500 hover:text-gray-300'}`}>

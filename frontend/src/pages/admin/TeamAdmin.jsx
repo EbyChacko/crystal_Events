@@ -244,13 +244,13 @@ const TeamAdmin = () => {
 
             {/* List */}
             {teamMembers.length === 0 ? (
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
+                <div className="bg-black/25 border border-white/10 rounded-2xl p-12 text-center">
                     <UsersRound size={48} className="mx-auto text-gray-600 mb-4" />
                     <h3 className="text-xl font-medium text-white mb-2">No Team Members Found</h3>
                     <p className="text-gray-400">Add users to feature them on the public Meet Our Team section.</p>
                 </div>
             ) : (
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <div className="bg-black/25 border border-white/10 rounded-2xl p-6">
                     <p className="text-sm text-gray-400 mb-4 flex items-center">
                         <GripVertical size={16} className="mr-2" />
                         Drag and drop items to reorder how they appear on the public site.
