@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     DollarSign, Plus, X, AlertCircle, Search, CheckCircle,
-    Trash2, Edit3, Upload, TrendingUp, PieChart, Receipt, Calendar, ExternalLink, Download, Filter, ChevronDown, ChevronUp, RefreshCw, Link as LinkIcon, MoreVertical, Crown, BarChart3, Menu
+    Trash2, Edit3, Upload, TrendingUp, PieChart, Receipt, Calendar, ExternalLink, Download, ChevronDown, ChevronUp, RefreshCw, Link as LinkIcon, Crown, SlidersHorizontal
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
@@ -49,7 +49,6 @@ const Financials = () => {
     const [activeCategory, setActiveCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [statsTimeframe, setStatsTimeframe] = useState('month'); // 'month', 'year', 'all'
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [profitData, setProfitData] = useState(null);
     const [profitLoading, setProfitLoading] = useState(false);
@@ -368,142 +367,20 @@ const Financials = () => {
     const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
     const netBalance = totalIncome - totalExpense;
 
-    // Sidebar content extracted as a reusable block
-    const sidebarContent = (onClose) => (
-        <div className="flex flex-col gap-3">
-            <div className="mb-2">
-                <h1 className="text-lg font-bold text-white">Financial Report</h1>
-                <p className="text-gray-500 text-xs mt-0.5">Income &amp; expenses</p>
-            </div>
-
-            {/* Action Buttons */}
-            <button
-                onClick={() => { setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); onClose && onClose(); }}
-                className="flex items-center space-x-2.5 w-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-2.5 rounded-xl hover:bg-emerald-500/20 transition-all font-semibold text-sm"
-            >
-                <Plus size={16} /><span>Add Income</span>
-            </button>
-            <button
-                onClick={() => { setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); onClose && onClose(); }}
-                className="flex items-center space-x-2.5 w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all font-semibold text-sm"
-            >
-                <Plus size={16} /><span>Add Expense</span>
-            </button>
-            <button
-                onClick={() => { handleExportCSV(); onClose && onClose(); }}
-                className="flex items-center space-x-2.5 w-full bg-white/5 text-gray-300 border border-white/10 px-4 py-2.5 rounded-xl hover:bg-white/[0.08] hover:text-white transition-all font-semibold text-sm"
-            >
-                <Download size={16} /><span>Export CSV</span>
-            </button>
-            <button
-                onClick={() => { navigate('/admin/assets'); onClose && onClose(); }}
-                className="flex items-center space-x-2.5 w-full bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-2.5 rounded-xl hover:bg-purple-500/20 transition-all font-semibold text-sm"
-            >
-                <PieChart size={16} /><span>View Assets</span>
-            </button>
-
-            {/* Profit Distribution Panel */}
-            <div className="mt-2 bg-black/30 border border-white/10 rounded-2xl p-4">
-                <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-                        <BarChart3 size={14} className="text-mustard-gold" /> Profit
-                    </h3>
-                    <button onClick={fetchProfitData} className="text-gray-500 hover:text-gray-300 transition-colors" title="Refresh">
-                        <RefreshCw size={12} />
-                    </button>
-                </div>
-                {profitLoading ? (
-                    <p className="text-xs text-gray-500">Loading...</p>
-                ) : profitData ? (
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-400">Net Profit</span>
-                            <span className={`text-sm font-bold ${profitData.net_profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                €{profitData.net_profit.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </span>
-                        </div>
-                        {profitData.distribution && profitData.distribution.length > 0 && (
-                            <>
-                                <div className="border-t border-white/10 pt-2 mt-2">
-                                    <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                        <Crown size={10} className="text-yellow-400" /> Owner Shares
-                                    </p>
-                                    {profitData.distribution.map(owner => (
-                                        <div key={owner.id} className="mb-2">
-                                            <div className="flex justify-between items-center mb-0.5">
-                                                <span className="text-xs text-gray-300 truncate max-w-[100px]">{owner.name}</span>
-                                                <span className="text-xs font-semibold text-mustard-gold">{owner.profit_percentage}%</span>
-                                            </div>
-                                            <div className="w-full bg-white/5 rounded-full h-1.5">
-                                                <div
-                                                    className="bg-gradient-to-r from-mustard-gold to-yellow-400 h-1.5 rounded-full transition-all"
-                                                    style={{ width: `${Math.min(owner.profit_percentage, 100)}%` }}
-                                                />
-                                            </div>
-                                            <p className={`text-[10px] mt-0.5 ${owner.share >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                                €{owner.share.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                        {(!profitData.distribution || profitData.distribution.length === 0) && (
-                            <p className="text-xs text-gray-500 mt-1">No owners set yet.</p>
-                        )}
-                    </div>
-                ) : (
-                    <p className="text-xs text-gray-500">Unable to load.</p>
-                )}
-            </div>
-        </div>
-    );
-
     return (
-        <div className="flex gap-0 lg:gap-6 relative">
-            {/* Desktop Sidebar */}
-            <aside className="hidden lg:block w-56 xl:w-64 shrink-0">
-                <div className="sticky top-6">
-                    {sidebarContent(null)}
-                </div>
-            </aside>
-
-            {/* Mobile Sidebar Drawer */}
-            <AnimatePresence>
-                {isSidebarOpen && (
-                    <div className="fixed inset-0 z-[60] flex lg:hidden">
-                        <motion.div
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={() => setIsSidebarOpen(false)}
-                        />
-                        <motion.aside
-                            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                            className="relative ml-auto w-72 h-full bg-[#080c10] border-l border-white/10 p-5 overflow-y-auto"
-                        >
-                            <button onClick={() => setIsSidebarOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
-                                <X size={20} />
-                            </button>
-                            {sidebarContent(() => setIsSidebarOpen(false))}
-                        </motion.aside>
-                    </div>
-                )}
-            </AnimatePresence>
-
-            {/* Main Content */}
-            <div className="flex-1 min-w-0">
-            {/* Mobile Header */}
-            <div className="flex items-center justify-between mb-6 lg:hidden">
+        <div>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-8 gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-white">Financial Report</h1>
-                    <p className="text-gray-400 mt-1 text-sm">Track income and expenses</p>
+                    <p className="text-gray-400 mt-1">Track comprehensive income and expenses</p>
                 </div>
                 <button
                     onClick={() => setIsSidebarOpen(true)}
-                    className="p-2.5 text-gray-400 hover:text-white bg-black/30 border border-white/10 rounded-xl transition-colors"
+                    className="flex items-center justify-center space-x-2 bg-mustard-gold/10 border border-mustard-gold/30 text-mustard-gold font-medium px-4 py-3 md:py-2.5 rounded-xl hover:bg-mustard-gold/20 transition-all text-base md:text-sm"
                 >
-                    <Menu size={20} />
+                    <SlidersHorizontal size={16} />
+                    <span className="hidden sm:inline">Actions</span>
                 </button>
             </div>
 
@@ -896,7 +773,116 @@ const Financials = () => {
                     </div>
                 )}
             </div>
-            </div>
+
+            {/* ── Right Actions Sidebar Drawer ── */}
+            <AnimatePresence>
+                {isSidebarOpen && (
+                    <>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+                            onClick={() => setIsSidebarOpen(false)} />
+                        <motion.div
+                            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                            className="fixed right-0 top-0 h-full w-80 z-50 bg-[#060a0d] border-l border-white/10 flex flex-col shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)]">
+                            <div className="flex items-center justify-between p-5 border-b border-white/10">
+                                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <SlidersHorizontal size={18} className="text-mustard-gold" />
+                                    Actions
+                                </h2>
+                                <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-xl transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
+
+                                {/* Add Records */}
+                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-2 pb-1">Add Records</p>
+                                <button onClick={() => { setIsSidebarOpen(false); setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); }}
+                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all text-left">
+                                    <div className="p-2 bg-emerald-500/20 rounded-lg shrink-0"><Plus size={17} /></div>
+                                    <div>
+                                        <p className="font-semibold text-sm">Add Income</p>
+                                        <p className="text-xs text-gray-500">Record a new income entry</p>
+                                    </div>
+                                </button>
+                                <button onClick={() => { setIsSidebarOpen(false); setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); }}
+                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-left">
+                                    <div className="p-2 bg-amber-500/20 rounded-lg shrink-0"><DollarSign size={17} /></div>
+                                    <div>
+                                        <p className="font-semibold text-sm">Add Expense</p>
+                                        <p className="text-xs text-gray-500">Record a new expense</p>
+                                    </div>
+                                </button>
+
+                                {/* Export */}
+                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1">Export</p>
+                                <button onClick={() => { setIsSidebarOpen(false); handleExportCSV(); }}
+                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:bg-white/[0.05] transition-all text-left">
+                                    <div className="p-2 bg-white/10 rounded-lg shrink-0"><Download size={17} /></div>
+                                    <div>
+                                        <p className="font-semibold text-sm">Export CSV</p>
+                                        <p className="text-xs text-gray-500">Download filtered records</p>
+                                    </div>
+                                </button>
+                                <button onClick={() => { setIsSidebarOpen(false); navigate('/admin/assets'); }}
+                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 transition-all text-left">
+                                    <div className="p-2 bg-purple-500/20 rounded-lg shrink-0"><PieChart size={17} /></div>
+                                    <div>
+                                        <p className="font-semibold text-sm">View Assets</p>
+                                        <p className="text-xs text-gray-500">Asset register &amp; values</p>
+                                    </div>
+                                </button>
+
+                                {/* Profit Distribution */}
+                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1 flex items-center justify-between">
+                                    <span className="flex items-center gap-1"><Crown size={10} className="text-yellow-400" /> Profit Distribution</span>
+                                    <button onClick={fetchProfitData} className="text-gray-600 hover:text-gray-400 transition-colors"><RefreshCw size={11} /></button>
+                                </p>
+                                <div className="p-3 rounded-xl bg-black/30 border border-white/10">
+                                    {profitLoading ? (
+                                        <p className="text-xs text-gray-500 py-1">Loading...</p>
+                                    ) : profitData ? (
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-400">Net Profit</span>
+                                                <span className={`text-sm font-bold ${profitData.net_profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                    €{profitData.net_profit.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </span>
+                                            </div>
+                                            {profitData.distribution && profitData.distribution.length > 0 ? (
+                                                <div className="space-y-2 border-t border-white/10 pt-2">
+                                                    {profitData.distribution.map(owner => (
+                                                        <div key={owner.id}>
+                                                            <div className="flex justify-between items-center mb-0.5">
+                                                                <span className="text-xs text-gray-300 truncate max-w-[140px]">{owner.name}</span>
+                                                                <span className="text-xs font-semibold text-mustard-gold">{owner.profit_percentage}%</span>
+                                                            </div>
+                                                            <div className="w-full bg-white/5 rounded-full h-1.5 mb-0.5">
+                                                                <div className="bg-gradient-to-r from-mustard-gold to-yellow-400 h-1.5 rounded-full"
+                                                                    style={{ width: `${Math.min(owner.profit_percentage, 100)}%` }} />
+                                                            </div>
+                                                            <p className={`text-[11px] font-medium ${owner.share >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                €{owner.share.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-xs text-gray-500 border-t border-white/10 pt-2">No owners configured yet.</p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-gray-500 py-1">Unable to load.</p>
+                                    )}
+                                </div>
+
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
         </div>
     );
 };
