@@ -1,4 +1,5 @@
 import traceback
+import os
 from rest_framework import viewsets, permissions, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,6 +8,23 @@ from rest_framework.views import APIView
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
+
+
+def _cloudinary_upload(file_obj, folder='uploads'):
+    """Upload a file to Cloudinary and return its secure_url, or None if unavailable."""
+    if not file_obj or not os.environ.get('CLOUDINARY_CLOUD_NAME'):
+        return None
+    try:
+        import cloudinary.uploader
+        result = cloudinary.uploader.upload(
+            file_obj,
+            folder=f'crystal_events/{folder}',
+            resource_type='auto',
+        )
+        return result.get('secure_url')
+    except Exception as exc:
+        print(f'Cloudinary upload error: {exc}')
+        return None
 from .serializers import (
     ServiceSerializer, EventSerializer, ExpenseSerializer, IncomeSerializer,
     QuoteSerializer, MessageSerializer, UserSerializer,
@@ -93,6 +111,20 @@ class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def _save_with_image(self, serializer, **kwargs):
+        file = self.request.FILES.get('image')
+        url = _cloudinary_upload(file, 'services')
+        if url:
+            return serializer.save(image=None, image_url=url, **kwargs)
+        return serializer.save(**kwargs)
+
+    def perform_create(self, serializer):
+        self._save_with_image(serializer)
+
+    def perform_update(self, serializer):
+        self._save_with_image(serializer)
 
 class TravelRateViewSet(viewsets.ModelViewSet):
     queryset = TravelRate.objects.all()
@@ -107,6 +139,7 @@ class IncomeViewSet(viewsets.ModelViewSet):
     queryset = Income.objects.all()
     serializer_class = IncomeSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         queryset = Income.objects.all()
@@ -115,8 +148,18 @@ class IncomeViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(paid_by=paid_by)
         return queryset
 
+    def _save_with_image(self, serializer, **kwargs):
+        file = self.request.FILES.get('receipt_image')
+        url = _cloudinary_upload(file, 'incomes')
+        if url:
+            return serializer.save(receipt_image=None, receipt_image_url=url, **kwargs)
+        return serializer.save(**kwargs)
+
     def perform_create(self, serializer):
-        serializer.save(added_by=self.request.user)
+        self._save_with_image(serializer, added_by=self.request.user)
+
+    def perform_update(self, serializer):
+        self._save_with_image(serializer)
 
     @action(detail=False, methods=['post'], url_path='bulk_mark_paid_back')
     def bulk_mark_paid_back(self, request):
@@ -1292,6 +1335,7 @@ class EventViewSet(viewsets.ModelViewSet):
 class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseSerializer
     permission_classes = [permissions.AllowAny]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         queryset = Expense.objects.all()
@@ -1302,6 +1346,19 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         if paid_by:
             queryset = queryset.filter(paid_by=paid_by)
         return queryset
+
+    def _save_with_image(self, serializer, **kwargs):
+        file = self.request.FILES.get('receipt_image')
+        url = _cloudinary_upload(file, 'expenses')
+        if url:
+            return serializer.save(receipt_image=None, receipt_image_url=url, **kwargs)
+        return serializer.save(**kwargs)
+
+    def perform_create(self, serializer):
+        self._save_with_image(serializer)
+
+    def perform_update(self, serializer):
+        self._save_with_image(serializer)
 
     @action(detail=False, methods=['post'], url_path='bulk_mark_paid_back')
     def bulk_mark_paid_back(self, request):
@@ -1317,6 +1374,23 @@ class EventImageViewSet(viewsets.ModelViewSet):
     queryset = EventImage.objects.all()
     serializer_class = EventImageSerializer
     permission_classes = [permissions.AllowAny]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def perform_create(self, serializer):
+        file = self.request.FILES.get('image')
+        url = _cloudinary_upload(file, 'event_galleries')
+        if url:
+            serializer.save(image=None, image_url=url)
+        else:
+            serializer.save()
+
+    def perform_update(self, serializer):
+        file = self.request.FILES.get('image')
+        url = _cloudinary_upload(file, 'event_galleries')
+        if url:
+            serializer.save(image=None, image_url=url)
+        else:
+            serializer.save()
 
 
 class TeamMemberViewSet(viewsets.ModelViewSet):

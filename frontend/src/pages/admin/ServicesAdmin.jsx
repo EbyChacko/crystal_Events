@@ -61,15 +61,16 @@ const ServicesAdmin = () => {
     };
 
     const handleEdit = (service) => {
+        const existingUrl = service.image_url || service.image || '';
         setFormData({
             name: service.name,
             description: service.description,
             base_price: service.base_price,
             image: null,
-            image_url: service.image_url || '',
+            image_url: existingUrl,
         });
-        // Pre-select URL mode if there's a URL
-        setImageMode(service.image_url ? 'url' : 'file');
+        // Pre-select URL mode if there's an existing image URL
+        setImageMode(existingUrl ? 'url' : 'file');
         setEditingId(service.id);
         setShowForm(true);
     };
