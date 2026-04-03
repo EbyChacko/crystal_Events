@@ -388,7 +388,10 @@ const StaffFinance = () => {
                                                                 {eventPay ? 'Event Pay' : 'Reimbursement'}
                                                             </span>
                                                             {item.event_name && (
-                                                                <span className="text-xs text-gray-500 truncate">{item.event_name}</span>
+                                                                <span className="text-xs text-gray-500 truncate">
+                                                                    {item.event_name}
+                                                                    {item.event && <span className="text-gray-600 ml-1">#{item.event}</span>}
+                                                                </span>
                                                             )}
                                                         </div>
                                                         <p className="text-sm font-medium text-white">{item.reason}</p>
@@ -449,7 +452,10 @@ const StaffFinance = () => {
                                                                     {eventPay ? 'Event Pay' : 'Reimbursement'}
                                                                 </span>
                                                                 {item.event_name && (
-                                                                    <span className="text-xs text-gray-600 truncate">{item.event_name}</span>
+                                                                    <span className="text-xs text-gray-600 truncate">
+                                                                        {item.event_name}
+                                                                        {item.event && <span className="text-gray-700 ml-1">#{item.event}</span>}
+                                                                    </span>
                                                                 )}
                                                             </div>
                                                             <p className="text-sm font-medium text-gray-400">{item.reason}</p>

@@ -114,7 +114,7 @@ class Expense(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     reason = models.CharField(max_length=255)
     category = models.CharField(max_length=100) # e.g. Decor, Catering
-    event = models.ForeignKey('Event', on_delete=models.SET_NULL, null=True, blank=True, related_name='expenses')
+    event = models.ForeignKey('Event', on_delete=models.CASCADE, null=True, blank=True, related_name='expenses')
     approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='approved_expenses')
     paid_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='expenses_paid')
     paid_back = models.BooleanField(default=False)
