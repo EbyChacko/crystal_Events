@@ -11,11 +11,32 @@ from django.contrib.auth.models import User
 
 
 def _cloudinary_upload(file_obj, folder='uploads'):
-    """Upload a file to Cloudinary and return its secure_url, or None if unavailable."""
-    if not file_obj or not os.environ.get('CLOUDINARY_CLOUD_NAME'):
+    """Upload a file directly to Cloudinary and return its secure_url.
+    Returns None if credentials are missing or the upload fails.
+    """
+    if not file_obj:
+        return None
+    cloud_cfg = getattr(settings, 'CLOUDINARY_STORAGE', {})
+    cloud_name = cloud_cfg.get('CLOUD_NAME', '')
+    api_key    = cloud_cfg.get('API_KEY', '')
+    api_secret = cloud_cfg.get('API_SECRET', '')
+    if not cloud_name or not api_key or not api_secret:
+        print(f'Cloudinary not configured — skipping upload for folder "{folder}".')
         return None
     try:
+        import cloudinary
         import cloudinary.uploader
+        # Configure the SDK explicitly on every call (cheap, idempotent)
+        cloudinary.config(
+            cloud_name=cloud_name,
+            api_key=api_key,
+            api_secret=api_secret,
+            secure=True,
+        )
+        # DRF's ImageField.to_internal_value() reads the file during validation,
+        # so we must reset the pointer before passing it to Cloudinary.
+        if hasattr(file_obj, 'seek'):
+            file_obj.seek(0)
         result = cloudinary.uploader.upload(
             file_obj,
             folder=f'crystal_events/{folder}',
@@ -23,7 +44,7 @@ def _cloudinary_upload(file_obj, folder='uploads'):
         )
         return result.get('secure_url')
     except Exception as exc:
-        print(f'Cloudinary upload error: {exc}')
+        print(f'Cloudinary upload error ({folder}): {exc}')
         return None
 from .serializers import (
     ServiceSerializer, EventSerializer, ExpenseSerializer, IncomeSerializer,

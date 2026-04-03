@@ -142,11 +142,16 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Media files — stored on Cloudinary in production, local in dev
+# Cloudinary credentials — must be set in .env (local) and Render env vars (production)
+_CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+_CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '')
+_CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
+_CLOUDINARY_CONFIGURED = bool(_CLOUDINARY_CLOUD_NAME and _CLOUDINARY_API_KEY and _CLOUDINARY_API_SECRET)
+
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+    'CLOUD_NAME': _CLOUDINARY_CLOUD_NAME,
+    'API_KEY':    _CLOUDINARY_API_KEY,
+    'API_SECRET': _CLOUDINARY_API_SECRET,
 }
 
 MEDIA_URL = '/media/'
@@ -154,9 +159,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STORAGES = {
     'default': {
+        # Use Cloudinary when all three credentials are present, local filesystem otherwise
         'BACKEND': (
             'cloudinary_storage.storage.MediaCloudinaryStorage'
-            if os.environ.get('CLOUDINARY_CLOUD_NAME')
+            if _CLOUDINARY_CONFIGURED
             else 'django.core.files.storage.FileSystemStorage'
         ),
     },
