@@ -105,7 +105,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-4xl bg-[#071223] border border-white/10 shadow-2xl overflow-hidden flex flex-col rounded-2xl max-h-[90vh]"
+                className="relative w-full max-w-4xl bg-[#071223] border border-white/10 shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col rounded-2xl max-h-[90vh]"
             >
                 {/* Header */}
                 <div className="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-white/10 bg-white/5">

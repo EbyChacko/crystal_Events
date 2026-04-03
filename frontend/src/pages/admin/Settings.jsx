@@ -461,7 +461,7 @@ const Settings = () => {
                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="bg-[#071212] border border-white/10 rounded-2xl p-6 shadow-2xl max-w-sm w-full"
+                            className="bg-[#071212] border border-white/10 rounded-2xl p-6 shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] max-w-sm w-full"
                         >
                             <div className="flex items-center space-x-3 mb-4 text-red-500">
                                 <AlertCircle size={24} />

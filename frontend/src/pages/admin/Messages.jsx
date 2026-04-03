@@ -419,7 +419,7 @@ const Messages = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-[#091818] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+                            className="bg-[#091818] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)]"
                         >
                             {/* Header */}
                             <div className="p-6 border-b border-white/10 flex justify-between items-start">

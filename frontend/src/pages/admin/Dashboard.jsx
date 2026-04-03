@@ -104,7 +104,7 @@ const SectionHeader = ({ icon, title, sub, action }) => (
 const CashFlowTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-[#091414] border border-white/10 shadow-2xl rounded-xl p-4 min-w-[180px]">
+        <div className="bg-[#091414] border border-white/10 shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] rounded-xl p-4 min-w-[180px]">
             <p className="text-white text-sm font-semibold mb-3 border-b border-white/10 pb-2">{label}</p>
             {payload.map((entry, i) => (
                 <div key={i} className="flex items-center justify-between gap-4 text-xs mb-1.5">
@@ -122,7 +122,7 @@ const CashFlowTooltip = ({ active, payload, label }) => {
 const PieTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-[#091414] border border-white/10 rounded-xl px-4 py-3 text-xs shadow-2xl">
+        <div className="bg-[#091414] border border-white/10 rounded-xl px-4 py-3 text-xs shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)]">
             <p className="text-white font-bold">{payload[0].name}</p>
             <p className="text-gray-400 mt-0.5">{payload[0].value} events · {pct(payload[0].payload.percent * 100)}</p>
         </div>
@@ -132,7 +132,7 @@ const PieTooltip = ({ active, payload }) => {
 const BarTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-[#091414] border border-white/10 rounded-xl px-4 py-3 text-xs shadow-2xl">
+        <div className="bg-[#091414] border border-white/10 rounded-xl px-4 py-3 text-xs shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)]">
             <p className="text-gray-400 mb-1">{label}</p>
             <p className="text-white font-bold">{fmtDec(payload[0].value)}</p>
         </div>

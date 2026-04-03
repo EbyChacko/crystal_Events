@@ -37,7 +37,7 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel }) => {
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="relative bg-[#071212] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
+                    className="relative bg-[#071212] border border-white/10 rounded-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] w-full max-w-lg overflow-hidden flex flex-col"
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-white/10 z-10 bg-[#071212]">

@@ -951,7 +951,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative">
                             <button type="button" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
@@ -1291,7 +1291,7 @@ const EventDetails = () => {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-5xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+                            className="relative w-full max-w-5xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] max-h-[90vh] overflow-y-auto"
                         >
                             <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
@@ -1580,7 +1580,7 @@ const EventDetails = () => {
                                     initial={{ scale: 0.95, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     exit={{ scale: 0.95, opacity: 0 }}
-                                    className="relative w-full max-w-5xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl pointer-events-auto"
+                                    className="relative w-full max-w-5xl bg-[#080c10] border border-white/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] pointer-events-auto"
                                 >
                                     <h2 className="text-xl font-bold text-white mb-6 flex items-center justify-between">
                                         <div className="flex items-center space-x-2">
@@ -1911,7 +1911,7 @@ const EventDetails = () => {
                         <motion.div
                             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
                             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                            className="fixed right-0 top-0 h-full w-80 z-50 bg-[#060a0d] border-l border-white/10 flex flex-col shadow-2xl">
+                            className="fixed right-0 top-0 h-full w-80 z-50 bg-[#060a0d] border-l border-white/10 flex flex-col shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)]">
                             <div className="flex items-center justify-between p-5 border-b border-white/10">
                                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
                                     <SlidersHorizontal size={18} className="text-mustard-gold" />
@@ -2058,7 +2058,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowRefundModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative">
                             <button type="button" onClick={() => setShowRefundModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
@@ -2117,7 +2117,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowExpenseModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#080c10] border border-amber-500/20 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                            className="bg-[#080c10] border border-amber-500/20 rounded-2xl p-6 w-full max-w-lg shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative max-h-[90vh] overflow-y-auto">
                             <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <PlusCircle className="text-amber-400" size={22} />
@@ -2239,7 +2239,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowStaffPayModal(false); setStaffPayFormData(staffPayFormDefault); } }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#080c10] border border-blue-500/20 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                            className="bg-[#080c10] border border-blue-500/20 rounded-2xl p-6 w-full max-w-md shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative">
                             <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Clock className="text-blue-400" size={22} />
@@ -2314,7 +2314,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentHistoryModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#080c10] border border-indigo-500/20 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative mb-8">
+                            className="bg-[#080c10] border border-indigo-500/20 rounded-2xl p-6 w-full max-w-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
                             <button type="button" onClick={() => setShowPaymentHistoryModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
@@ -2422,7 +2422,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowGalleryModal(false); setShowImageForm(false); } }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#080c10] border border-purple-500/20 rounded-2xl p-6 w-full max-w-3xl shadow-2xl relative mb-8">
+                            className="bg-[#080c10] border border-purple-500/20 rounded-2xl p-6 w-full max-w-3xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
                             <button type="button" onClick={() => { setShowGalleryModal(false); setShowImageForm(false); }} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
@@ -2557,7 +2557,7 @@ const EventDetails = () => {
                     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowLogbookModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative mb-8">
+                            className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
                             <button type="button" onClick={() => setShowLogbookModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>

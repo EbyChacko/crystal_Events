@@ -131,7 +131,7 @@ const AdminLayout = () => {
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
                             transition={{ type: 'tween', duration: 0.3 }}
-                            className="fixed inset-y-0 left-0 w-72 bg-[#071212] border-r border-white/10 flex flex-col z-50 md:hidden shadow-2xl"
+                            className="fixed inset-y-0 left-0 w-72 bg-[#071212] border-r border-white/10 flex flex-col z-50 md:hidden shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)]"
                         >
                             {/* Logo Area & Close Button */}
                             <div className="p-6 border-b border-white/10 flex items-center justify-between">
