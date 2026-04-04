@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserPlus, Users as UsersIcon, Shield, ShieldCheck, AlertCircle, CheckCircle, Camera, X, Crown } from 'lucide-react';
+import { UserPlus, Users as UsersIcon, Shield, ShieldCheck, AlertCircle, CheckCircle, Camera, X, Crown, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
@@ -16,6 +16,8 @@ const Users = () => {
         last_name: '',
         username: '',
         email: '',
+        phone: '',
+        address: '',
         password: '',
         confirmPassword: '',
         role: 'staff',
@@ -105,6 +107,8 @@ const Users = () => {
             data.append('last_name', formData.last_name);
             data.append('username', formData.username);
             data.append('email', formData.email);
+            data.append('phone', formData.phone);
+            data.append('address', formData.address);
             data.append('password', formData.password);
             data.append('is_staff', formData.role === 'staff' || formData.role === 'admin' || formData.role === 'superadmin');
             data.append('is_superuser', formData.role === 'superadmin');
@@ -122,7 +126,7 @@ const Users = () => {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             addToast(`User "${formData.username}" created successfully!`, 'success');
-            setFormData({ first_name: '', last_name: '', username: '', email: '', password: '', confirmPassword: '', role: 'staff', designation: '', can_view_financials: false, is_owner: false, profit_percentage: '' });
+            setFormData({ first_name: '', last_name: '', username: '', email: '', phone: '', address: '', password: '', confirmPassword: '', role: 'staff', designation: '', can_view_financials: false, is_owner: false, profit_percentage: '' });
             clearImage();
             setShowForm(false);
             fetchUsers();
@@ -214,34 +218,34 @@ const Users = () => {
                                         <label className="block text-gray-400 text-sm font-medium mb-2">First Name</label>
                                         <input type="text" name="first_name" value={formData.first_name} onChange={handleChange}
                                             className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
-                                            placeholder="John" required />
+                                            placeholder="John" />
                                     </div>
                                     <div>
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Last Name</label>
                                         <input type="text" name="last_name" value={formData.last_name} onChange={handleChange}
                                             className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
-                                            placeholder="Doe" required />
+                                            placeholder="Doe" />
                                     </div>
                                     <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Username</label>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Username *</label>
                                         <input type="text" name="username" value={formData.username} onChange={handleChange}
                                             className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
                                             placeholder="john.doe" required />
                                     </div>
                                     <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Email</label>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Email *</label>
                                         <input type="email" name="email" value={formData.email} onChange={handleChange}
                                             className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
                                             placeholder="john@crystalevents.ie" required />
                                     </div>
                                     <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Password</label>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Password *</label>
                                         <input type="password" name="password" value={formData.password} onChange={handleChange}
                                             className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
                                             placeholder="Minimum 8 characters" minLength={8} required />
                                     </div>
                                     <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Confirm Password</label>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Confirm Password *</label>
                                         <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
                                             className={`w-full bg-white/5 border text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all ${formData.confirmPassword && formData.password !== formData.confirmPassword
                                                 ? 'border-red-500/50'
@@ -251,6 +255,26 @@ const Users = () => {
                                         {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                                             <p className="text-red-400 text-xs mt-1">Passwords do not match</p>
                                         )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Phone</label>
+                                        <input type="text" name="phone" value={formData.phone} onChange={handleChange}
+                                            className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                            placeholder="+353 87 000 0000" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">Designation</label>
+                                        <input type="text" name="designation" value={formData.designation} onChange={handleChange}
+                                            className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                            placeholder="e.g. Event Manager, Coordinator" />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-gray-400 text-sm font-medium mb-2 flex items-center gap-1.5">
+                                            <MapPin size={14} className="text-mustard-gold" /> Address
+                                        </label>
+                                        <textarea name="address" value={formData.address} onChange={handleChange} rows="2"
+                                            className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                            placeholder="Optional address..." />
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Role</label>
@@ -299,12 +323,6 @@ const Users = () => {
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
-                                    <div className="md:col-span-2">
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Designation</label>
-                                        <input type="text" name="designation" value={formData.designation} onChange={handleChange}
-                                            className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
-                                            placeholder="e.g. Event Manager, Coordinator, Designer" />
-                                    </div>
                                     <div className="md:col-span-2">
                                         <button type="submit" disabled={submitting || (formData.confirmPassword && formData.password !== formData.confirmPassword)}
                                             className="w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">

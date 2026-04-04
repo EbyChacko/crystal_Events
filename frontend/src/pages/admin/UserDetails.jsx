@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Camera, Save, Lock, AlertCircle, CheckCircle, MapPin, Pencil, X, ArrowLeft, Shield, ShieldCheck, Trash2 } from 'lucide-react';
+import { Camera, Save, Lock, AlertCircle, CheckCircle, MapPin, Pencil, X, ArrowLeft, Shield, ShieldCheck, Trash2, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
@@ -32,6 +32,8 @@ const UserDetails = () => {
         is_staff: false,
         is_superuser: false,
         can_view_financials: false,
+        is_owner: false,
+        profit_percentage: '',
     });
 
     const [passwordData, setPasswordData] = useState({
@@ -66,6 +68,8 @@ const UserDetails = () => {
                 is_staff: u.is_staff || false,
                 is_superuser: u.is_superuser || false,
                 can_view_financials: u.can_view_financials || false,
+                is_owner: u.is_owner || false,
+                profit_percentage: u.profit_percentage ?? '',
             });
         } catch (err) {
             console.error('Failed to fetch user:', err);
@@ -134,6 +138,8 @@ const UserDetails = () => {
                 is_staff: user.is_staff || false,
                 is_superuser: user.is_superuser || false,
                 can_view_financials: user.can_view_financials || false,
+                is_owner: user.is_owner || false,
+                profit_percentage: user.profit_percentage ?? '',
             });
         }
     };
@@ -155,6 +161,10 @@ const UserDetails = () => {
             data.append('is_staff', formData.is_staff);
             data.append('is_superuser', formData.is_superuser);
             data.append('can_view_financials', formData.can_view_financials);
+            data.append('is_owner', formData.is_owner);
+            if (formData.is_owner && formData.profit_percentage !== '') {
+                data.append('profit_percentage', formData.profit_percentage);
+            }
 
             if (profilePicture) {
                 data.append('profile_picture', profilePicture);
@@ -502,6 +512,25 @@ const UserDetails = () => {
                                                     )}
                                                 </div>
                                             </label>
+                                            <label className="flex items-center space-x-3 cursor-pointer">
+                                                <input type="checkbox" name="is_owner" checked={formData.is_owner} onChange={handleChange}
+                                                    className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold" />
+                                                <div>
+                                                    <p className="text-white font-medium flex items-center gap-1.5"><Crown size={14} className="text-yellow-400" /> Company Owner</p>
+                                                    <p className="text-xs text-gray-500">Include in profit distribution calculations</p>
+                                                </div>
+                                            </label>
+                                            <AnimatePresence>
+                                                {formData.is_owner && (
+                                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                                                        <label className="block text-gray-400 text-sm font-medium mb-2">Profit Share (%)</label>
+                                                        <input type="number" name="profit_percentage" value={formData.profit_percentage} onChange={handleChange}
+                                                            className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                                            placeholder="e.g. 50" min="0" max="100" step="0.01" />
+                                                        <p className="text-xs text-gray-500 mt-1">Percentage of net profit allocated to this owner</p>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
                                 </div>

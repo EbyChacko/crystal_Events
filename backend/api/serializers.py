@@ -217,19 +217,23 @@ class CreateUserSerializer(serializers.ModelSerializer):
     is_staff = serializers.BooleanField(required=False, default=True)
     is_superuser = serializers.BooleanField(required=False, default=False)
     designation = serializers.CharField(required=False, default='', allow_blank=True)
+    phone = serializers.CharField(required=False, default='', allow_blank=True)
+    address = serializers.CharField(required=False, default='', allow_blank=True)
     can_view_financials = serializers.BooleanField(required=False, default=False)
     is_owner = serializers.BooleanField(required=False, default=False)
     profit_percentage = serializers.DecimalField(required=False, default=0, max_digits=5, decimal_places=2)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password', 'profile_picture', 'is_staff', 'is_superuser', 'designation', 'can_view_financials', 'is_owner', 'profit_percentage']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password', 'profile_picture', 'is_staff', 'is_superuser', 'designation', 'phone', 'address', 'can_view_financials', 'is_owner', 'profit_percentage']
 
     def create(self, validated_data):
         profile_picture = validated_data.pop('profile_picture', None)
         is_staff = validated_data.pop('is_staff', True)
         is_superuser = validated_data.pop('is_superuser', False)
         designation = validated_data.pop('designation', '')
+        phone = validated_data.pop('phone', '')
+        address = validated_data.pop('address', '')
         can_view_financials = validated_data.pop('can_view_financials', False)
         is_owner = validated_data.pop('is_owner', False)
         profit_percentage = validated_data.pop('profit_percentage', 0)
@@ -244,6 +248,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
         )
         profile = user.profile
         profile.designation = designation
+        profile.phone = phone
+        profile.address = address
         profile.can_view_financials = can_view_financials
         profile.is_owner = is_owner
         profile.profit_percentage = profit_percentage
