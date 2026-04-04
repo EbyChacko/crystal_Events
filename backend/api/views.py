@@ -2017,9 +2017,10 @@ class MessageViewSet(viewsets.ModelViewSet):
             message.replied_at = now
             if not isinstance(message.replies, list):
                 message.replies = []
-            message.replies = message.replies + [{'text': reply_content, 'sent_at': now.isoformat()}]
+            sender_name = request.user.get_full_name() or request.user.username
+            message.replies = message.replies + [{'text': reply_content, 'sent_at': now.isoformat(), 'replied_by': sender_name}]
             message.save()
-            return Response({'status': 'Reply sent', 'sent_at': now.isoformat()})
+            return Response({'status': 'Reply sent', 'sent_at': now.isoformat(), 'replied_by': sender_name})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

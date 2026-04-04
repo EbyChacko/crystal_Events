@@ -3,8 +3,10 @@ import { Search, Mail, CheckCircle, XCircle, Reply, MessageSquare, Phone, Trash2
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 
 const Messages = () => {
+    const { user } = useAuth();
     const [messages, setMessages] = useState([]);
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
@@ -67,6 +69,9 @@ const Messages = () => {
         try {
             const res = await api.post(`/messages/${selectedMessage.id}/reply/`, { reply: sentText });
             const sentAt = res.data?.sent_at || new Date().toISOString();
+            const repliedBy = res.data?.replied_by || user?.first_name && user?.last_name
+                ? `${user.first_name} ${user.last_name}`.trim()
+                : user?.username || 'Staff';
             setReplyContent('');
             setReplySuccess('Reply sent successfully!');
             // Update selectedMessage locally immediately so the thread updates without waiting for the API
@@ -78,7 +83,7 @@ const Messages = () => {
                     status: 'replied',
                     reply_text: sentText,
                     replied_at: sentAt,
-                    replies: [...existingReplies, { text: sentText, sent_at: sentAt }],
+                    replies: [...existingReplies, { text: sentText, sent_at: sentAt, replied_by: repliedBy }],
                 };
             });
             // Refresh the list and keep selectedMessage in sync with server data
@@ -497,7 +502,7 @@ const Messages = () => {
                                                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-emerald-500/10 bg-emerald-500/5">
                                                     <div className="flex items-center gap-2 text-xs text-emerald-400">
                                                         <CheckCircle size={12} />
-                                                        <span className="font-semibold">Crystal Events</span>
+                                                        <span className="font-semibold">{r.replied_by || 'Crystal Events'}</span>
                                                         <span className="text-emerald-600">→</span>
                                                         <span className="text-emerald-500/80">{selectedMessage.email}</span>
                                                     </div>
