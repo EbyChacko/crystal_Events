@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Users, CheckCircle, ChevronDown, ArrowLeft, TrendingDown, Search, X, Clock, Banknote, Receipt, CalendarCheck } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 
 const fmt = (n) => `€${parseFloat(n || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -14,6 +15,8 @@ const isEventPay = (e) => e.category === 'Staffing' && e.event_name;
 
 const StaffFinance = () => {
     const { addToast } = useToast();
+    const { user } = useAuth();
+    const canManageFinancials = user?.is_superuser || user?.can_view_financials;
     const [staffList, setStaffList] = useState([]);
     const [allExpenses, setAllExpenses] = useState([]);
     const [allIncomes, setAllIncomes] = useState([]);
@@ -318,7 +321,7 @@ const StaffFinance = () => {
                         ) : activeTab === 'payments' ? (
                             /* ── Payments Tab (Event Pay + Reimbursements combined) ── */
                             <div>
-                                {allPending.length > 0 && (
+                                {allPending.length > 0 && canManageFinancials && (
                                     <div className="mb-4 pb-4 border-b border-white/10">
                                         <div className="flex flex-wrap items-center justify-between gap-3">
                                             <label className="flex items-center gap-2 cursor-pointer">
@@ -380,8 +383,10 @@ const StaffFinance = () => {
                                             const eventPay = isEventPay(item);
                                             return (
                                                 <div key={item.id} className={`flex items-start gap-3 rounded-xl px-4 py-3 ${eventPay ? 'bg-blue-500/5 border border-blue-500/20' : 'bg-amber-500/5 border border-amber-500/20'}`}>
-                                                    <input type="checkbox" checked={selectedExpenseIds.has(item.id)} onChange={() => toggleExpense(item.id)}
-                                                        className="w-4 h-4 mt-0.5 rounded border border-white/20 bg-black/20 appearance-none cursor-pointer checked:bg-mustard-gold checked:border-mustard-gold transition-all flex-shrink-0" />
+                                                    {canManageFinancials && (
+                                                        <input type="checkbox" checked={selectedExpenseIds.has(item.id)} onChange={() => toggleExpense(item.id)}
+                                                            className="w-4 h-4 mt-0.5 rounded border border-white/20 bg-black/20 appearance-none cursor-pointer checked:bg-mustard-gold checked:border-mustard-gold transition-all flex-shrink-0" />
+                                                    )}
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2 flex-wrap mb-0.5">
                                                             <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${eventPay ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'}`}>
@@ -402,24 +407,26 @@ const StaffFinance = () => {
                                                     </div>
                                                     <div className="flex flex-col items-end gap-2 flex-shrink-0">
                                                         <span className={`text-sm font-bold ${eventPay ? 'text-blue-400' : 'text-amber-400'}`}>{fmt(item.amount)}</span>
-                                                        {confirmingId === item.id ? (
-                                                            <div className="flex items-center gap-1.5">
-                                                                <button onClick={() => setConfirmingId(null)}
-                                                                    className="text-xs text-gray-400 hover:text-white bg-white/5 border border-white/10 px-2.5 py-1.5 rounded-lg transition-all">
-                                                                    Cancel
-                                                                </button>
-                                                                <button onClick={() => handleSingleMark(item.id)}
+                                                        {canManageFinancials && (
+                                                            confirmingId === item.id ? (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <button onClick={() => setConfirmingId(null)}
+                                                                        className="text-xs text-gray-400 hover:text-white bg-white/5 border border-white/10 px-2.5 py-1.5 rounded-lg transition-all">
+                                                                        Cancel
+                                                                    </button>
+                                                                    <button onClick={() => handleSingleMark(item.id)}
+                                                                        disabled={markingBack}
+                                                                        className="text-xs font-semibold text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg hover:bg-emerald-500/30 transition-all disabled:opacity-50">
+                                                                        {markingBack ? '…' : 'Confirm'}
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <button onClick={() => { setConfirmingId(item.id); setConfirmAction(null); }}
                                                                     disabled={markingBack}
-                                                                    className="text-xs font-semibold text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg hover:bg-emerald-500/30 transition-all disabled:opacity-50">
-                                                                    {markingBack ? '…' : 'Confirm'}
+                                                                    className="text-xs bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg hover:bg-emerald-500/30 transition-all disabled:opacity-50">
+                                                                    Mark Paid
                                                                 </button>
-                                                            </div>
-                                                        ) : (
-                                                            <button onClick={() => { setConfirmingId(item.id); setConfirmAction(null); }}
-                                                                disabled={markingBack}
-                                                                className="text-xs bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg hover:bg-emerald-500/30 transition-all disabled:opacity-50">
-                                                                Mark Paid
-                                                            </button>
+                                                            )
                                                         )}
                                                     </div>
                                                 </div>

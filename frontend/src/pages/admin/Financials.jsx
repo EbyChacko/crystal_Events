@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import api, { API_BASE_URL } from '../../utils/api';
 
 const EXPENSE_CATEGORIES = [
@@ -42,6 +43,8 @@ const StatCard = ({ icon, label, value, sub, delay, isPositive }) => (
 
 const Financials = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const canManageFinancials = user?.is_superuser || user?.can_view_financials;
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formMode, setFormMode] = useState('none'); // 'none', 'expense', 'income'
@@ -796,24 +799,28 @@ const Financials = () => {
                             </div>
                             <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
 
-                                {/* Add Records */}
-                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-2 pb-1">Add Records</p>
-                                <button onClick={() => { setIsSidebarOpen(false); setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); }}
-                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all text-left">
-                                    <div className="p-2 bg-emerald-500/20 rounded-lg shrink-0"><Plus size={17} /></div>
-                                    <div>
-                                        <p className="font-semibold text-sm">Add Income</p>
-                                        <p className="text-xs text-gray-500">Record a new income entry</p>
-                                    </div>
-                                </button>
-                                <button onClick={() => { setIsSidebarOpen(false); setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); }}
-                                    className="w-full flex items-center space-x-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-left">
-                                    <div className="p-2 bg-amber-500/20 rounded-lg shrink-0"><DollarSign size={17} /></div>
-                                    <div>
-                                        <p className="font-semibold text-sm">Add Expense</p>
-                                        <p className="text-xs text-gray-500">Record a new expense</p>
-                                    </div>
-                                </button>
+                                {/* Add Records — superadmin & accountants only */}
+                                {canManageFinancials && (
+                                    <>
+                                        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-2 pb-1">Add Records</p>
+                                        <button onClick={() => { setIsSidebarOpen(false); setFormMode('income'); setEditingId(null); setFormData({ ...initialFormData, category: INCOME_CATEGORIES[0] }); }}
+                                            className="w-full flex items-center space-x-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all text-left">
+                                            <div className="p-2 bg-emerald-500/20 rounded-lg shrink-0"><Plus size={17} /></div>
+                                            <div>
+                                                <p className="font-semibold text-sm">Add Income</p>
+                                                <p className="text-xs text-gray-500">Record a new income entry</p>
+                                            </div>
+                                        </button>
+                                        <button onClick={() => { setIsSidebarOpen(false); setFormMode('expense'); setEditingId(null); setFormData({ ...initialFormData, category: EXPENSE_CATEGORIES[0] }); }}
+                                            className="w-full flex items-center space-x-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-left">
+                                            <div className="p-2 bg-amber-500/20 rounded-lg shrink-0"><DollarSign size={17} /></div>
+                                            <div>
+                                                <p className="font-semibold text-sm">Add Expense</p>
+                                                <p className="text-xs text-gray-500">Record a new expense</p>
+                                            </div>
+                                        </button>
+                                    </>
+                                )}
 
                                 {/* Export */}
                                 <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1">Export</p>

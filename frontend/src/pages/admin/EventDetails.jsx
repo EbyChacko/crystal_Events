@@ -894,6 +894,7 @@ const EventDetails = () => {
 
     const auditLog = [...(event.audit_log || [])].reverse();
     const isLocked = event.status === 'finished' && !user?.is_superuser;
+    const canManageFinancials = user?.is_superuser || user?.can_view_financials;
 
     return (
         <div className="max-w-5xl mx-auto">
@@ -1923,8 +1924,8 @@ const EventDetails = () => {
                             </div>
                             <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
 
-                                {/* Financial group */}
-                                {event?.status !== 'finished' && !isLocked && (
+                                {/* Financial group — superadmin & accountants only */}
+                                {event?.status !== 'finished' && !isLocked && canManageFinancials && (
                                     <>
                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-2 pb-1">Financial</p>
                                         <button onClick={() => { setSidebarOpen(false); handleOpenPayment(); }}
@@ -2436,7 +2437,7 @@ const EventDetails = () => {
                                         <p className="text-sm text-gray-500 mt-1">{event?.images?.length || 0} images · {event?.event_name}</p>
                                     </div>
                                 </div>
-                                {!showImageForm && !isLocked && (
+                                {!showImageForm && user?.is_superuser && (
                                     <button type="button" onClick={() => setShowImageForm(true)}
                                         className="w-full flex items-center justify-center space-x-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 font-medium px-4 py-3 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
                                         <Plus size={16} /><span>+ Add Image</span>
@@ -2529,7 +2530,7 @@ const EventDetails = () => {
                                             <img src={img.image || img.image_url} alt={img.description || 'Event Gallery Image'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3">
                                                 <div className="flex justify-end">
-                                                    {!isLocked && (
+                                                    {user?.is_superuser && (
                                                         <button type="button" onClick={() => handleDeleteImage(img.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
                                                             <Trash2 size={15} />
                                                         </button>
