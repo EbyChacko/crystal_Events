@@ -30,6 +30,9 @@ const Messages = () => {
             const response = await api.get('/messages/');
             const data = response.data;
             setMessages(data);
+            // Notify sidebar of current unread count
+            const unread = data.filter(m => m.status === 'unread').length;
+            window.dispatchEvent(new CustomEvent('messages:unread', { detail: { count: unread } }));
             // If a message is currently open, refresh it from the new data
             if (syncSelectedId) {
                 const fresh = data.find(m => m.id === syncSelectedId);
@@ -39,6 +42,12 @@ const Messages = () => {
             console.error('Error fetching messages:', error);
         }
     };
+
+    // Auto-refresh every 30 seconds so new messages appear without page reload
+    useEffect(() => {
+        const interval = setInterval(() => fetchMessages(), 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleStatusUpdate = async (id, newStatus) => {
         try {

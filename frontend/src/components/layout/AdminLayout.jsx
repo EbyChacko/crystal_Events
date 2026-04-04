@@ -12,7 +12,16 @@ const AdminLayout = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
+    // Listen for real-time count updates dispatched by the Messages page
     useEffect(() => {
+        const handler = (e) => setUnreadCount(e.detail.count);
+        window.addEventListener('messages:unread', handler);
+        return () => window.removeEventListener('messages:unread', handler);
+    }, []);
+
+    // Poll for unread count on other pages (Messages page handles its own polling)
+    useEffect(() => {
+        if (location.pathname === '/admin/messages') return;
         const fetchUnread = async () => {
             try {
                 const res = await api.get('/messages/');
@@ -24,7 +33,7 @@ const AdminLayout = () => {
         fetchUnread();
         const interval = setInterval(fetchUnread, 60000);
         return () => clearInterval(interval);
-    }, [location.pathname]); // re-fetch when navigating (clears badge when visiting Messages)
+    }, [location.pathname]);
 
     // Close menu when route changes
     useEffect(() => {
