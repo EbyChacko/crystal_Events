@@ -249,11 +249,16 @@ const Profile = () => {
                                 className="w-full bg-white/[0.02] border border-white/5 text-gray-500 px-4 py-3 rounded-xl cursor-not-allowed" />
                         </div>
                         <div className="md:col-span-2">
-                            <label className="block text-gray-400 text-sm font-medium mb-2">Designation</label>
+                            <label className="block text-gray-400 text-sm font-medium mb-2">
+                                Designation
+                                {editing && !user?.is_superuser && (
+                                    <span className="ml-2 text-xs text-gray-600 font-normal">(set by admin)</span>
+                                )}
+                            </label>
                             <input type="text" name="designation" value={formData.designation} onChange={handleChange}
-                                className={editing ? editableClass : readOnlyClass}
-                                readOnly={!editing}
-                                placeholder={editing ? "e.g. Event Manager, Coordinator" : ""} />
+                                className={editing && user?.is_superuser ? editableClass : readOnlyClass}
+                                readOnly={!editing || !user?.is_superuser}
+                                placeholder={editing && user?.is_superuser ? "e.g. Event Manager, Coordinator" : ""} />
                         </div>
                         <div className="md:col-span-2">
                             <label className="block text-gray-400 text-sm font-medium mb-2 flex items-center gap-1.5">

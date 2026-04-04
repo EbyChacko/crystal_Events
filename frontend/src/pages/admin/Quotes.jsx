@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import api, { API_BASE_URL } from '../../utils/api';
 
 const STATUS_OPTIONS = [
@@ -55,6 +56,7 @@ const Quotes = () => {
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const { addToast } = useToast();
+    const { user } = useAuth();
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -96,6 +98,18 @@ const Quotes = () => {
     const handleDownloadPdf = (id) => {
         const token = localStorage.getItem('access_token');
         window.open(`${API_BASE_URL}/quotes/${id}/pdf/?token=${token}`, '_blank');
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await api.delete(`/quotes/${id}/`);
+            setQuotes(prev => prev.filter(q => q.id !== id));
+            setDeleteConfirmId(null);
+            addToast('Quote deleted successfully.', 'success');
+        } catch (err) {
+            console.error('Failed to delete quote:', err);
+            addToast('Failed to delete quote.', 'error');
+        }
     };
 
     const filteredQuotes = quotes.filter(q => {
@@ -269,7 +283,7 @@ const Quotes = () => {
                                                 {new Date(q.created_at).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                {deleteConfirmId === q.id ? (
+                                                {user?.is_superuser && deleteConfirmId === q.id ? (
                                                     <div className="flex items-center justify-end space-x-2">
                                                         <span className="text-xs text-red-400">Delete?</span>
                                                         <button onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }}
@@ -288,10 +302,12 @@ const Quotes = () => {
                                                             className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors">
                                                             <Edit3 size={16} />
                                                         </button>
-                                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(q.id); }}
-                                                            className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                                                            <Trash2 size={16} />
-                                                        </button>
+                                                        {user?.is_superuser && (
+                                                            <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(q.id); }}
+                                                                className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 )}
                                             </td>
@@ -333,7 +349,7 @@ const Quotes = () => {
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-1 flex-shrink-0">
-                                            {deleteConfirmId === q.id ? (
+                                            {user?.is_superuser && deleteConfirmId === q.id ? (
                                                 <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
                                                     <button onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }} className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Yes</button>
                                                     <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08]">No</button>
@@ -342,7 +358,9 @@ const Quotes = () => {
                                                 <>
                                                     <button onClick={(e) => { e.stopPropagation(); handleDownloadPdf(q.id); }} className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><Download size={14} /></button>
                                                     <button onClick={(e) => { e.stopPropagation(); handleEdit(q); }} className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
-                                                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(q.id); }} className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                                                    {user?.is_superuser && (
+                                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(q.id); }} className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                                                    )}
                                                 </>
                                             )}
                                         </div>

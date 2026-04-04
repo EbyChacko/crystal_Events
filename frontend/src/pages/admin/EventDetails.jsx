@@ -1995,8 +1995,8 @@ const EventDetails = () => {
                                 </button>
 
                                 {/* Event Management group */}
-                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1">Event Management</p>
-                                {event?.status !== 'finished' && event?.status !== 'canceled' && (
+                                {user?.is_superuser && <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1">Event Management</p>}
+                                {user?.is_superuser && event?.status !== 'finished' && event?.status !== 'canceled' && (
                                     <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
                                         <p className="text-sm font-semibold text-emerald-400 mb-1">Finish Event</p>
                                         <p className="text-xs text-gray-500 mb-3">Mark as complete once the event date has passed.</p>
@@ -2025,7 +2025,7 @@ const EventDetails = () => {
                                         {!isEventOver() && <p className="text-xs text-emerald-500/50 mt-2 text-center">Event date has not passed yet.</p>}
                                     </div>
                                 )}
-                                <div className="p-3 rounded-xl bg-red-500/5 border border-red-500/20">
+                                {user?.is_superuser && <div className="p-3 rounded-xl bg-red-500/5 border border-red-500/20">
                                     <p className="text-sm font-semibold text-red-400 mb-1">Danger Zone</p>
                                     <p className="text-xs text-gray-500 mb-3">Permanently delete this event. Cannot be undone.</p>
                                     {!confirmingDelete ? (
@@ -2045,7 +2045,7 @@ const EventDetails = () => {
                                             </div>
                                         </div>
                                     )}
-                                </div>
+                                </div>}
 
                             </div>
                         </motion.div>
