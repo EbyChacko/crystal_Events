@@ -147,6 +147,15 @@ const Profile = () => {
 
     const currentPicture = previewUrl || user?.profile_picture || null;
 
+    const hasChanges =
+        profilePicture !== null ||
+        formData.first_name !== (user?.first_name || '') ||
+        formData.last_name !== (user?.last_name || '') ||
+        formData.username !== (user?.username || '') ||
+        formData.phone !== (user?.phone || '') ||
+        formData.address !== (user?.address || '') ||
+        formData.designation !== (user?.designation || '');
+
     const inputBaseClass = "w-full transition-all";
     const editableClass = `${inputBaseClass} px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600`;
     const readOnlyClass = `${inputBaseClass} py-2 text-white text-base font-medium bg-transparent border-transparent cursor-default resize-none m-0 p-0 focus:outline-none`;
@@ -280,7 +289,7 @@ const Profile = () => {
                             animate={{ opacity: 1, y: 0 }}
                             className="mt-6 flex items-center space-x-3"
                         >
-                            <button type="submit" disabled={saving}
+                            <button type="submit" disabled={saving || !hasChanges}
                                 className="flex items-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                 <Save size={18} />
                                 <span>{saving ? 'Saving...' : 'Save Changes'}</span>
