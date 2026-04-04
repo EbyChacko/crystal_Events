@@ -3,12 +3,28 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Calendar, CalendarDays, DollarSign, FileText, Settings, LogOut, Mail, Users, User, Briefcase, UsersRound, Menu, X, Map, PieChart, Wallet } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../utils/api';
 
 const AdminLayout = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+
+    useEffect(() => {
+        const fetchUnread = async () => {
+            try {
+                const res = await api.get('/messages/');
+                setUnreadCount(res.data.filter(m => m.status === 'unread').length);
+            } catch {
+                // silently ignore
+            }
+        };
+        fetchUnread();
+        const interval = setInterval(fetchUnread, 60000);
+        return () => clearInterval(interval);
+    }, [location.pathname]); // re-fetch when navigating (clears badge when visiting Messages)
 
     // Close menu when route changes
     useEffect(() => {
@@ -95,9 +111,14 @@ const AdminLayout = () => {
                             >
                                 {item.icon}
                                 <span className="text-sm font-medium">{item.name}</span>
-                                {isActive && (
-                                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-mustard-gold" />
-                                )}
+                                <div className="ml-auto flex items-center gap-2">
+                                    {item.name === 'Messages' && unreadCount > 0 && (
+                                        <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center leading-none">
+                                            {unreadCount > 99 ? '99+' : unreadCount}
+                                        </span>
+                                    )}
+                                    {isActive && <div className="w-1.5 h-1.5 rounded-full bg-mustard-gold" />}
+                                </div>
                             </Link>
                         );
                     })}
