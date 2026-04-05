@@ -3,6 +3,7 @@ import { PieChart, TrendingDown, Edit3, Trash2, CheckCircle, X, DollarSign, Chev
 import { motion } from 'framer-motion';
 import api from '../../utils/api';
 import { useToast } from '../../context/ToastContext';
+import Pagination from '../../components/admin/Pagination';
 
 const StatCard = ({ icon, label, value, isPositive = null, delay = 0 }) => (
     <motion.div
@@ -33,6 +34,8 @@ const Assets = () => {
     const [editingAssetId, setEditingAssetId] = useState(null);
     const [assetCurrentValue, setAssetCurrentValue] = useState('');
     const [confirmRemoveAssetId, setConfirmRemoveAssetId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 20;
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
 
     const fetchAssets = async () => {
@@ -96,6 +99,8 @@ const Assets = () => {
     const totalPurchaseValue = assetsList.reduce((sum, a) => sum + a.amount, 0);
     const totalCurrentValue = assetsList.reduce((sum, a) => sum + a.asset_current_value, 0);
     const totalDepreciation = totalPurchaseValue - totalCurrentValue;
+    const totalPages = Math.ceil(assetsList.length / PAGE_SIZE);
+    const pagedAssets = assetsList.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
     return (
         <div className="max-w-[1600px] mx-auto space-y-8 animate-fade-in">
@@ -149,7 +154,7 @@ const Assets = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {assetsList.map(a => (
+                                    {pagedAssets.map(a => (
                                         <tr key={a.id} className="hover:bg-white/5 transition-colors group">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <p className="text-sm font-medium text-white">{a.reason}</p>
@@ -203,7 +208,7 @@ const Assets = () => {
 
                         {/* Mobile List View */}
                         <div className="md:hidden divide-y divide-white/5">
-                            {assetsList.map((a) => (
+                            {pagedAssets.map((a) => (
                                 <div key={a.id} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
                                     <div className="flex justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
@@ -263,6 +268,7 @@ const Assets = () => {
                         </div>
                     </>
                 )}
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import api, { API_BASE_URL } from '../../utils/api';
+import Pagination from '../../components/admin/Pagination';
 
 const STATUS_OPTIONS = [
     { value: 'draft', label: 'Draft', color: 'bg-gray-500/10 text-gray-400 border-gray-500/20' },
@@ -58,6 +59,8 @@ const Quotes = () => {
     const { addToast } = useToast();
     const { user } = useAuth();
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 20;
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -119,6 +122,9 @@ const Quotes = () => {
             q.items?.some(i => i.service_name?.toLowerCase().includes(searchTerm.toLowerCase()));
         return matchesFilter && matchesSearch;
     });
+    const totalPages = Math.ceil(filteredQuotes.length / PAGE_SIZE);
+    const pagedQuotes = filteredQuotes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    useEffect(() => { setCurrentPage(1); }, [activeFilter, searchTerm]);
 
     const totalQuoteValue = quotes.reduce((sum, q) => sum + parseFloat(q.total || 0), 0);
     const acceptedValue = quotes
@@ -233,7 +239,7 @@ const Quotes = () => {
                 ) : (
                     <div className="w-full">
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto min-h-[400px]">
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-white/10">
@@ -247,7 +253,7 @@ const Quotes = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {filteredQuotes.map((q) => (
+                                    {pagedQuotes.map((q) => (
                                         <tr key={q.id} onClick={() => q.event && navigate(`/admin/events/${q.event}`)} className="hover:bg-white/5 transition-colors group cursor-pointer">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div>
@@ -370,6 +376,7 @@ const Quotes = () => {
                         </div>
                     </div>
                 )}
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

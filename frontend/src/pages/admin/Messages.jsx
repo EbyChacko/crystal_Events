@@ -4,10 +4,13 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
+import Pagination from '../../components/admin/Pagination';
 
 const Messages = () => {
     const { user } = useAuth();
     const [messages, setMessages] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 20;
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
     const [selectedMessage, setSelectedMessage] = useState(null);
@@ -183,6 +186,10 @@ const Messages = () => {
             msg.message.toLowerCase().includes(search.toLowerCase());
         return matchesFilter && matchesSearch;
     });
+    const totalPages = Math.ceil(filteredMessages.length / PAGE_SIZE);
+    const pagedMessages = filteredMessages.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    // Reset to page 1 when filter/search changes
+    useEffect(() => { setCurrentPage(1); }, [filter, search]);
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -291,7 +298,7 @@ const Messages = () => {
             <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 <div className="w-full">
                     {/* Desktop Table View */}
-                    <div className="hidden md:block overflow-x-auto min-h-[400px]">
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-white/10">
@@ -311,7 +318,7 @@ const Messages = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5 text-sm">
-                                {filteredMessages.map((msg) => (
+                                {pagedMessages.map((msg) => (
                                     <tr
                                         key={msg.id}
                                         className={`hover:bg-white/5 transition-colors cursor-pointer ${msg.status === 'unread' ? 'bg-white/[0.02]' : ''
@@ -376,7 +383,7 @@ const Messages = () => {
                             </div>
                         )}
 
-                        {filteredMessages.map((msg) => (
+                        {pagedMessages.map((msg) => (
                             <div key={msg.id}
                                 className={`p-4 transition-colors cursor-pointer group flex gap-3 ${msg.status === 'unread' ? 'bg-white/[0.04]' : 'hover:bg-white/5'}`}
                                 onClick={() => openMessage(msg, true)}
@@ -421,6 +428,7 @@ const Messages = () => {
                 {filteredMessages.length === 0 && (
                     <div className="p-12 text-center text-gray-500">No messages found.</div>
                 )}
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
 
             {/* Message Detail / Reply Modal */}

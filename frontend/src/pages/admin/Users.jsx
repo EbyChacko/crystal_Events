@@ -4,6 +4,7 @@ import { UserPlus, Users as UsersIcon, Shield, ShieldCheck, AlertCircle, CheckCi
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
+import Pagination from '../../components/admin/Pagination';
 import ImageCropper from '../../components/ImageCropper';
 
 const Users = () => {
@@ -30,6 +31,10 @@ const Users = () => {
     const [previewUrl, setPreviewUrl] = useState(null);
     const { addToast } = useToast();
     const [submitting, setSubmitting] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 20;
+    const totalPages = Math.ceil(users.length / PAGE_SIZE);
+    const pagedUsers = users.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
     // Crop states
     const [cropImageSrc, setCropImageSrc] = useState(null);
@@ -365,7 +370,7 @@ const Users = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {users.map((u) => (
+                                    {pagedUsers.map((u) => (
                                         <tr
                                             key={u.id}
                                             onClick={() => navigate(`/admin/users/${u.id}`)}
@@ -466,6 +471,7 @@ const Users = () => {
                         </div>
                     </div>
                 )}
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
 
             {/* Cropper Modal */}

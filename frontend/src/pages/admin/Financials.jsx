@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import api, { API_BASE_URL } from '../../utils/api';
+import Pagination from '../../components/admin/Pagination';
 
 const EXPENSE_CATEGORIES = [
     'Decor', 'Catering', 'Venue', 'Logistics', 'Entertainment', 'Staffing', 'Marketing', 'Other'
@@ -59,6 +60,8 @@ const Financials = () => {
     // Date Filters
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 20;
 
     const { addToast } = useToast();
     const [submitting, setSubmitting] = useState(false);
@@ -365,6 +368,10 @@ const Financials = () => {
         return matchesCat && matchesSearch && matchesDate;
     });
 
+    const totalPages = Math.ceil(filteredTransactions.length / PAGE_SIZE);
+    const pagedTransactions = filteredTransactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    useEffect(() => { setCurrentPage(1); }, [activeCategory, searchTerm, fromDate, toDate]);
+
     // Aggregations based on FILTERED results
     const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
@@ -620,7 +627,7 @@ const Financials = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {filteredTransactions.map((t) => (
+                                    {pagedTransactions.map((t) => (
                                         <tr key={t.id} className="hover:bg-white/5 transition-colors group">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                                 {new Date(t.date).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -775,6 +782,7 @@ const Financials = () => {
                         </div>
                     </div>
                 )}
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
 
             {/* ── Right Actions Sidebar Drawer ── */}

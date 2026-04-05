@@ -7,6 +7,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
+import Pagination from '../../components/admin/Pagination';
 
 const EVENT_TYPES = [
     { value: 'wedding', label: 'Wedding' },
@@ -54,6 +55,8 @@ const Events = () => {
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 20;
     const { addToast } = useToast();
 
     useEffect(() => {
@@ -90,6 +93,9 @@ const Events = () => {
             ev.event_uid?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
+    const totalPages = Math.ceil(filteredEvents.length / PAGE_SIZE);
+    const pagedEvents = filteredEvents.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    useEffect(() => { setCurrentPage(1); }, [activeFilter, searchTerm]);
 
     const statusCounts = {
         all: events.length,
@@ -196,7 +202,7 @@ const Events = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {filteredEvents.map((ev) => (
+                                    {pagedEvents.map((ev) => (
                                         <tr key={ev.id}
                                             onClick={() => navigate(`/admin/events/${ev.id}`)}
                                             className="hover:bg-white/[0.05] transition-colors cursor-pointer group">
@@ -275,6 +281,7 @@ const Events = () => {
                         </div>
                     </div>
                 )}
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );
