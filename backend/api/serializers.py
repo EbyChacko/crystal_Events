@@ -175,12 +175,15 @@ class UserSerializer(serializers.ModelSerializer):
             return False
 
     def get_profile_picture(self, obj):
-        """Return absolute URL for profile picture so frontend doesn't need to prepend API_BASE."""
-        if hasattr(obj, 'profile') and obj.profile.profile_picture:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.profile.profile_picture.url)
-            return obj.profile.profile_picture.url
+        """Return profile picture URL — Cloudinary URL takes priority over local file."""
+        if hasattr(obj, 'profile'):
+            if obj.profile.profile_picture_url:
+                return obj.profile.profile_picture_url
+            if obj.profile.profile_picture:
+                request = self.context.get('request')
+                if request:
+                    return request.build_absolute_uri(obj.profile.profile_picture.url)
+                return obj.profile.profile_picture.url
         return None
 
 
@@ -195,12 +198,15 @@ class TeamMemberSerializer(serializers.ModelSerializer):
     def get_user_details(self, obj):
         user = obj.user
         profile_pic_url = None
-        if hasattr(user, 'profile') and user.profile.profile_picture:
-            request = self.context.get('request')
-            if request:
-                profile_pic_url = request.build_absolute_uri(user.profile.profile_picture.url)
-            else:
-                profile_pic_url = user.profile.profile_picture.url
+        if hasattr(user, 'profile'):
+            if user.profile.profile_picture_url:
+                profile_pic_url = user.profile.profile_picture_url
+            elif user.profile.profile_picture:
+                request = self.context.get('request')
+                if request:
+                    profile_pic_url = request.build_absolute_uri(user.profile.profile_picture.url)
+                else:
+                    profile_pic_url = user.profile.profile_picture.url
 
         return {
             'id': user.id,

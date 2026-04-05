@@ -2057,6 +2057,18 @@ class UpdateProfileView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user
 
+    def update(self, request, *args, **kwargs):
+        file = request.FILES.get('profile_picture')
+        response = super().update(request, *args, **kwargs)
+        if file:
+            url = _cloudinary_upload(file, 'profile_pictures')
+            if url:
+                profile, _ = UserProfile.objects.get_or_create(user=request.user)
+                profile.profile_picture_url = url
+                profile.profile_picture = None
+                profile.save(update_fields=['profile_picture_url', 'profile_picture'])
+        return response
+
 
 class UserListView(generics.ListAPIView):
     """Lists all staff users. Superuser only."""
@@ -2091,6 +2103,17 @@ class CreateUserView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsSuperUser]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def perform_create(self, serializer):
+        user = serializer.save()
+        file = self.request.FILES.get('profile_picture')
+        if file:
+            url = _cloudinary_upload(file, 'profile_pictures')
+            if url:
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                profile.profile_picture_url = url
+                profile.profile_picture = None
+                profile.save(update_fields=['profile_picture_url', 'profile_picture'])
+
 
 class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Superuser can view, update, and delete any user by ID."""
@@ -2103,6 +2126,19 @@ class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ('PATCH', 'PUT'):
             return AdminUpdateUserSerializer
         return UserSerializer
+
+    def update(self, request, *args, **kwargs):
+        file = request.FILES.get('profile_picture')
+        response = super().update(request, *args, **kwargs)
+        if file:
+            url = _cloudinary_upload(file, 'profile_pictures')
+            if url:
+                user = self.get_object()
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                profile.profile_picture_url = url
+                profile.profile_picture = None
+                profile.save(update_fields=['profile_picture_url', 'profile_picture'])
+        return response
 
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()

@@ -252,6 +252,7 @@ class Message(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    profile_picture_url = models.URLField(max_length=1000, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, default='')
     address = models.TextField(blank=True, default='')
     designation = models.CharField(max_length=100, blank=True, default='')
