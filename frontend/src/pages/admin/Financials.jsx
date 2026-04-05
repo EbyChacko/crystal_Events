@@ -642,9 +642,9 @@ const Financials = () => {
                                                 {t.type === 'income' && t.payer_name && (
                                                     <p className="text-xs text-gray-400 mt-0.5">From: {t.payer_name}</p>
                                                 )}
-                                                {t.paid_by_name && (
+                                                {t.type === 'expense' && t.paid_by_name && (
                                                     <span className={`inline-block text-xs px-2 py-0.5 rounded-md mt-0.5 ${t.paid_back ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
-                                                        {t.type === 'expense' ? 'Paid by' : 'Received by'}: {t.paid_by_name} {t.paid_back ? '✓' : '· pending'}
+                                                        Paid by: {t.paid_by_name} {t.paid_back ? '✓' : '· pending'}
                                                     </span>
                                                 )}
                                             </td>
