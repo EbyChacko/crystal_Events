@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     DollarSign, Plus, X, AlertCircle, Search, CheckCircle,
-    Trash2, Edit3, Upload, TrendingUp, PieChart, Receipt, Calendar, ExternalLink, Download, ChevronDown, ChevronUp, RefreshCw, Link as LinkIcon, Crown, SlidersHorizontal
+    Trash2, Edit3, Upload, TrendingUp, PieChart, Receipt, Calendar, ExternalLink, Download, ChevronDown, ChevronUp, RefreshCw, Link as LinkIcon, Crown, SlidersHorizontal, GitBranch
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
@@ -56,6 +56,10 @@ const Financials = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [profitData, setProfitData] = useState(null);
     const [profitLoading, setProfitLoading] = useState(false);
+    const [showSplitModal, setShowSplitModal] = useState(false);
+    const [splitAmount, setSplitAmount] = useState('');
+    const [splitMarkAsPaid, setSplitMarkAsPaid] = useState(false);
+    const [splitting, setSplitting] = useState(false);
 
     // Date Filters
     const [fromDate, setFromDate] = useState('');
@@ -210,6 +214,30 @@ const Financials = () => {
             setStaffList(res.data.results || res.data);
         }).catch(() => {});
     }, []);
+
+    const handleSplitProfit = async () => {
+        const amount = parseFloat(splitAmount);
+        if (!splitAmount || isNaN(amount) || amount <= 0) {
+            addToast('Enter a valid amount.', 'error'); return;
+        }
+        if (profitData && amount > profitData.net_profit) {
+            addToast('Amount exceeds net profit.', 'error'); return;
+        }
+        setSplitting(true);
+        try {
+            await api.post('/financials/split-profit/', { amount, mark_as_paid: splitMarkAsPaid });
+            addToast('Profit split successfully.', 'success');
+            setShowSplitModal(false);
+            setSplitAmount('');
+            setSplitMarkAsPaid(false);
+            fetchData();
+            fetchProfitData();
+        } catch (err) {
+            addToast(err?.response?.data?.error || 'Failed to split profit.', 'error');
+        } finally {
+            setSplitting(false);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
@@ -891,10 +919,134 @@ const Financials = () => {
                                         <p className="text-xs text-gray-500 py-1">Unable to load.</p>
                                     )}
                                 </div>
+                                {profitData && profitData.net_profit > 0 && profitData.distribution?.length > 0 && user?.is_superuser && (
+                                    <button
+                                        onClick={() => { setIsSidebarOpen(false); setShowSplitModal(true); }}
+                                        className="w-full flex items-center space-x-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 hover:bg-yellow-500/20 transition-all text-left mt-2"
+                                    >
+                                        <div className="p-2 bg-yellow-500/20 rounded-lg shrink-0"><GitBranch size={17} /></div>
+                                        <div>
+                                            <p className="font-semibold text-sm">Split Profit</p>
+                                            <p className="text-xs text-gray-500">Distribute to owners</p>
+                                        </div>
+                                    </button>
+                                )}
 
                             </div>
                         </motion.div>
                     </>
+                )}
+            </AnimatePresence>
+
+            {/* Split Profit Modal */}
+            <AnimatePresence>
+                {showSplitModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                        onClick={() => { if (!splitting) { setShowSplitModal(false); setSplitAmount(''); setSplitMarkAsPaid(false); } }}>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            onClick={e => e.stopPropagation()}
+                            className="bg-[#091818] border border-white/10 rounded-2xl w-full max-w-md shadow-[0_0_60px_rgba(0,160,150,0.12),0_25px_60px_rgba(0,0,0,0.8)]"
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-white/10">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-yellow-500/20 rounded-xl"><GitBranch size={20} className="text-yellow-400" /></div>
+                                    <div>
+                                        <h2 className="text-lg font-bold text-white">Split Profit</h2>
+                                        <p className="text-xs text-gray-500">Distribute profit to owners</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => { setShowSplitModal(false); setSplitAmount(''); setSplitMarkAsPaid(false); }}
+                                    className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            <div className="p-6 space-y-5">
+                                {/* Net Profit Display */}
+                                <div className="flex justify-between items-center p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                                    <span className="text-sm text-gray-400">Available Net Profit</span>
+                                    <span className="text-xl font-bold text-emerald-400">
+                                        €{profitData?.net_profit.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+
+                                {/* Amount Input */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Amount to Split *</label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">€</span>
+                                        <input
+                                            type="number"
+                                            min="0.01"
+                                            step="0.01"
+                                            max={profitData?.net_profit}
+                                            value={splitAmount}
+                                            onChange={e => setSplitAmount(e.target.value)}
+                                            placeholder="0.00"
+                                            className="w-full bg-white/5 border border-white/10 text-white pl-8 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                        />
+                                    </div>
+                                    {parseFloat(splitAmount) > (profitData?.net_profit || 0) && (
+                                        <p className="text-xs text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={12} /> Exceeds net profit</p>
+                                    )}
+                                </div>
+
+                                {/* Per-owner Preview */}
+                                {parseFloat(splitAmount) > 0 && !isNaN(parseFloat(splitAmount)) && profitData?.distribution?.length > 0 && (
+                                    <div className="rounded-xl bg-white/[0.03] border border-white/10 overflow-hidden">
+                                        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-4 py-2.5 border-b border-white/10">Distribution Preview</p>
+                                        <div className="divide-y divide-white/5">
+                                            {profitData.distribution.map(owner => {
+                                                const share = ((parseFloat(splitAmount) || 0) * owner.profit_percentage / 100).toFixed(2);
+                                                return (
+                                                    <div key={owner.id} className="flex justify-between items-center px-4 py-3">
+                                                        <div>
+                                                            <p className="text-sm font-medium text-white">{owner.name}</p>
+                                                            <p className="text-xs text-gray-500">{owner.profit_percentage}% share</p>
+                                                        </div>
+                                                        <span className="text-sm font-bold text-mustard-gold">€{parseFloat(share).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Mark as Paid */}
+                                <label className="flex items-center gap-3 cursor-pointer group">
+                                    <div className="relative flex items-center justify-center">
+                                        <input type="checkbox" checked={splitMarkAsPaid} onChange={e => setSplitMarkAsPaid(e.target.checked)}
+                                            className="w-5 h-5 rounded border border-white/20 bg-black/20 appearance-none cursor-pointer checked:bg-mustard-gold checked:border-mustard-gold transition-all" />
+                                        <CheckCircle size={14} className={`absolute text-[#080c10] pointer-events-none transition-opacity ${splitMarkAsPaid ? 'opacity-100' : 'opacity-0'}`} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-white group-hover:text-mustard-gold transition-colors">Mark as Paid</p>
+                                        <p className="text-xs text-gray-500">Entries will be marked as paid immediately in each owner's finance page</p>
+                                    </div>
+                                </label>
+
+                                {/* Actions */}
+                                <div className="flex gap-3 pt-1">
+                                    <button onClick={() => { setShowSplitModal(false); setSplitAmount(''); setSplitMarkAsPaid(false); }}
+                                        disabled={splitting}
+                                        className="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 font-medium hover:bg-white/5 transition-colors disabled:opacity-50">
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSplitProfit}
+                                        disabled={splitting || !splitAmount || parseFloat(splitAmount) <= 0 || parseFloat(splitAmount) > (profitData?.net_profit || 0)}
+                                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-mustard-gold text-deep-teal font-bold hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {splitting ? 'Processing...' : <><GitBranch size={16} /> Confirm Split</>}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 

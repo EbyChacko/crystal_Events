@@ -5,7 +5,7 @@ from .views import (
     CurrentUserView, UserListView, CreateUserView, UpdateProfileView, AdminUserDetailView,
     EventImageViewSet, TeamMemberViewSet, TravelRateViewSet,
     TwoFactorLoginView, TwoFactorSetupView, TwoFactorVerifySetupView, TwoFactorDisableView,
-    FoodMenuViewSet, ProfitDistributionView, StaffPickerView
+    FoodMenuViewSet, ProfitDistributionView, StaffPickerView, SplitProfitView
 )
 
 router = DefaultRouter()
@@ -33,5 +33,6 @@ urlpatterns = [
     path('auth/2fa/verify-setup/', TwoFactorVerifySetupView.as_view(), name='two-factor-verify-setup'),
     path('auth/2fa/disable/', TwoFactorDisableView.as_view(), name='two-factor-disable'),
     path('financials/profit-distribution/', ProfitDistributionView.as_view(), name='profit-distribution'),
+    path('financials/split-profit/', SplitProfitView.as_view(), name='split-profit'),
 ]
 

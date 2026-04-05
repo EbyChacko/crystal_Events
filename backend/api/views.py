@@ -2164,9 +2164,9 @@ class ProfitDistributionView(APIView):
         event_income = Event.objects.aggregate(total=Sum('received_amount'))['total'] or Decimal('0')
         total_income = manual_income + event_income
 
-        # Exclude 'Refund' expenses — refunds are already deducted from event.received_amount,
-        # so counting them as expenses too would double-subtract them.
-        total_expense = Expense.objects.exclude(category='Refund').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        # Exclude 'Refund' expenses (already deducted from event.received_amount) and
+        # 'Profit Payout' expenses (owner distributions, not business costs).
+        total_expense = Expense.objects.exclude(category__in=['Refund', 'Profit Payout']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
         net_profit = total_income - total_expense
 
         owners = User.objects.filter(profile__is_owner=True).select_related('profile')
@@ -2188,6 +2188,72 @@ class ProfitDistributionView(APIView):
             'net_profit': float(net_profit),
             'distribution': distribution,
         })
+
+
+class SplitProfitView(APIView):
+    """Creates Expense (Profit Payout) records for each owner based on their profit percentage."""
+    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
+
+    def post(self, request):
+        from .models import Expense, Income, Event
+        from decimal import Decimal, InvalidOperation
+        from django.db.models import Sum
+        from django.utils import timezone
+
+        amount_raw = request.data.get('amount')
+        mark_as_paid = request.data.get('mark_as_paid', False)
+
+        try:
+            amount = Decimal(str(amount_raw)).quantize(Decimal('0.01'))
+        except (InvalidOperation, TypeError):
+            return Response({'error': 'Invalid amount.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if amount <= 0:
+            return Response({'error': 'Amount must be greater than zero.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Recalculate net profit same way as ProfitDistributionView
+        manual_income = Income.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        event_income = Event.objects.aggregate(total=Sum('received_amount'))['total'] or Decimal('0')
+        total_income = manual_income + event_income
+        total_expense = Expense.objects.exclude(category__in=['Refund', 'Profit Payout']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        net_profit = total_income - total_expense
+
+        if amount > net_profit:
+            return Response({'error': f'Amount exceeds net profit of €{net_profit:.2f}.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        owners = User.objects.filter(profile__is_owner=True).select_related('profile')
+        if not owners.exists():
+            return Response({'error': 'No owners configured.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        today = timezone.now().date()
+        paid_back_at = timezone.now() if mark_as_paid else None
+        reason = f'Profit Payout – {today.strftime("%d %b %Y")}'
+
+        created = []
+        for owner in owners:
+            pct = owner.profile.profit_percentage or Decimal('0')
+            share = (amount * pct / Decimal('100')).quantize(Decimal('0.01'))
+            if share <= 0:
+                continue
+            exp = Expense.objects.create(
+                date=today,
+                amount=share,
+                reason=reason,
+                category='Profit Payout',
+                approved_by=request.user,
+                paid_by=owner,
+                paid_back=bool(mark_as_paid),
+                paid_back_at=paid_back_at,
+            )
+            created.append({
+                'id': exp.id,
+                'owner_id': owner.id,
+                'owner_name': f"{owner.first_name} {owner.last_name}".strip() or owner.username,
+                'amount': float(share),
+                'paid_back': exp.paid_back,
+            })
+
+        return Response({'created': created, 'total_split': float(amount)}, status=status.HTTP_201_CREATED)
 
 
 # ── Two-Factor Authentication Views ───────────────────────────────
