@@ -206,7 +206,7 @@ const Financials = () => {
     useEffect(() => {
         fetchData();
         fetchProfitData();
-        api.get('/auth/users/').then(res => {
+        api.get('/auth/staff/').then(res => {
             setStaffList(res.data.results || res.data);
         }).catch(() => {});
     }, []);

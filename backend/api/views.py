@@ -2067,6 +2067,24 @@ class UserListView(generics.ListAPIView):
         return User.objects.filter(is_staff=True).order_by('-date_joined')
 
 
+class StaffPickerView(generics.ListAPIView):
+    """Returns minimal user info (id + name) for dropdowns. Available to all authenticated staff."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        users = User.objects.filter(is_staff=True, is_active=True).order_by('first_name', 'last_name')
+        data = [
+            {
+                'id': u.id,
+                'username': u.username,
+                'first_name': u.first_name,
+                'last_name': u.last_name,
+            }
+            for u in users
+        ]
+        return Response(data)
+
+
 class CreateUserView(generics.CreateAPIView):
     """Creates a new staff user. Superuser only."""
     serializer_class = CreateUserSerializer

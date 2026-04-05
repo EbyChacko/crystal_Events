@@ -296,6 +296,9 @@ const Messages = () => {
 
             {/* Messages Table */}
             <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+                {filteredMessages.length === 0 ? (
+                    <div className="p-12 text-center text-gray-500">No messages found.</div>
+                ) : (
                 <div className="w-full">
                     {/* Desktop Table View */}
                     <div className="hidden md:block overflow-x-auto">
@@ -425,8 +428,6 @@ const Messages = () => {
                         ))}
                     </div>
                 </div>
-                {filteredMessages.length === 0 && (
-                    <div className="p-12 text-center text-gray-500">No messages found.</div>
                 )}
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
