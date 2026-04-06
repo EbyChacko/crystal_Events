@@ -197,7 +197,7 @@ const Gallery = () => {
 
             {/* ── Gallery Grid ── slides over hero, z-index 2 */}
             <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[2] min-h-screen bg-background-dark rounded-t-[2rem]">
-            <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-16 relative z-10">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-40 relative z-10">
                 {/* Filter Bar */}
                 {events.length > 0 && (
                     <motion.div

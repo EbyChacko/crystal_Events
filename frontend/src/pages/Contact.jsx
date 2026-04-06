@@ -65,7 +65,7 @@ const Contact = () => {
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://crystaleventsie.com/contact" />
         </Helmet>
-        <div data-scroll-snap className="lg:sticky lg:top-0 z-[1] bg-background-dark text-white font-sans min-h-screen pt-24 pb-10 lg:pt-28 lg:pb-12 px-6 md:px-12 lg:px-20">
+        <div data-scroll-snap className="lg:sticky lg:top-0 z-[1] bg-background-dark text-white font-sans min-h-screen pt-24 pb-40 lg:pt-28 lg:pb-40 px-6 md:px-12 lg:px-20">
             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-14">
                 {/* Contact Info */}
                 <motion.div

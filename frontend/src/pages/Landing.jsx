@@ -133,7 +133,7 @@ const Landing = () => {
             <motion.section
                 data-scroll-snap
                 style={{ boxShadow: sectionShadow }}
-                className="lg:sticky lg:top-0 z-[2] min-h-screen py-28 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center"
+                className="lg:sticky lg:top-0 z-[2] min-h-screen pt-28 pb-40 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center"
                 id="services"
             >
                 <div className="mx-auto max-w-7xl">
@@ -178,7 +178,7 @@ const Landing = () => {
             <motion.section
                 data-scroll-snap
                 style={{ boxShadow: sectionShadow }}
-                className="lg:sticky lg:top-0 z-[3] min-h-screen py-28 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center"
+                className="lg:sticky lg:top-0 z-[3] min-h-screen pt-28 pb-40 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center"
                 id="about"
             >
                 <div className="mx-auto max-w-7xl">
@@ -229,7 +229,7 @@ const Landing = () => {
             <motion.section
                 data-scroll-snap
                 style={{ boxShadow: sectionShadow }}
-                className="lg:sticky lg:top-0 z-[4] min-h-screen py-28 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center"
+                className="lg:sticky lg:top-0 z-[4] min-h-screen pt-28 pb-40 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center"
                 id="why-us"
             >
                 <div className="mx-auto max-w-7xl">
@@ -268,7 +268,7 @@ const Landing = () => {
             <motion.section
                 data-scroll-snap
                 style={{ boxShadow: sectionShadow }}
-                className="lg:sticky lg:top-0 z-[5] min-h-screen py-28 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center"
+                className="lg:sticky lg:top-0 z-[5] min-h-screen pt-28 pb-40 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center"
                 id="service-area"
             >
                 <div className="mx-auto max-w-7xl">

@@ -164,7 +164,7 @@ const About = () => {
             </section>
 
             {/* ── Our Story ── slides over hero, z-index 2 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[2] min-h-screen py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[2] min-h-screen pt-28 pb-40 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                 <div className="px-6 lg:px-20 max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
@@ -226,7 +226,7 @@ const About = () => {
             </motion.section>
 
             {/* ── What We Do & Vision ── slides over story, z-index 3 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[3] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[3] min-h-screen pt-28 pb-40 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-start">
 
                     {/* What We Do */}
@@ -296,7 +296,7 @@ const About = () => {
             </motion.section>
 
             {/* ── What Makes Us Different ── slides over what-we-do, z-index 4 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[4] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[4] min-h-screen pt-28 pb-40 px-6 md:px-12 lg:px-20 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-7xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 12 }}
@@ -338,7 +338,7 @@ const About = () => {
             </motion.section>
 
             {/* ── Who We Serve & Where We Work ── slides over what-makes-different, z-index 5 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5] min-h-screen py-28 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[5] min-h-screen pt-28 pb-40 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
@@ -408,7 +408,7 @@ const About = () => {
 
             {/* ── Team ── slides over who-we-serve, z-index 6 */}
             {!loadingTeam && teamMembers.length > 0 && (
-                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[6] min-h-screen py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[6] min-h-screen pt-28 pb-40 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                     <div className="px-6 lg:px-20 max-w-7xl mx-auto min-h-[500px]">
                         <div className="text-center mb-16">
                             <span className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold">The Visionaries</span>
@@ -455,7 +455,7 @@ const About = () => {
             )}
 
             {/* ── Testimonials ── slides over team (or who-we-serve if no team), z-index 7 */}
-            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[7] min-h-screen py-28 px-6 lg:px-20 bg-deep-teal border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
+            <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[7] min-h-screen pt-28 pb-40 px-6 lg:px-20 bg-deep-teal border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-6">
                         <div className="max-w-xl">

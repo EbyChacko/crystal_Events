@@ -144,7 +144,7 @@ const Services = () => {
                 </section>
 
                 {/* ── Static Flagship Services ── slides over hero, z-index 2 */}
-                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[2] min-h-screen px-6 md:px-16 lg:px-40 py-28 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+                <motion.section data-scroll-snap style={{ boxShadow: sectionShadow }} className="lg:sticky lg:top-0 z-[2] min-h-screen px-6 md:px-16 lg:px-40 pt-28 pb-40 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
                     <div className="max-w-[1200px] mx-auto">
 
                         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
