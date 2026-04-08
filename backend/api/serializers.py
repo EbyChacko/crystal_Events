@@ -214,13 +214,13 @@ class TeamMemberSerializer(serializers.ModelSerializer):
         }
 
 class CreateUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8)
+    password = serializers.CharField(write_only=True, min_length=10)
     profile_picture = serializers.ImageField(required=False, write_only=True)
     is_staff = serializers.BooleanField(required=False, default=True)
     is_superuser = serializers.BooleanField(required=False, default=False)
-    designation = serializers.CharField(required=False, default='', allow_blank=True)
-    phone = serializers.CharField(required=False, default='', allow_blank=True)
-    address = serializers.CharField(required=False, default='', allow_blank=True)
+    designation = serializers.CharField(required=False, default='', allow_blank=True, max_length=100)
+    phone = serializers.CharField(required=False, default='', allow_blank=True, max_length=20)
+    address = serializers.CharField(required=False, default='', allow_blank=True, max_length=500)
     can_view_financials = serializers.BooleanField(required=False, default=False)
     is_owner = serializers.BooleanField(required=False, default=False)
     profit_percentage = serializers.DecimalField(required=False, default=0, max_digits=5, decimal_places=2)
@@ -263,15 +263,15 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
     profile_picture = serializers.ImageField(source='profile.profile_picture', required=False)
-    phone = serializers.CharField(source='profile.phone', required=False, allow_blank=True)
-    address = serializers.CharField(source='profile.address', required=False, allow_blank=True)
-    designation = serializers.CharField(source='profile.designation', required=False, allow_blank=True)
+    phone = serializers.CharField(source='profile.phone', required=False, allow_blank=True, max_length=20)
+    address = serializers.CharField(source='profile.address', required=False, allow_blank=True, max_length=500)
+    designation = serializers.CharField(source='profile.designation', required=False, allow_blank=True, max_length=100)
     email_notifications = serializers.BooleanField(source='profile.email_notifications', required=False)
     notify_new_event = serializers.BooleanField(source='profile.notify_new_event', required=False)
     notify_quote_accepted = serializers.BooleanField(source='profile.notify_quote_accepted', required=False)
     notify_weekly_report = serializers.BooleanField(source='profile.notify_weekly_report', required=False)
     notify_daily_summary = serializers.BooleanField(source='profile.notify_daily_summary', required=False)
-    password = serializers.CharField(write_only=True, required=False, min_length=8)
+    password = serializers.CharField(write_only=True, required=False, min_length=10)
     old_password = serializers.CharField(write_only=True, required=False)
 
     class Meta:
@@ -334,13 +334,13 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 class AdminUpdateUserSerializer(serializers.ModelSerializer):
     """Allows a superuser to edit any user's details and toggle access."""
     profile_picture = serializers.ImageField(source='profile.profile_picture', required=False)
-    phone = serializers.CharField(source='profile.phone', required=False, allow_blank=True)
-    address = serializers.CharField(source='profile.address', required=False, allow_blank=True)
-    designation = serializers.CharField(source='profile.designation', required=False, allow_blank=True)
+    phone = serializers.CharField(source='profile.phone', required=False, allow_blank=True, max_length=20)
+    address = serializers.CharField(source='profile.address', required=False, allow_blank=True, max_length=500)
+    designation = serializers.CharField(source='profile.designation', required=False, allow_blank=True, max_length=100)
     can_view_financials = serializers.BooleanField(source='profile.can_view_financials', required=False)
     is_owner = serializers.BooleanField(source='profile.is_owner', required=False)
     profit_percentage = serializers.DecimalField(source='profile.profit_percentage', max_digits=5, decimal_places=2, required=False)
-    password = serializers.CharField(write_only=True, required=False, min_length=8)
+    password = serializers.CharField(write_only=True, required=False, min_length=10)
 
     class Meta:
         model = User
@@ -430,8 +430,8 @@ class TwoFactorLoginSerializer(serializers.Serializer):
         import pyotp
         totp = pyotp.TOTP(user.two_factor_auth.secret_key)
         
-        # Valid window 10 gives up to 5 minutes tolerance for clock drift
-        if not totp.verify(str(otp).strip(), valid_window=10):
+        # Valid window 2 gives up to 1 minute tolerance for clock drift
+        if not totp.verify(str(otp).strip(), valid_window=2):
             raise serializers.ValidationError({'error': 'Invalid or expired OTP code. Please try again.'})
 
         # OTP is valid, issue standard JWT tokens

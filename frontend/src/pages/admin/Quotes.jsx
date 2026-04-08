@@ -8,7 +8,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
-import api, { API_BASE_URL } from '../../utils/api';
+import api, { downloadPdf } from '../../utils/api';
 import Pagination from '../../components/admin/Pagination';
 import { QUOTE_STATUS_OPTIONS, getQuoteStatusStyle, getQuoteStatusLabel } from '../../utils/constants';
 import { inputClass, selectClass, disabledInputClass } from '../../utils/classes';
@@ -85,8 +85,7 @@ const Quotes = () => {
     };
 
     const handleDownloadPdf = (id) => {
-        const token = localStorage.getItem('access_token');
-        window.open(`${API_BASE_URL}/quotes/${id}/pdf/?token=${token}`, '_blank');
+        downloadPdf(`/quotes/${id}/pdf/`).catch(() => addToast('Failed to download PDF', 'error'));
     };
 
     const handleDelete = async (id) => {

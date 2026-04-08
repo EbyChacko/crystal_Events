@@ -7,13 +7,14 @@ import {
     PlusCircle, MinusCircle, Download, Percent, Plus, Image as ImageIcon, Link as LinkIcon, Upload,
     Send, Check, DollarSign, Link2, RefreshCw, Briefcase, Info, Edit2, Printer, Utensils, SlidersHorizontal
 } from 'lucide-react';
-import api, { API_BASE_URL } from '../../utils/api';
+import api, { API_BASE_URL, downloadPdf } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import FoodMenuForm from '../../components/events/FoodMenuForm';
 import { EVENT_TYPES, EVENT_STATUS_OPTIONS, QUOTE_STATUS_OPTIONS, getStatusStyle, getStatusLabel, getTypeLabel, getQuoteStatusStyle, getQuoteStatusLabel } from '../../utils/constants';
 import { formatDateTime, formatDateTimeInput } from '../../utils/formatters';
 import { selectClass } from '../../utils/classes';
+import { validateFile, validateImageUrl } from '../../utils/validation';
 
 const EventDetails = () => {
     const { id } = useParams();
@@ -37,8 +38,7 @@ const EventDetails = () => {
     const notesRef = useRef(null);
 
     const handlePrintNotes = () => {
-        const token = localStorage.getItem('access_token');
-        window.open(`${API_BASE_URL}/events/${event?.id}/notes/pdf/?token=${token}`, '_blank');
+        downloadPdf(`/events/${event?.id}/notes/pdf/`).catch(() => addToast('Failed to download PDF', 'error'));
     };
 
     // Quote state
@@ -627,8 +627,7 @@ const EventDetails = () => {
     };
 
     const handleDownloadPdf = (quoteId) => {
-        const token = localStorage.getItem('access_token');
-        window.open(`${API_BASE_URL}/quotes/${quoteId}/pdf/?token=${token}`, '_blank');
+        downloadPdf(`/quotes/${quoteId}/pdf/`).catch(() => addToast('Failed to download PDF', 'error'));
     };
 
     const handleImageSubmit = async (e) => {
@@ -642,6 +641,14 @@ const EventDetails = () => {
                     addToast('Please provide at least one image URL.', 'error');
                     setImageSubmitting(false);
                     return;
+                }
+                for (const item of validUrls) {
+                    const urlErr = validateImageUrl(item.url.trim());
+                    if (urlErr) {
+                        addToast(`${item.url}: ${urlErr}`, 'error');
+                        setImageSubmitting(false);
+                        return;
+                    }
                 }
                 await Promise.all(validUrls.map(item => {
                     const formDataObj = new FormData();
@@ -691,12 +698,13 @@ const EventDetails = () => {
 
     const handleFileSelect = (e) => {
         const files = Array.from(e.target.files);
-        const newFileItems = files.map(file => ({
-            file,
-            preview: URL.createObjectURL(file),
-            description: ''
-        }));
-        setFileItems([...fileItems, ...newFileItems]);
+        const valid = [];
+        for (const file of files) {
+            const err = validateFile(file);
+            if (err) { addToast(err, 'error'); continue; }
+            valid.push({ file, preview: URL.createObjectURL(file), description: '' });
+        }
+        if (valid.length) setFileItems([...fileItems, ...valid]);
         e.target.value = '';
     };
 
@@ -826,8 +834,7 @@ const EventDetails = () => {
     }, [event, eventQuote]);
 
     const handleDownloadFoodMenuPdf = (menuId) => {
-        const token = localStorage.getItem('access_token');
-        window.open(`${API_BASE_URL}/food-menus/${menuId}/pdf/?token=${token}`, '_blank');
+        downloadPdf(`/food-menus/${menuId}/pdf/`).catch(() => addToast('Failed to download PDF', 'error'));
     };
 
     if (loading) return <div className="p-4 sm:p-6 md:p-8 text-center text-gray-500">Loading event details...</div>;
@@ -2159,7 +2166,11 @@ const EventDetails = () => {
                                         </div>
                                         {expenseReceiptMode === 'file' ? (
                                             <div className="relative border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-amber-500/30 transition-colors cursor-pointer">
-                                                <input type="file" onChange={(e) => setExpenseFormData(p => ({...p, receipt_image: e.target.files[0] || null}))}
+                                                <input type="file" onChange={(e) => {
+                                                        const f = e.target.files[0];
+                                                        if (f) { const err = validateFile(f, { allowPdf: true }); if (err) { addToast(err, 'error'); e.target.value = ''; return; } }
+                                                        setExpenseFormData(p => ({...p, receipt_image: f || null}));
+                                                    }}
                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf" />
                                                 <div className="flex flex-col items-center justify-center text-gray-500">
                                                     <Upload size={20} className="mb-1" />

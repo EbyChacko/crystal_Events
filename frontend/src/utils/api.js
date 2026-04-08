@@ -57,4 +57,22 @@ api.interceptors.response.use(
     }
 );
 
+/**
+ * Download a PDF from an authenticated endpoint without leaking the JWT in the URL.
+ * Opens the PDF in a new tab (inline) or triggers a download.
+ */
+export async function downloadPdf(path, filename) {
+    try {
+        const res = await api.get(path, { responseType: 'blob' });
+        const blob = new Blob([res.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        // Clean up after a delay to allow the tab to load
+        setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+        console.error('PDF download failed:', err);
+        throw err;
+    }
+}
+
 export default api;

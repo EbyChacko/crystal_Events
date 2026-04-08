@@ -11,6 +11,7 @@ import api, { API_BASE_URL } from '../../utils/api';
 import Pagination from '../../components/admin/Pagination';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../../utils/constants';
 import { inputClass, selectClass } from '../../utils/classes';
+import { validateFile } from '../../utils/validation';
 import usePagination from '../../hooks/usePagination';
 
 const StatCard = ({ icon, label, value, sub, delay, isPositive }) => (
@@ -232,7 +233,12 @@ const Financials = () => {
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
         if (type === 'file') {
-            setFormData({ ...formData, [name]: files[0] || null });
+            const f = files[0];
+            if (f) {
+                const err = validateFile(f, { allowPdf: true });
+                if (err) { addToast(err, 'error'); e.target.value = ''; return; }
+            }
+            setFormData({ ...formData, [name]: f || null });
         } else if (type === 'checkbox') {
             setFormData({ ...formData, [name]: checked });
         } else {

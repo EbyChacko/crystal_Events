@@ -82,7 +82,10 @@ const Settings = () => {
     // Load settings from localStorage
     const loadSettings = () => {
         const saved = localStorage.getItem('crystal_events_settings');
-        if (saved) return JSON.parse(saved);
+        if (saved) {
+            try { return JSON.parse(saved); }
+            catch { localStorage.removeItem('crystal_events_settings'); }
+        }
         return {
             companyName: 'Crystal Events',
             companyEmail: 'info@crystaleventsie.com',

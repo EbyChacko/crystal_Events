@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
 import Pagination from '../../components/admin/Pagination';
 import usePagination from '../../hooks/usePagination';
+import { validateFile } from '../../utils/validation';
 import ImageCropper from '../../components/ImageCropper';
 
 const Users = () => {
@@ -71,6 +72,8 @@ const Users = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            const err = validateFile(file);
+            if (err) { addToast(err, 'error'); e.target.value = ''; return; }
             const url = URL.createObjectURL(file);
             setCropImageSrc(url);
         }

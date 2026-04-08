@@ -1,13 +1,32 @@
-import traceback
+import logging
 import os
-from rest_framework import viewsets, permissions, status, generics
+from rest_framework import viewsets, permissions, status, generics, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.views import APIView
+from rest_framework.throttling import ScopedRateThrottle
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
+
+logger = logging.getLogger('api')
+
+ALLOWED_UPLOAD_TYPES = {
+    'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf',
+}
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB
+
+
+def _validate_upload(file_obj):
+    """Validate uploaded file type and size. Returns error string or None."""
+    if not file_obj:
+        return None
+    if file_obj.size > MAX_UPLOAD_SIZE:
+        return f'File too large. Maximum size is {MAX_UPLOAD_SIZE // (1024*1024)}MB.'
+    if hasattr(file_obj, 'content_type') and file_obj.content_type not in ALLOWED_UPLOAD_TYPES:
+        return f'File type "{file_obj.content_type}" not allowed. Accepted: JPEG, PNG, WebP, GIF, PDF.'
+    return None
 
 
 def _cloudinary_upload(file_obj, folder='uploads'):
@@ -136,6 +155,9 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
     def _save_with_image(self, serializer, **kwargs):
         file = self.request.FILES.get('image')
+        err = _validate_upload(file)
+        if err:
+            raise serializers.ValidationError({'image': err})
         url = _cloudinary_upload(file, 'services')
         if url:
             return serializer.save(image=None, image_url=url, **kwargs)
@@ -171,6 +193,9 @@ class IncomeViewSet(viewsets.ModelViewSet):
 
     def _save_with_image(self, serializer, **kwargs):
         file = self.request.FILES.get('receipt_image')
+        err = _validate_upload(file)
+        if err:
+            raise serializers.ValidationError({'receipt_image': err})
         url = _cloudinary_upload(file, 'incomes')
         if url:
             return serializer.save(receipt_image=None, receipt_image_url=url, **kwargs)
@@ -186,15 +211,21 @@ class IncomeViewSet(viewsets.ModelViewSet):
     def bulk_mark_paid_back(self, request):
         from django.utils import timezone
         ids = request.data.get('ids', [])
-        if not ids:
+        if not ids or not isinstance(ids, list):
             return Response({'error': 'No ids provided.'}, status=400)
-        Income.objects.filter(id__in=ids).update(paid_back=True, paid_back_at=timezone.now())
-        return Response({'updated': len(ids)})
+        if len(ids) > 100:
+            return Response({'error': 'Maximum 100 items per request.'}, status=400)
+        try:
+            safe_ids = [int(i) for i in ids]
+        except (ValueError, TypeError):
+            return Response({'error': 'Invalid ID format.'}, status=400)
+        Income.objects.filter(id__in=safe_ids).update(paid_back=True, paid_back_at=timezone.now())
+        return Response({'updated': len(safe_ids)})
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.select_related('assigned_to', 'created_by').prefetch_related('images').all()
     serializer_class = EventSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         from django.utils import timezone
@@ -469,17 +500,6 @@ class EventViewSet(viewsets.ModelViewSet):
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.enums import TA_CENTER, TA_RIGHT
         from PIL import Image as PilImage
-        from rest_framework_simplejwt.authentication import JWTAuthentication
-        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-
-        token_str = request.query_params.get('token')
-        if token_str:
-            try:
-                jwt_auth = JWTAuthentication()
-                validated = jwt_auth.get_validated_token(token_str)
-                request.user = jwt_auth.get_user(validated)
-            except (InvalidToken, TokenError):
-                return HttpResponseForbidden('Invalid token')
 
         event = self.get_object()
         log_idx = request.query_params.get('logIdx')
@@ -821,17 +841,6 @@ class EventViewSet(viewsets.ModelViewSet):
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.enums import TA_CENTER, TA_RIGHT
         from PIL import Image as PilImage
-        from rest_framework_simplejwt.authentication import JWTAuthentication
-        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-
-        token_str = request.query_params.get('token')
-        if token_str:
-            try:
-                jwt_auth = JWTAuthentication()
-                validated = jwt_auth.get_validated_token(token_str)
-                request.user = jwt_auth.get_user(validated)
-            except (InvalidToken, TokenError):
-                return HttpResponseForbidden('Invalid token')
 
         event = self.get_object()
         log_idx = request.query_params.get('logIdx')
@@ -1107,21 +1116,6 @@ class EventViewSet(viewsets.ModelViewSet):
         from reportlab.lib.enums import TA_CENTER, TA_RIGHT
         from reportlab.pdfgen import canvas as rl_canvas
         from PIL import Image as PilImage
-        from rest_framework_simplejwt.authentication import JWTAuthentication
-        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-
-        # ── Auth ──────────────────────────────────────────────────────────
-        token_str = request.query_params.get('token')
-        if token_str:
-            try:
-                jwt_auth = JWTAuthentication()
-                validated = jwt_auth.get_validated_token(token_str)
-                request.user = jwt_auth.get_user(validated)
-            except (InvalidToken, TokenError):
-                return HttpResponseForbidden('Invalid token')
-
-        if not request.user or not request.user.is_authenticated:
-            return HttpResponseForbidden('Authentication required')
         if not request.user.is_staff:
             return HttpResponseForbidden('Staff access only')
 
@@ -1355,7 +1349,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
@@ -1370,6 +1364,9 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
     def _save_with_image(self, serializer, **kwargs):
         file = self.request.FILES.get('receipt_image')
+        err = _validate_upload(file)
+        if err:
+            raise serializers.ValidationError({'receipt_image': err})
         url = _cloudinary_upload(file, 'expenses')
         if url:
             return serializer.save(receipt_image=None, receipt_image_url=url, **kwargs)
@@ -1385,20 +1382,29 @@ class ExpenseViewSet(viewsets.ModelViewSet):
     def bulk_mark_paid_back(self, request):
         from django.utils import timezone
         ids = request.data.get('ids', [])
-        if not ids:
+        if not ids or not isinstance(ids, list):
             return Response({'error': 'No ids provided.'}, status=400)
-        Expense.objects.filter(id__in=ids).update(paid_back=True, paid_back_at=timezone.now())
-        return Response({'updated': len(ids)})
+        if len(ids) > 100:
+            return Response({'error': 'Maximum 100 items per request.'}, status=400)
+        try:
+            safe_ids = [int(i) for i in ids]
+        except (ValueError, TypeError):
+            return Response({'error': 'Invalid ID format.'}, status=400)
+        Expense.objects.filter(id__in=safe_ids).update(paid_back=True, paid_back_at=timezone.now())
+        return Response({'updated': len(safe_ids)})
 
 
 class EventImageViewSet(viewsets.ModelViewSet):
     queryset = EventImage.objects.all()
     serializer_class = EventImageSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def perform_create(self, serializer):
         file = self.request.FILES.get('image')
+        err = _validate_upload(file)
+        if err:
+            raise serializers.ValidationError({'image': err})
         url = _cloudinary_upload(file, 'event_galleries')
         if url:
             serializer.save(image=None, image_url=url)
@@ -1437,7 +1443,7 @@ class TeamMemberViewSet(viewsets.ModelViewSet):
 class QuoteViewSet(viewsets.ModelViewSet):
     queryset = Quote.objects.prefetch_related('items', 'items__service').select_related('event').all()
     serializer_class = QuoteSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def _log_quote_action(self, quote, action, user):
         """Append a quote-related entry to the linked event's audit log."""
@@ -1579,19 +1585,6 @@ class QuoteViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='pdf')
     def generate_pdf(self, request, pk=None):
-        # Allow token via query string so window.open() works
-        from rest_framework_simplejwt.authentication import JWTAuthentication
-        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-        token_str = request.query_params.get('token')
-        if token_str:
-            try:
-                jwt_auth = JWTAuthentication()
-                validated = jwt_auth.get_validated_token(token_str)
-                request.user = jwt_auth.get_user(validated)
-            except (InvalidToken, TokenError):
-                from django.http import HttpResponseForbidden
-                return HttpResponseForbidden('Invalid token')
-
         import io
         import os
         from django.conf import settings
@@ -1875,11 +1868,18 @@ class QuoteViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.select_related('service').all().order_by('-created_at')
     serializer_class = MessageSerializer
-    
+
     def get_permissions(self):
         if self.action == 'create':
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
+
+    def get_throttles(self):
+        if self.action == 'create':
+            throttle = ScopedRateThrottle()
+            throttle.scope = 'contact'
+            return [throttle]
+        return []
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -1887,8 +1887,8 @@ class MessageViewSet(viewsets.ModelViewSet):
         try:
             message = serializer.save()
         except Exception as e:
-            traceback.print_exc()
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.exception('Error creating contact message')
+            return Response({'error': 'An unexpected error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         self._send_contact_emails(message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -2022,19 +2022,26 @@ class MessageViewSet(viewsets.ModelViewSet):
             message.save()
             return Response({'status': 'Reply sent', 'sent_at': now.isoformat(), 'replied_by': sender_name})
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.exception('Error sending reply')
+            return Response({'error': 'An unexpected error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['post'])
     def bulk_delete(self, request):
         message_ids = request.data.get('ids', [])
-        if not message_ids:
+        if not message_ids or not isinstance(message_ids, list):
             return Response({'error': 'No message IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
-        
+        if len(message_ids) > 100:
+            return Response({'error': 'Maximum 100 items per request'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            Message.objects.filter(id__in=message_ids).delete()
+            safe_ids = [int(i) for i in message_ids]
+        except (ValueError, TypeError):
+            return Response({'error': 'Invalid ID format'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            Message.objects.filter(id__in=safe_ids).delete()
             return Response({'status': 'Messages deleted'})
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.exception('Error in bulk_delete')
+            return Response({'error': 'An unexpected error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ── User Management Views ──────────────────────────────────────────
@@ -2059,6 +2066,10 @@ class UpdateProfileView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         file = request.FILES.get('profile_picture')
+        if file:
+            err = _validate_upload(file)
+            if err:
+                return Response({'profile_picture': [err]}, status=status.HTTP_400_BAD_REQUEST)
         response = super().update(request, *args, **kwargs)
         if file:
             url = _cloudinary_upload(file, 'profile_pictures')
@@ -2104,8 +2115,12 @@ class CreateUserView(generics.CreateAPIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def perform_create(self, serializer):
-        user = serializer.save()
         file = self.request.FILES.get('profile_picture')
+        if file:
+            err = _validate_upload(file)
+            if err:
+                raise serializers.ValidationError({'profile_picture': err})
+        user = serializer.save()
         if file:
             url = _cloudinary_upload(file, 'profile_pictures')
             if url:
@@ -2129,6 +2144,10 @@ class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         file = request.FILES.get('profile_picture')
+        if file:
+            err = _validate_upload(file)
+            if err:
+                return Response({'profile_picture': [err]}, status=status.HTTP_400_BAD_REQUEST)
         response = super().update(request, *args, **kwargs)
         if file:
             url = _cloudinary_upload(file, 'profile_pictures')
@@ -2264,11 +2283,22 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Custom login view to check for 2FA requirement before issuing tokens."""
     serializer_class = CustomTokenObtainPairSerializer
+    throttle_scope = 'login'
+
+    def get_throttles(self):
+        throttle = ScopedRateThrottle()
+        throttle.scope = 'login'
+        return [throttle]
 
 class TwoFactorLoginView(generics.GenericAPIView):
     """Endpoint for verifying OTP to complete login."""
     permission_classes = [permissions.AllowAny]
     serializer_class = TwoFactorLoginSerializer
+
+    def get_throttles(self):
+        throttle = ScopedRateThrottle()
+        throttle.scope = 'login'
+        return [throttle]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -2337,8 +2367,7 @@ class TwoFactorVerifySetupView(generics.GenericAPIView):
 
         totp = pyotp.TOTP(two_factor_auth.secret_key)
         
-        # Verify result with a larger window to tolerate minor time drift on test machines
-        if totp.verify(str(otp).strip(), valid_window=6):
+        if totp.verify(str(otp).strip(), valid_window=2):
             two_factor_auth.is_enabled = True
             two_factor_auth.save()
             return Response({'message': '2FA has been successfully setup and enabled.'}, status=status.HTTP_200_OK)
@@ -2425,25 +2454,10 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
         self._log_menu_action(menu, 'menu_updated', self.request.user)
 
     def get_permissions(self):
-        if self.action == 'pdf':
-            return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
     @action(detail=True, methods=['get'], url_path='pdf')
     def pdf(self, request, pk=None):
-        # Allow token via query string so window.open() works
-        from rest_framework_simplejwt.authentication import JWTAuthentication
-        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-        token_str = request.query_params.get('token')
-        if token_str:
-            try:
-                jwt_auth = JWTAuthentication()
-                validated = jwt_auth.get_validated_token(token_str)
-                request.user = jwt_auth.get_user(validated)
-            except (InvalidToken, TokenError):
-                from django.http import HttpResponseForbidden
-                return HttpResponseForbidden('Invalid token')
-
         import io
         import os
         from django.conf import settings
@@ -2455,21 +2469,6 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.enums import TA_CENTER
         from PIL import Image as PilImage
-
-        # Optional Token Auth for direct browser download
-        token_str = request.query_params.get('token')
-        if token_str:
-            from rest_framework_simplejwt.authentication import JWTAuthentication
-            from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-            try:
-                jwt_auth = JWTAuthentication()
-                validated = jwt_auth.get_validated_token(token_str)
-                request.user = jwt_auth.get_user(validated)
-            except (InvalidToken, TokenError):
-                return HttpResponseForbidden('Invalid token')
-
-        if not request.user or not request.user.is_authenticated:
-            return HttpResponseForbidden('Authentication required')
 
         menu = self.get_object()
         event = menu.event

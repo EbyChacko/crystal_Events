@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
 import api from '../utils/api';
+import { isValidEmail, isValidPhone, MAX_MESSAGE_LENGTH } from '../utils/validation';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -17,20 +18,19 @@ const Contact = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
-        // Fetch services for dropdown
         const fetchServices = async () => {
             try {
                 const response = await api.get('/services/');
                 setServices(response.data);
-            } catch (error) {
-                console.error('Error fetching services:', error);
-            }
+            } catch { /* silently fail */ }
         };
         fetchServices();
     }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'message' && value.length > MAX_MESSAGE_LENGTH) return;
+        setFormData({ ...formData, [name]: value });
     };
 
     const handleSubmit = async (e) => {
@@ -38,16 +38,24 @@ const Contact = () => {
         setStatus('submitting');
         setErrorMessage('');
 
+        if (!formData.name.trim()) { setErrorMessage('Name is required.'); setStatus('error'); return; }
+        if (!isValidEmail(formData.email)) { setErrorMessage('Please enter a valid email address.'); setStatus('error'); return; }
+        if (formData.phone && !isValidPhone(formData.phone)) { setErrorMessage('Please enter a valid phone number.'); setStatus('error'); return; }
+        if (!formData.message.trim()) { setErrorMessage('Message is required.'); setStatus('error'); return; }
+
         try {
             const payload = {
                 ...formData,
+                name: formData.name.trim(),
+                email: formData.email.trim(),
+                phone: formData.phone.trim(),
+                message: formData.message.trim(),
                 service: formData.service || null,
             };
             await api.post('/messages/', payload);
             setStatus('success');
             setFormData({ name: '', email: '', phone: '', service: '', message: '' });
-        } catch (error) {
-            console.error('Error sending message:', error);
+        } catch {
             setStatus('error');
             setErrorMessage('Failed to send message. Please try again later.');
         }

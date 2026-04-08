@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
+import { validateFile } from '../../utils/validation';
 import ImageCropper from '../../components/ImageCropper';
 
 const Profile = () => {
@@ -40,6 +41,8 @@ const Profile = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            const err = validateFile(file);
+            if (err) { addToast(err, 'error'); e.target.value = ''; return; }
             const url = URL.createObjectURL(file);
             setCropImageSrc(url);
         }
