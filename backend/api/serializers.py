@@ -6,6 +6,18 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Service, Event, Expense, Income, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate, FoodMenu, FoodMenuItem
 
+
+def _get_profile_picture_url(profile, request=None):
+    """Return the best available profile picture URL (Cloudinary first, then local)."""
+    if profile.profile_picture_url:
+        return profile.profile_picture_url
+    if profile.profile_picture:
+        if request:
+            return request.build_absolute_uri(profile.profile_picture.url)
+        return profile.profile_picture.url
+    return None
+
+
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
@@ -177,13 +189,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_profile_picture(self, obj):
         """Return profile picture URL — Cloudinary URL takes priority over local file."""
         if hasattr(obj, 'profile'):
-            if obj.profile.profile_picture_url:
-                return obj.profile.profile_picture_url
-            if obj.profile.profile_picture:
-                request = self.context.get('request')
-                if request:
-                    return request.build_absolute_uri(obj.profile.profile_picture.url)
-                return obj.profile.profile_picture.url
+            return _get_profile_picture_url(obj.profile, self.context.get('request'))
         return None
 
 
@@ -197,24 +203,14 @@ class TeamMemberSerializer(serializers.ModelSerializer):
 
     def get_user_details(self, obj):
         user = obj.user
-        profile_pic_url = None
-        if hasattr(user, 'profile'):
-            if user.profile.profile_picture_url:
-                profile_pic_url = user.profile.profile_picture_url
-            elif user.profile.profile_picture:
-                request = self.context.get('request')
-                if request:
-                    profile_pic_url = request.build_absolute_uri(user.profile.profile_picture.url)
-                else:
-                    profile_pic_url = user.profile.profile_picture.url
-
+        profile_pic_url = _get_profile_picture_url(user.profile, self.context.get('request')) if hasattr(user, 'profile') else None
         return {
             'id': user.id,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
             'designation': getattr(user, 'profile', None).designation if hasattr(user, 'profile') else '',
-            'profile_picture': profile_pic_url
+            'profile_picture': profile_pic_url,
         }
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -434,15 +430,6 @@ class TwoFactorLoginSerializer(serializers.Serializer):
         import pyotp
         totp = pyotp.TOTP(user.two_factor_auth.secret_key)
         
-        # Debug prints
-        print("--- LOGIN 2FA DEBUG ---")
-        print(f"User: {user.username}")
-        print(f"Secret: {user.two_factor_auth.secret_key}")
-        print(f"Received OTP: {otp}")
-        print(f"Expected OTP now: {totp.now()}")
-        print(f"Verify result (window 10): {totp.verify(str(otp).strip(), valid_window=10)}")
-        print("-----------------------")
-
         # Valid window 10 gives up to 5 minutes tolerance for clock drift
         if not totp.verify(str(otp).strip(), valid_window=10):
             raise serializers.ValidationError({'error': 'Invalid or expired OTP code. Please try again.'})

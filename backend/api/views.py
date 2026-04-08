@@ -157,13 +157,13 @@ class TravelRateViewSet(viewsets.ModelViewSet):
         return [IsSuperUser()]
 
 class IncomeViewSet(viewsets.ModelViewSet):
-    queryset = Income.objects.all()
+    queryset = Income.objects.select_related('paid_by', 'added_by').all()
     serializer_class = IncomeSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
-        queryset = Income.objects.all()
+        queryset = Income.objects.select_related('paid_by', 'added_by').all()
         paid_by = self.request.query_params.get('paid_by')
         if paid_by:
             queryset = queryset.filter(paid_by=paid_by)
@@ -192,7 +192,7 @@ class IncomeViewSet(viewsets.ModelViewSet):
         return Response({'updated': len(ids)})
 
 class EventViewSet(viewsets.ModelViewSet):
-    queryset = Event.objects.all()
+    queryset = Event.objects.select_related('assigned_to', 'created_by').prefetch_related('images').all()
     serializer_class = EventSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -267,7 +267,7 @@ class EventViewSet(viewsets.ModelViewSet):
             from django.core.mail import EmailMultiAlternatives
             event_date_str = event.event_date.strftime('%d %B %Y at %H:%M') if event.event_date else 'TBC'
             recipients = [settings.NOTIFY_EMAIL]
-            for profile in UserProfile.objects.filter(notify_new_event=True, user__is_active=True):
+            for profile in UserProfile.objects.select_related('user').filter(notify_new_event=True, user__is_active=True):
                 if profile.user.email and profile.user.email not in recipients:
                     recipients.append(profile.user.email)
             plain = (
@@ -1359,7 +1359,7 @@ class ExpenseViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
-        queryset = Expense.objects.all()
+        queryset = Expense.objects.select_related('event', 'approved_by', 'paid_by').all()
         event_id = self.request.query_params.get('event')
         if event_id:
             queryset = queryset.filter(event_id=event_id)
@@ -1415,7 +1415,7 @@ class EventImageViewSet(viewsets.ModelViewSet):
 
 
 class TeamMemberViewSet(viewsets.ModelViewSet):
-    queryset = TeamMember.objects.all()
+    queryset = TeamMember.objects.select_related('user', 'user__profile').all()
     serializer_class = TeamMemberSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
@@ -1503,7 +1503,7 @@ class QuoteViewSet(viewsets.ModelViewSet):
             client = quote.client_name
             total = f"€{quote.total:,.2f}"
             recipients = [settings.NOTIFY_EMAIL]
-            for profile in UserProfile.objects.filter(notify_quote_accepted=True, user__is_active=True):
+            for profile in UserProfile.objects.select_related('user').filter(notify_quote_accepted=True, user__is_active=True):
                 if profile.user.email and profile.user.email not in recipients:
                     recipients.append(profile.user.email)
             plain = (
@@ -1873,7 +1873,7 @@ class QuoteViewSet(viewsets.ModelViewSet):
         return response
 
 class MessageViewSet(viewsets.ModelViewSet):
-    queryset = Message.objects.all().order_by('-created_at')
+    queryset = Message.objects.select_related('service').all().order_by('-created_at')
     serializer_class = MessageSerializer
     
     def get_permissions(self):
@@ -1924,7 +1924,7 @@ class MessageViewSet(viewsets.ModelViewSet):
                 f"Message:\n{message.message}"
             )
             recipients = [settings.NOTIFY_EMAIL]
-            for profile in UserProfile.objects.filter(email_notifications=True, user__is_active=True):
+            for profile in UserProfile.objects.select_related('user').filter(email_notifications=True, user__is_active=True):
                 if profile.user.email and profile.user.email not in recipients:
                     recipients.append(profile.user.email)
             send_mail(
@@ -2076,7 +2076,7 @@ class UserListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, IsSuperUser]
 
     def get_queryset(self):
-        return User.objects.filter(is_staff=True).order_by('-date_joined')
+        return User.objects.filter(is_staff=True).select_related('profile').order_by('-date_joined')
 
 
 class StaffPickerView(generics.ListAPIView):
@@ -2149,25 +2149,28 @@ class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
             )
         return super().destroy(request, *args, **kwargs)
 
+def _calculate_financials():
+    """Shared profit calculation used by ProfitDistributionView and SplitProfitView."""
+    from .models import Expense, Income, Event
+    from decimal import Decimal
+    from django.db.models import Sum
+
+    manual_income = Income.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    event_income = Event.objects.aggregate(total=Sum('received_amount'))['total'] or Decimal('0')
+    total_income = manual_income + event_income
+    total_expense = Expense.objects.exclude(category__in=['Refund', 'Profit Payout']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    net_profit = total_income - total_expense
+    return total_income, total_expense, net_profit
+
+
 class ProfitDistributionView(APIView):
     """Returns total profit (income - expenses) and per-owner distribution."""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        from .models import Expense, Income, Event
         from decimal import Decimal
-        from django.db.models import Sum
 
-        # Manual income records
-        manual_income = Income.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        # Event payments (received_amount on each event, same source the frontend uses)
-        event_income = Event.objects.aggregate(total=Sum('received_amount'))['total'] or Decimal('0')
-        total_income = manual_income + event_income
-
-        # Exclude 'Refund' expenses (already deducted from event.received_amount) and
-        # 'Profit Payout' expenses (owner distributions, not business costs).
-        total_expense = Expense.objects.exclude(category__in=['Refund', 'Profit Payout']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        net_profit = total_income - total_expense
+        total_income, total_expense, net_profit = _calculate_financials()
 
         owners = User.objects.filter(profile__is_owner=True).select_related('profile')
         distribution = []
@@ -2195,9 +2198,8 @@ class SplitProfitView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsSuperUser]
 
     def post(self, request):
-        from .models import Expense, Income, Event
+        from .models import Expense
         from decimal import Decimal, InvalidOperation
-        from django.db.models import Sum
         from django.utils import timezone
 
         amount_raw = request.data.get('amount')
@@ -2211,12 +2213,7 @@ class SplitProfitView(APIView):
         if amount <= 0:
             return Response({'error': 'Amount must be greater than zero.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Recalculate net profit same way as ProfitDistributionView
-        manual_income = Income.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        event_income = Event.objects.aggregate(total=Sum('received_amount'))['total'] or Decimal('0')
-        total_income = manual_income + event_income
-        total_expense = Expense.objects.exclude(category__in=['Refund', 'Profit Payout']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        net_profit = total_income - total_expense
+        _total_income, _total_expense, net_profit = _calculate_financials()
 
         if amount > net_profit:
             return Response({'error': f'Amount exceeds net profit of €{net_profit:.2f}.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -2366,7 +2363,7 @@ class TwoFactorDisableView(generics.GenericAPIView):
             return Response({'message': '2FA is not currently enabled.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class FoodMenuViewSet(viewsets.ModelViewSet):
-    queryset = FoodMenu.objects.all()
+    queryset = FoodMenu.objects.select_related('event').prefetch_related('items').all()
     serializer_class = FoodMenuSerializer
 
     def _user_display(self, user):

@@ -48,7 +48,7 @@ class Event(models.Model):
     client_address = models.TextField(blank=True, default='')
 
     # Venue & schedule
-    event_date = models.DateTimeField()
+    event_date = models.DateTimeField(db_index=True)
     end_date = models.DateTimeField(null=True, blank=True)
     hall_available_from = models.DateTimeField(null=True, blank=True)
     venue = models.CharField(max_length=255)
@@ -67,7 +67,7 @@ class Event(models.Model):
     notes = models.TextField(blank=True, default='')
 
     # Status & assignment
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='enquiry')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='enquiry', db_index=True)
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='assigned_events'
@@ -241,7 +241,7 @@ class Message(models.Model):
     reply_text = models.TextField(blank=True, default='')
     replies = models.JSONField(default=list, blank=True)  # list of {text, sent_at} dicts
     service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unread')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unread', db_index=True)
     replied_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -257,7 +257,7 @@ class UserProfile(models.Model):
     address = models.TextField(blank=True, default='')
     designation = models.CharField(max_length=100, blank=True, default='')
     can_view_financials = models.BooleanField(default=False)
-    is_owner = models.BooleanField(default=False, help_text="Company owner — included in profit distribution")
+    is_owner = models.BooleanField(default=False, db_index=True, help_text="Company owner — included in profit distribution")
     profit_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Percentage of net profit allocated to this owner")
     email_notifications = models.BooleanField(default=True, help_text="Receive email when a new contact message is received")
     notify_new_event = models.BooleanField(default=True, help_text="Receive email when a new event is created")

@@ -17,11 +17,7 @@ import {
     startOfYear, endOfYear, subMonths, subYears, isWithinInterval, isFuture, isPast
 } from 'date-fns';
 import api from '../../utils/api';
-
-// ── Helpers ────────────────────────────────────────────────────────
-const fmt = (n) => `€${parseFloat(n || 0).toLocaleString('en-IE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-const fmtDec = (n) => `€${parseFloat(n || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const pct = (n) => `${parseFloat(n || 0).toFixed(1)}%`;
+import { fmt, fmtDec, pct } from '../../utils/formatters';
 
 const EVENT_STATUS_COLORS = {
     enquiry: '#3b82f6',

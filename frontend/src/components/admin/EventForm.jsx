@@ -5,30 +5,8 @@ import {
 import { motion } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
-
-const EVENT_TYPES = [
-    { value: 'wedding', label: 'Wedding' },
-    { value: 'corporate', label: 'Corporate' },
-    { value: 'birthday', label: 'Birthday' },
-    { value: 'concert', label: 'Concert' },
-    { value: 'conference', label: 'Conference' },
-    { value: 'private_party', label: 'Private Party' },
-    { value: 'charity', label: 'Charity / Fundraiser' },
-    { value: 'festival', label: 'Festival' },
-    { value: 'other', label: 'Other' },
-];
-
-const STATUS_OPTIONS = [
-    { value: 'enquiry', label: 'Enquiry', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-    { value: 'confirmed', label: 'Confirmed', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-    { value: 'in_progress', label: 'In Progress', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-    { value: 'finished', label: 'Finished', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
-    { value: 'canceled', label: 'Canceled', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
-];
-
-const selectClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 transition-all appearance-none cursor-pointer";
-const inputClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all";
-const disabledInputClass = "w-full bg-white/[0.02] border border-white/5 text-gray-500 px-4 py-3 rounded-xl cursor-not-allowed";
+import { EVENT_TYPES, EVENT_STATUS_OPTIONS } from '../../utils/constants';
+import { selectClass, inputClass, disabledInputClass } from '../../utils/classes';
 
 const EventForm = ({ onClose, onSuccess }) => {
     const [staffList, setStaffList] = useState([]);
@@ -317,7 +295,7 @@ const EventForm = ({ onClose, onSuccess }) => {
                         <div>
                             <label className="block text-gray-400 text-sm font-medium mb-2">Status</label>
                             <select name="status" value={formData.status} onChange={handleChange} className={selectClass}>
-                                {STATUS_OPTIONS.filter(s => s.value !== 'finished').map(s => <option key={s.value} value={s.value} className="bg-gray-900">{s.label}</option>)}
+                                {EVENT_STATUS_OPTIONS.filter(s => s.value !== 'finished').map(s => <option key={s.value} value={s.value} className="bg-gray-900">{s.label}</option>)}
                             </select>
                         </div>
                         <div>

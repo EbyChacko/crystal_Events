@@ -3,12 +3,7 @@ import { Users, CheckCircle, ChevronDown, ArrowLeft, TrendingDown, Search, X, Cl
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
-
-const fmt = (n) => `€${parseFloat(n || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-const fmtDateTime = (d) => d ? new Date(d).toLocaleString('en-IE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
-const staffName = (s) => s ? (`${s.first_name} ${s.last_name}`.trim() || s.username) : '';
-const firstName = (s) => staffName(s).split(' ')[0];
+import { fmtDec, fmtDate, fmtDateTime, staffName, firstName } from '../../utils/formatters';
 
 // Detect event pay: Staffing category with an event linked
 const isEventPay = (e) => e.category === 'Staffing' && e.event_name;
@@ -190,12 +185,12 @@ const StaffFinance = () => {
                                                 <div className="text-right">
                                                     {totalPending > 0 ? (
                                                         <>
-                                                            <p className="text-amber-400 font-bold text-lg">{fmt(totalPending)}</p>
+                                                            <p className="text-amber-400 font-bold text-lg">{fmtDec(totalPending)}</p>
                                                             <p className="text-xs text-amber-500/70">pending payment</p>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <p className="text-emerald-400 font-bold text-lg">{fmt(settled)}</p>
+                                                            <p className="text-emerald-400 font-bold text-lg">{fmtDec(settled)}</p>
                                                             <p className="text-xs text-emerald-500/70">all settled</p>
                                                         </>
                                                     )}
@@ -205,19 +200,19 @@ const StaffFinance = () => {
                                                 <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
                                                     {pendingEventPay > 0 && (
                                                         <span className="flex items-center gap-1 text-blue-400">
-                                                            <Clock size={10} /> {fmt(pendingEventPay)} event pay
+                                                            <Clock size={10} /> {fmtDec(pendingEventPay)} event pay
                                                         </span>
                                                     )}
                                                     {pendingEventPay > 0 && pendingReimb > 0 && <span className="text-gray-600">·</span>}
                                                     {pendingReimb > 0 && (
                                                         <span className="flex items-center gap-1 text-amber-400">
-                                                            <Receipt size={10} /> {fmt(pendingReimb)} reimbursements
+                                                            <Receipt size={10} /> {fmtDec(pendingReimb)} reimbursements
                                                         </span>
                                                     )}
                                                     {settled > 0 && totalPending > 0 && (
                                                         <>
                                                             <span className="text-gray-600">·</span>
-                                                            <span className="text-emerald-500">{fmt(settled)} settled</span>
+                                                            <span className="text-emerald-500">{fmtDec(settled)} settled</span>
                                                         </>
                                                     )}
                                                 </div>
@@ -266,7 +261,7 @@ const StaffFinance = () => {
                             <Clock size={13} className="text-blue-400" />
                             <p className="text-xs text-blue-400/70 uppercase tracking-wider">Event Pay</p>
                         </div>
-                        <p className="text-xl font-bold text-blue-400">{fmt(totalPendingEventPay)}</p>
+                        <p className="text-xl font-bold text-blue-400">{fmtDec(totalPendingEventPay)}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{pendingEventPay.length} pending</p>
                     </div>
                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4">
@@ -274,7 +269,7 @@ const StaffFinance = () => {
                             <Receipt size={13} className="text-amber-400" />
                             <p className="text-xs text-amber-400/70 uppercase tracking-wider">Reimbursements</p>
                         </div>
-                        <p className="text-xl font-bold text-amber-400">{fmt(totalPendingReimb)}</p>
+                        <p className="text-xl font-bold text-amber-400">{fmtDec(totalPendingReimb)}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{pendingReimb.length} pending</p>
                     </div>
                     <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4">
@@ -282,7 +277,7 @@ const StaffFinance = () => {
                             <TrendingDown size={13} className="text-rose-400" />
                             <p className="text-xs text-rose-400/70 uppercase tracking-wider">Total Owed</p>
                         </div>
-                        <p className="text-xl font-bold text-rose-400">{fmt(totalPending)}</p>
+                        <p className="text-xl font-bold text-rose-400">{fmtDec(totalPending)}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{allPending.length} item(s)</p>
                     </div>
                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4">
@@ -290,7 +285,7 @@ const StaffFinance = () => {
                             <CheckCircle size={13} className="text-emerald-400" />
                             <p className="text-xs text-emerald-400/70 uppercase tracking-wider">Settled</p>
                         </div>
-                        <p className="text-xl font-bold text-emerald-400">{fmt(totalSettled)}</p>
+                        <p className="text-xl font-bold text-emerald-400">{fmtDec(totalSettled)}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{allSettled.length} paid</p>
                     </div>
                 </div>
@@ -343,7 +338,7 @@ const StaffFinance = () => {
                                                     disabled={markingBack}
                                                     className={`flex items-center gap-1.5 text-xs font-semibold border px-3 py-2 rounded-xl transition-all disabled:opacity-50 ${confirmAction === 'all' ? 'bg-mustard-gold/30 border-mustard-gold/50 text-mustard-gold' : 'bg-mustard-gold/20 border-mustard-gold/30 text-mustard-gold hover:bg-mustard-gold/30'}`}>
                                                     <CheckCircle size={13} />
-                                                    Pay all — {fmt(totalPending)}
+                                                    Pay all — {fmtDec(totalPending)}
                                                 </button>
                                             </div>
                                         </div>
@@ -353,7 +348,7 @@ const StaffFinance = () => {
                                             <div className="mt-3 flex items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
                                                 <p className="text-sm text-gray-300">
                                                     {confirmAction === 'all'
-                                                        ? <>Mark <span className="text-white font-semibold">all {allPending.length} item(s)</span> as paid? Total: <span className="text-mustard-gold font-semibold">{fmt(totalPending)}</span></>
+                                                        ? <>Mark <span className="text-white font-semibold">all {allPending.length} item(s)</span> as paid? Total: <span className="text-mustard-gold font-semibold">{fmtDec(totalPending)}</span></>
                                                         : <>Mark <span className="text-white font-semibold">{selectedExpenseIds.size} selected item(s)</span> as paid?</>
                                                     }
                                                 </p>
@@ -377,7 +372,7 @@ const StaffFinance = () => {
                                 {allPending.length > 0 ? (
                                     <div className="space-y-2 mb-6">
                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-3">
-                                            Pending — {fmt(totalPending)}
+                                            Pending — {fmtDec(totalPending)}
                                         </p>
                                         {allPending.map(item => {
                                             const eventPay = isEventPay(item);
@@ -406,7 +401,7 @@ const StaffFinance = () => {
                                                         </p>
                                                     </div>
                                                     <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                                                        <span className={`text-sm font-bold ${eventPay ? 'text-blue-400' : 'text-amber-400'}`}>{fmt(item.amount)}</span>
+                                                        <span className={`text-sm font-bold ${eventPay ? 'text-blue-400' : 'text-amber-400'}`}>{fmtDec(item.amount)}</span>
                                                         {canManageFinancials && (
                                                             confirmingId === item.id ? (
                                                                 <div className="flex items-center gap-1.5">
@@ -445,7 +440,7 @@ const StaffFinance = () => {
                                     <details className="group">
                                         <summary className="cursor-pointer text-xs text-gray-500 uppercase tracking-wider font-medium flex items-center gap-2 mb-2 hover:text-gray-400 transition-colors list-none">
                                             <ChevronDown size={14} className="group-open:rotate-180 transition-transform" />
-                                            Payment History ({allSettled.length}) — {fmt(totalSettled)}
+                                            Payment History ({allSettled.length}) — {fmtDec(totalSettled)}
                                         </summary>
                                         <div className="space-y-2 mt-3">
                                             {[...allSettled].sort((a, b) => new Date(b.paid_back_at || 0) - new Date(a.paid_back_at || 0)).map(item => {
@@ -471,7 +466,7 @@ const StaffFinance = () => {
                                                             </p>
                                                         </div>
                                                         <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-                                                            <span className="text-sm font-bold text-gray-500">{fmt(item.amount)}</span>
+                                                            <span className="text-sm font-bold text-gray-500">{fmtDec(item.amount)}</span>
                                                             {item.paid_back_at && (
                                                                 <span className="text-xs text-emerald-600 flex items-center gap-1">
                                                                     <CalendarCheck size={10} />
@@ -492,7 +487,7 @@ const StaffFinance = () => {
                                 {detailIncomes.length > 0 ? (
                                     <div className="space-y-2">
                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2">
-                                            {detailIncomes.length} income record(s) — {fmt(detailIncomes.reduce((s, i) => s + parseFloat(i.amount), 0))}
+                                            {detailIncomes.length} income record(s) — {fmtDec(detailIncomes.reduce((s, i) => s + parseFloat(i.amount), 0))}
                                         </p>
                                         {detailIncomes.map(item => (
                                             <div key={item.id} className="flex items-center gap-3 bg-indigo-500/5 border border-indigo-500/20 rounded-xl px-4 py-3">
@@ -501,7 +496,7 @@ const StaffFinance = () => {
                                                     <p className="text-xs text-gray-500">{fmtDate(item.date)} · {item.category}</p>
                                                     {item.payer_name && <p className="text-xs text-gray-500">From: {item.payer_name}</p>}
                                                 </div>
-                                                <span className="text-sm font-bold text-indigo-400 flex-shrink-0">{fmt(item.amount)}</span>
+                                                <span className="text-sm font-bold text-indigo-400 flex-shrink-0">{fmtDec(item.amount)}</span>
                                             </div>
                                         ))}
                                     </div>

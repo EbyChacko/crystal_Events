@@ -9,16 +9,9 @@ import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import api, { API_BASE_URL } from '../../utils/api';
 import Pagination from '../../components/admin/Pagination';
-
-const EXPENSE_CATEGORIES = [
-    'Decor', 'Catering', 'Venue', 'Logistics', 'Entertainment', 'Staffing', 'Marketing', 'Profit Payout', 'Other'
-];
-const INCOME_CATEGORIES = [
-    'Investment', 'Sales', 'Other'
-];
-
-const inputClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all";
-const selectClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 transition-all appearance-none cursor-pointer";
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../../utils/constants';
+import { inputClass, selectClass } from '../../utils/classes';
+import usePagination from '../../hooks/usePagination';
 
 const StatCard = ({ icon, label, value, sub, delay, isPositive }) => (
     <motion.div
@@ -64,9 +57,6 @@ const Financials = () => {
     // Date Filters
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const PAGE_SIZE = 20;
-
     const { addToast } = useToast();
     const [submitting, setSubmitting] = useState(false);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -396,9 +386,7 @@ const Financials = () => {
         return matchesCat && matchesSearch && matchesDate;
     });
 
-    const totalPages = Math.ceil(filteredTransactions.length / PAGE_SIZE);
-    const pagedTransactions = filteredTransactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-    useEffect(() => { setCurrentPage(1); }, [activeCategory, searchTerm, fromDate, toDate]);
+    const { currentPage, setCurrentPage, totalPages, pagedItems: pagedTransactions } = usePagination(filteredTransactions);
 
     // Aggregations based on FILTERED results
     const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);

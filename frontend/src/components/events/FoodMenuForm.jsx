@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { X, Plus, Trash2, CheckCircle, Percent, DollarSign, Users, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../utils/api';
+import { inputClass, labelClass } from '../../utils/classes';
 import { useToast } from '../../context/ToastContext';
-
-const inputClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all";
-const labelClass = "block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2";
 
 const defaultItem = { name: '' };
 

@@ -10,21 +10,9 @@ import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import api, { API_BASE_URL } from '../../utils/api';
 import Pagination from '../../components/admin/Pagination';
-
-const STATUS_OPTIONS = [
-    { value: 'draft', label: 'Draft', color: 'bg-gray-500/10 text-gray-400 border-gray-500/20' },
-    { value: 'sent', label: 'Sent', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-    { value: 'accepted', label: 'Accepted', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-    { value: 'rejected', label: 'Rejected', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
-];
-
-const getStatusStyle = (status) => STATUS_OPTIONS.find(s => s.value === status)?.color || 'bg-gray-500/10 text-gray-400 border-gray-500/20';
-const getStatusLabel = (status) => STATUS_OPTIONS.find(s => s.value === status)?.label || status;
-
-const inputClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all";
-const selectClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 transition-all appearance-none cursor-pointer";
-const disabledInputClass = "w-full bg-white/[0.02] border border-white/5 text-gray-500 px-4 py-3 rounded-xl cursor-not-allowed";
-
+import { QUOTE_STATUS_OPTIONS, getQuoteStatusStyle, getQuoteStatusLabel } from '../../utils/constants';
+import { inputClass, selectClass, disabledInputClass } from '../../utils/classes';
+import usePagination from '../../hooks/usePagination';
 import EventForm from '../../components/admin/EventForm';
 
 const StatCard = ({ icon, label, value, sub, delay }) => (
@@ -59,8 +47,6 @@ const Quotes = () => {
     const { addToast } = useToast();
     const { user } = useAuth();
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const PAGE_SIZE = 20;
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -122,9 +108,7 @@ const Quotes = () => {
             q.items?.some(i => i.service_name?.toLowerCase().includes(searchTerm.toLowerCase()));
         return matchesFilter && matchesSearch;
     });
-    const totalPages = Math.ceil(filteredQuotes.length / PAGE_SIZE);
-    const pagedQuotes = filteredQuotes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-    useEffect(() => { setCurrentPage(1); }, [activeFilter, searchTerm]);
+    const { currentPage, setCurrentPage, totalPages, pagedItems: pagedQuotes } = usePagination(filteredQuotes);
 
     const totalQuoteValue = quotes.reduce((sum, q) => sum + parseFloat(q.total || 0), 0);
     const acceptedValue = quotes
@@ -136,7 +120,7 @@ const Quotes = () => {
 
     const statusCounts = {
         all: quotes.length,
-        ...STATUS_OPTIONS.reduce((acc, s) => ({
+        ...QUOTE_STATUS_OPTIONS.reduce((acc, s) => ({
             ...acc,
             [s.value]: quotes.filter(q => q.status === s.value).length,
         }), {}),
@@ -206,7 +190,7 @@ const Quotes = () => {
                 <div className={`px-6 py-4 border-b border-white/10 ${isFilterOpen ? 'block' : 'hidden md:block'}`}>
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         <div className="flex flex-wrap gap-2">
-                            {[{ value: 'all', label: 'All' }, ...STATUS_OPTIONS].map(tab => (
+                            {[{ value: 'all', label: 'All' }, ...QUOTE_STATUS_OPTIONS].map(tab => (
                                 <button key={tab.value}
                                     onClick={() => setActiveFilter(tab.value)}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${activeFilter === tab.value
@@ -281,8 +265,8 @@ const Quotes = () => {
                                                 }
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${getStatusStyle(q.status)}`}>
-                                                    {getStatusLabel(q.status)}
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${getQuoteStatusStyle(q.status)}`}>
+                                                    {getQuoteStatusLabel(q.status)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
@@ -350,8 +334,8 @@ const Quotes = () => {
                                                     <span className="text-[10px] font-medium text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-md">-{q.discount_percentage}%</span>
                                                 )}
                                             </div>
-                                            <span className={`inline-block w-max px-2 py-0.5 rounded-md text-[10px] font-medium border ${getStatusStyle(q.status)}`}>
-                                                {getStatusLabel(q.status)}
+                                            <span className={`inline-block w-max px-2 py-0.5 rounded-md text-[10px] font-medium border ${getQuoteStatusStyle(q.status)}`}>
+                                                {getQuoteStatusLabel(q.status)}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-1 flex-shrink-0">

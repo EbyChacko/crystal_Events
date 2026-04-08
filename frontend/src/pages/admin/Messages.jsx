@@ -5,12 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import Pagination from '../../components/admin/Pagination';
+import usePagination from '../../hooks/usePagination';
 
 const Messages = () => {
     const { user } = useAuth();
     const [messages, setMessages] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const PAGE_SIZE = 20;
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
     const [selectedMessage, setSelectedMessage] = useState(null);
@@ -186,10 +185,7 @@ const Messages = () => {
             msg.message.toLowerCase().includes(search.toLowerCase());
         return matchesFilter && matchesSearch;
     });
-    const totalPages = Math.ceil(filteredMessages.length / PAGE_SIZE);
-    const pagedMessages = filteredMessages.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-    // Reset to page 1 when filter/search changes
-    useEffect(() => { setCurrentPage(1); }, [filter, search]);
+    const { currentPage, setCurrentPage, totalPages, pagedItems: pagedMessages } = usePagination(filteredMessages);
 
     const getStatusColor = (status) => {
         switch (status) {

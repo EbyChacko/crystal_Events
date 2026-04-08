@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import api from '../../utils/api';
 import { useToast } from '../../context/ToastContext';
 import Pagination from '../../components/admin/Pagination';
+import usePagination from '../../hooks/usePagination';
 
 const StatCard = ({ icon, label, value, isPositive = null, delay = 0 }) => (
     <motion.div
@@ -34,8 +35,6 @@ const Assets = () => {
     const [editingAssetId, setEditingAssetId] = useState(null);
     const [assetCurrentValue, setAssetCurrentValue] = useState('');
     const [confirmRemoveAssetId, setConfirmRemoveAssetId] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const PAGE_SIZE = 20;
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
 
     const fetchAssets = async () => {
@@ -99,8 +98,7 @@ const Assets = () => {
     const totalPurchaseValue = assetsList.reduce((sum, a) => sum + a.amount, 0);
     const totalCurrentValue = assetsList.reduce((sum, a) => sum + a.asset_current_value, 0);
     const totalDepreciation = totalPurchaseValue - totalCurrentValue;
-    const totalPages = Math.ceil(assetsList.length / PAGE_SIZE);
-    const pagedAssets = assetsList.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    const { currentPage, setCurrentPage, totalPages, pagedItems: pagedAssets } = usePagination(assetsList);
 
     return (
         <div className="max-w-[1600px] mx-auto space-y-8 animate-fade-in">
