@@ -73,12 +73,13 @@ const Contact = () => {
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://crystaleventsie.com/contact" />
         </Helmet>
-        <div data-scroll-snap className="lg:sticky lg:top-0 z-[1] bg-background-dark text-white font-sans min-h-screen pt-24 pb-40 lg:pt-28 lg:pb-40 px-6 md:px-12 lg:px-20">
+        <div className="bg-background-dark text-white font-sans min-h-screen pt-24 pb-20 lg:pt-28 lg:pb-20 px-6 md:px-12 lg:px-20">
             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-14">
                 {/* Contact Info */}
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: false, amount: 0.1 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
                     <h2 className="text-4xl md:text-5xl font-black mb-4">
@@ -125,7 +126,8 @@ const Contact = () => {
                 {/* Contact Form */}
                 <motion.div
                     initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: false, amount: 0.1 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     className="bg-primary/30 p-5 md:p-8 rounded-2xl border border-white/10"
                 >

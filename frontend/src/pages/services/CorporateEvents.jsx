@@ -170,7 +170,7 @@ const CorporateEvents = () => {
                         <motion.div
                             initial={{ scale: 0.92, opacity: 0 }}
                             whileInView={{ scale: 1, opacity: 1 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                         >
                             <Briefcase className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
@@ -178,7 +178,7 @@ const CorporateEvents = () => {
                         <motion.h2
                             initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-3xl md:text-4xl font-black mb-6 leading-tight"
                         >
@@ -188,7 +188,7 @@ const CorporateEvents = () => {
                         <motion.p
                             initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed mb-4"
                         >
@@ -197,7 +197,7 @@ const CorporateEvents = () => {
                         <motion.p
                             initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed"
                         >
@@ -212,7 +212,7 @@ const CorporateEvents = () => {
                         <motion.div
                             initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-center mb-16"
                         >
@@ -231,7 +231,7 @@ const CorporateEvents = () => {
                                     key={i}
                                     initial={{ opacity: 0, y: 16 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, amount: 0.1 }}
+                                    viewport={{ once: false, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group"
                                 >
@@ -261,7 +261,7 @@ const CorporateEvents = () => {
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                         >
                             <div className="flex items-center gap-3 mb-4">
@@ -282,7 +282,7 @@ const CorporateEvents = () => {
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="grid grid-cols-2 gap-4"
                         >
@@ -291,7 +291,7 @@ const CorporateEvents = () => {
                                     key={i}
                                     initial={{ opacity: 0, y: 12 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, amount: 0.1 }}
+                                    viewport={{ once: false, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-xl p-5 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                 >
@@ -309,7 +309,7 @@ const CorporateEvents = () => {
                         <motion.div
                             initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-center mb-16"
                         >
@@ -328,7 +328,7 @@ const CorporateEvents = () => {
                                     key={i}
                                     initial={{ opacity: 0, y: 16 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, amount: 0.1 }}
+                                    viewport={{ once: false, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group text-center"
                                 >
@@ -351,7 +351,7 @@ const CorporateEvents = () => {
                         <motion.div
                             initial={{ opacity: 0, y: 12 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: false, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-center mb-14"
                         >
@@ -369,7 +369,7 @@ const CorporateEvents = () => {
                                     key={i}
                                     initial={{ opacity: 0, y: 12 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, amount: 0.1 }}
+                                    viewport={{ once: false, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                 >

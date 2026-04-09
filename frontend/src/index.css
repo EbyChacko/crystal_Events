@@ -19,6 +19,11 @@
   --font-serif: "Times New Roman", Times, serif;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background-color: var(--color-off-white);
   color: var(--color-deep-teal);
@@ -47,3 +52,54 @@ body {
   break-inside: avoid;
   margin-bottom: 1.5rem;
 }
+
+/* ── Crystal Events Logo — Real Gold Sheen ──────────────────── */
+/* Multi-stop gradient mimics real gold: warm amber shoulders,
+   bright near-white highlight at the peak, long pause between sweeps */
+@keyframes logo-gold-sheen {
+  0%        { background-position: -320% center; }
+  42%       { background-position: 160% center; }
+  100%      { background-position: 160% center; } /* long pause */
+}
+
+.logo-metal-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* No glow on the img itself — clean look */
+.logo-metal-img {
+  display: block;
+}
+
+/* Masked shine — clipped to logo's own alpha channel */
+.logo-metal-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent          6%,
+    rgba(160,110,20,0.18) 20%,
+    rgba(220,165,55,0.45) 32%,
+    rgba(255,242,160,0.9) 43%,
+    rgba(255,255,240,1)   50%,
+    rgba(255,242,160,0.9) 57%,
+    rgba(220,165,55,0.45) 68%,
+    rgba(160,110,20,0.18) 80%,
+    transparent          94%
+  );
+  background-size: 300% 100%;
+  animation: logo-gold-sheen 7s ease-in-out infinite;
+  pointer-events: none;
+  -webkit-mask-image: var(--logo-url);
+  mask-image: var(--logo-url);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
