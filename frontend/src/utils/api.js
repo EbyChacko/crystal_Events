@@ -32,6 +32,7 @@ api.interceptors.response.use(
             originalRequest._retry = true;
             const refreshToken = localStorage.getItem('refresh_token');
 
+            // Only attempt refresh/redirect if user was previously logged in
             if (refreshToken) {
                 try {
                     const res = await axios.post(`${AUTH_BASE_URL}/refresh/`, {
@@ -45,10 +46,14 @@ api.interceptors.response.use(
                 } catch (refreshError) {
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('refresh_token');
-                    window.location.href = '/admin/login';
+                    // Only redirect if on an admin page
+                    if (window.location.pathname.startsWith('/admin')) {
+                        window.location.href = '/admin/login';
+                    }
                     return Promise.reject(refreshError);
                 }
-            } else {
+            } else if (window.location.pathname.startsWith('/admin')) {
+                // Only redirect to login from admin pages, not public pages
                 window.location.href = '/admin/login';
             }
         }
