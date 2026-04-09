@@ -52,8 +52,8 @@ api.interceptors.response.use(
                     }
                     return Promise.reject(refreshError);
                 }
-            } else if (window.location.pathname.startsWith('/admin')) {
-                // Only redirect to login from admin pages, not public pages
+            } else if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+                // Only redirect to login from admin pages, not the login page itself
                 window.location.href = '/admin/login';
             }
         }

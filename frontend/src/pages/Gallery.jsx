@@ -7,7 +7,7 @@ import api from '../utils/api';
 import heroBg from '../assets/images/gallery_hero.webp';
 import {
     VP_CONTENT,
-    cascadeContainer, blockReveal, goldLine, cardGrid, cardItem
+    blockReveal, cardGrid, cardItem
 } from '../utils/animations';
 
 const EVENT_TYPES = {
