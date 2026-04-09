@@ -55,11 +55,10 @@ const Login = () => {
                     { signal: controller.signal }
                 );
                 clearTimeout(timeoutId);
-                if (!cancelled && response.ok) {
+                if (!cancelled) {
                     clearTimeout(wakingTimer);
                     setServerStatus('ready');
-                    // Only show "active" banner if we previously showed the "waking" banner
-                    if (wentThroughWaking.current) {
+                    if (response.ok && wentThroughWaking.current) {
                         setShowReadyBanner(true);
                         readyTimer = setTimeout(() => {
                             if (!cancelled) setShowReadyBanner(false);
@@ -67,7 +66,11 @@ const Login = () => {
                     }
                 }
             } catch {
-                // Server unreachable — keep waking banner if it's already showing
+                // Health check failed (network error, CORS, timeout) — unblock the button
+                if (!cancelled) {
+                    clearTimeout(wakingTimer);
+                    setServerStatus('ready');
+                }
             }
         };
 
