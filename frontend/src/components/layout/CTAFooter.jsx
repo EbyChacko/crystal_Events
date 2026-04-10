@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-react';
 import logo from '../../assets/images/logo.png';
 import PrivacyPolicyModal from '../PrivacyPolicyModal';
+import TermsOfServiceModal from '../TermsOfServiceModal';
 
 const defaultCta = {
     label: "Let's Create Something Beautiful",
@@ -15,6 +16,7 @@ const defaultCta = {
 const CTAFooter = ({ cta }) => {
     const { label, title, description, buttonText, buttonLink } = cta || defaultCta;
     const [showPrivacy, setShowPrivacy] = useState(false);
+    const [showTerms, setShowTerms] = useState(false);
 
     return (
         <div className="section-gradient text-white font-sans">
@@ -112,11 +114,12 @@ const CTAFooter = ({ cta }) => {
                 <p className="text-white/30 text-xs">© {new Date().getFullYear()} Crystal Events Management. All rights reserved.</p>
                 <div className="flex gap-6 text-white/30 text-xs uppercase tracking-widest">
                     <button type="button" onClick={() => setShowPrivacy(true)} className="hover:text-white transition-colors">Privacy Policy</button>
-                    <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                    <button type="button" onClick={() => setShowTerms(true)} className="hover:text-white transition-colors">Terms of Service</button>
                 </div>
             </div>
 
             {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
+            {showTerms && <TermsOfServiceModal onClose={() => setShowTerms(false)} />}
         </div>
     );
 };
