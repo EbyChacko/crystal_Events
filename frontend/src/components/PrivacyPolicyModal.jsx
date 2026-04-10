@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Shield, Mail, Phone } from 'lucide-react';
 
@@ -34,7 +35,7 @@ const PrivacyPolicyModal = ({ onClose }) => {
         return () => { document.body.style.overflow = ''; };
     }, []);
 
-    return (
+    return createPortal(
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -191,7 +192,8 @@ const PrivacyPolicyModal = ({ onClose }) => {
                     </button>
                 </div>
             </motion.div>
-        </motion.div>
+        </motion.div>,
+        document.body
     );
 };
 
