@@ -1,13 +1,15 @@
 // Crystal Events — shared animation system
 
 // ── Viewport presets ───────────────────────────────────────────
-export const VP         = { once: true, amount: 0.1 };   // section-level trigger
-export const VP_CONTENT = { once: true, amount: 0.14 };  // inner element trigger
+// margin pushes the trigger zone 100px inside the visible area so
+// animations only start once the section is clearly on screen.
+export const VP         = { once: true, amount: 0.15, margin: '0px 0px -100px 0px' };
+export const VP_CONTENT = { once: true, amount: 0.18, margin: '0px 0px -80px 0px' };
 
 // ── Cascade container ──────────────────────────────────────────
 export const cascadeContainer = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.08, delayChildren: 0 } },
+    visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
 };
 
 // ── General block reveal (eyebrow labels, paragraphs) ──────────
@@ -52,7 +54,7 @@ export const fromRight = {
 // ── Card grid container ────────────────────────────────────────
 export const cardGrid = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.06, delayChildren: 0 } },
+    visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
 };
 
 // ── Card — smooth zoom-in fade (no spring bounce, no y movement) ─

@@ -79,7 +79,7 @@ const Contact = () => {
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, amount: 0.1 }}
+                    viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
                     <h2 className="text-4xl md:text-5xl font-black mb-4">
@@ -127,7 +127,7 @@ const Contact = () => {
                 <motion.div
                     initial={{ opacity: 0, x: 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, amount: 0.1 }}
+                    viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     className="bg-primary/30 p-5 md:p-8 rounded-2xl border border-white/10"
                 >

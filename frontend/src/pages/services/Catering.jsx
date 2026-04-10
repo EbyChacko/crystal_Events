@@ -171,7 +171,7 @@ const Catering = () => {
                             variants={cardContainer}
                             initial="hidden"
                             whileInView="visible"
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
                         >
                             {cateringServices.map((service) => (
                                 <motion.div
@@ -216,7 +216,7 @@ const Catering = () => {
                                     variants={cardContainer}
                                     initial="hidden"
                                     whileInView="visible"
-                                    viewport={{ once: true, amount: 0.1 }}
+                                    viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
                                 >
                                     {perfectFor.map((item) => (
                                         <motion.div key={item.title} variants={cardItem}>
@@ -243,7 +243,7 @@ const Catering = () => {
                             <motion.div
                                 initial={{ opacity: 0, x: 20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true, amount: 0.3 }}
+                                viewport={{ once: true, amount: 0.25, margin: '0px 0px -80px 0px' }}
                                 transition={{ duration: 0.6, ease: 'easeOut' }}
                                 className="bg-deep-teal/20 border border-mustard-gold/30 rounded-2xl p-8"
                             >
@@ -284,7 +284,7 @@ const Catering = () => {
                             variants={cardContainer}
                             initial="hidden"
                             whileInView="visible"
-                            viewport={{ once: true, amount: 0.1 }}
+                            viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
                         >
                             {whyUs.map((point, i) => (
                                 <motion.div
