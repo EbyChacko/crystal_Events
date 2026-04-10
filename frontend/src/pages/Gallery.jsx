@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { MessageSquare, X, ChevronLeft, ChevronRight, MapPin, Calendar as CalendarIcon, Grid } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { X, ChevronLeft, ChevronRight, MapPin, Calendar as CalendarIcon, Grid } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import heroBg from '../assets/images/gallery_hero.webp';
 import {
@@ -388,12 +388,6 @@ const Gallery = () => {
                 )}
             </AnimatePresence>
 
-            {/* Floating CTA */}
-            <Link to="/contact">
-                <button className="fixed bottom-8 right-8 z-[40] bg-mustard-gold text-deep-teal p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center">
-                    <MessageSquare size={24} fill="currentColor" />
-                </button>
-            </Link>
         </div>
         </>
     );

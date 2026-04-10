@@ -21,6 +21,8 @@ import Catering from './pages/services/Catering';
 
 // Admin Imports
 import Login from './pages/admin/Login';
+import ForgotPassword from './pages/admin/ForgotPassword';
+import ResetPassword from './pages/admin/ResetPassword';
 import AdminLayout from './components/layout/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import Messages from './pages/admin/Messages';
@@ -65,6 +67,8 @@ function App() {
 
             {/* Admin Login (public but redirects if logged in) */}
             <Route path="/admin/login" element={<Login />} />
+            <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+            <Route path="/admin/reset-password/:uid/:token" element={<ResetPassword />} />
 
             {/* Protected Admin Routes */}
             <Route path="/admin" element={

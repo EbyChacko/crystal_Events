@@ -2391,6 +2391,87 @@ class TwoFactorDisableView(generics.GenericAPIView):
         except TwoFactorAuth.DoesNotExist:
             return Response({'message': '2FA is not currently enabled.'}, status=status.HTTP_400_BAD_REQUEST)
 
+class PasswordResetRequestView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        from django.contrib.auth.tokens import default_token_generator
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+
+        email = request.data.get('email', '').strip().lower()
+        if not email:
+            return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Always return 200 to prevent email enumeration
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'message': 'If that email is registered, a reset link has been sent.'})
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        is_prod = not settings.DEBUG
+        base_url = 'https://crystaleventsie.com' if is_prod else 'http://localhost:5173'
+        reset_url = f'{base_url}/admin/reset-password/{uid}/{token}'
+
+        send_mail(
+            subject='Reset Your Crystal Events Password',
+            message=(
+                f'Hi {user.first_name or user.username},\n\n'
+                f'You requested a password reset. Click the link below to set a new password:\n\n'
+                f'{reset_url}\n\n'
+                f'This link expires in 1 hour. If you did not request this, ignore this email.\n\n'
+                f'— Crystal Events'
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
+        return Response({'message': 'If that email is registered, a reset link has been sent.'})
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        from django.contrib.auth.tokens import default_token_generator
+        from django.utils.http import urlsafe_base64_decode
+        from django.utils.encoding import force_str
+
+        uid = request.data.get('uid', '').strip()
+        token = request.data.get('token', '').strip()
+        new_password = request.data.get('new_password', '')
+        confirm_password = request.data.get('confirm_password', '')
+
+        if not all([uid, token, new_password, confirm_password]):
+            return Response({'error': 'All fields are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if new_password != confirm_password:
+            return Response({'error': 'Passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(new_password) < 8:
+            return Response({'error': 'Password must be at least 8 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response({'error': 'Invalid or expired reset link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not default_token_generator.check_token(user, token):
+            return Response({'error': 'Invalid or expired reset link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'message': 'Password has been reset successfully.'})
+
+
 class FoodMenuViewSet(viewsets.ModelViewSet):
     queryset = FoodMenu.objects.select_related('event').prefetch_related('items').all()
     serializer_class = FoodMenuSerializer
