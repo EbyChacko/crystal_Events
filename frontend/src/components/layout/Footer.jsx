@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
@@ -78,9 +77,7 @@ const Footer = () => {
                 </div>
             </div>
 
-            <AnimatePresence>
-                {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
-            </AnimatePresence>
+            <PrivacyPolicyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />
         </footer>
     );
 };

@@ -3,6 +3,13 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Shield, Mail, Phone } from 'lucide-react';
 
+// Wrapper rendered at document.body level so fixed positioning always works
+const ModalPortal = ({ isOpen, onClose, children }) =>
+    createPortal(
+        <AnimatePresence>{isOpen && children}</AnimatePresence>,
+        document.body
+    );
+
 const Section = ({ title, children }) => (
     <div className="mb-8">
         <h3 className="text-mustard-gold font-bold uppercase tracking-widest text-xs mb-3">{title}</h3>
@@ -21,7 +28,7 @@ const BulletList = ({ items }) => (
     </ul>
 );
 
-const PrivacyPolicyModal = ({ onClose }) => {
+const ModalContent = ({ onClose }) => {
     // Close on Escape key
     useEffect(() => {
         const handle = (e) => { if (e.key === 'Escape') onClose(); };
@@ -35,7 +42,7 @@ const PrivacyPolicyModal = ({ onClose }) => {
         return () => { document.body.style.overflow = ''; };
     }, []);
 
-    return createPortal(
+    return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -192,9 +199,14 @@ const PrivacyPolicyModal = ({ onClose }) => {
                     </button>
                 </div>
             </motion.div>
-        </motion.div>,
-        document.body
+        </motion.div>
     );
 };
+
+const PrivacyPolicyModal = ({ isOpen, onClose }) => (
+    <ModalPortal isOpen={isOpen} onClose={onClose}>
+        <ModalContent onClose={onClose} />
+    </ModalPortal>
+);
 
 export default PrivacyPolicyModal;
