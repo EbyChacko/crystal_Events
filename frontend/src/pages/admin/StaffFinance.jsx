@@ -29,14 +29,14 @@ const StaffFinance = () => {
 
     useEffect(() => {
         setSummaryLoading(true);
-        Promise.all([
+        Promise.allSettled([
             api.get('/auth/users/'),
             api.get('/expenses/'),
             api.get('/incomes/'),
         ]).then(([usersRes, expRes, incRes]) => {
-            setStaffList(usersRes.data.results || usersRes.data);
-            setAllExpenses(expRes.data.results || expRes.data);
-            setAllIncomes(incRes.data.results || incRes.data);
+            if (usersRes.status === 'fulfilled') setStaffList(usersRes.value.data.results || usersRes.value.data);
+            if (expRes.status === 'fulfilled') setAllExpenses(expRes.value.data.results || expRes.value.data);
+            if (incRes.status === 'fulfilled') setAllIncomes(incRes.value.data.results || incRes.value.data);
         }).catch(() => {})
           .finally(() => setSummaryLoading(false));
     }, []);
@@ -46,24 +46,25 @@ const StaffFinance = () => {
         setDetailLoading(true);
         setSelectedExpenseIds(new Set());
         setActiveTab('payments');
-        Promise.all([
+        Promise.allSettled([
             api.get(`/expenses/?paid_by=${selectedStaff.id}`),
             api.get(`/incomes/?paid_by=${selectedStaff.id}`),
         ]).then(([expRes, incRes]) => {
-            setDetailExpenses(expRes.data.results || expRes.data);
-            setDetailIncomes(incRes.data.results || incRes.data);
+            if (expRes.status === 'fulfilled') setDetailExpenses(expRes.value.data.results || expRes.value.data);
+            if (incRes.status === 'fulfilled') setDetailIncomes(incRes.value.data.results || incRes.value.data);
+            if (expRes.status === 'rejected' || incRes.status === 'rejected') addToast('Failed to load some records.', 'error');
         }).catch(() => addToast('Failed to load records.', 'error'))
           .finally(() => setDetailLoading(false));
     }, [selectedStaff]);
 
     const refreshDetail = async () => {
-        const [expRes, incRes] = await Promise.all([
+        const [expRes, incRes] = await Promise.allSettled([
             api.get(`/expenses/?paid_by=${selectedStaff.id}`),
             api.get(`/incomes/?paid_by=${selectedStaff.id}`),
             api.get('/expenses/').then(r => setAllExpenses(r.data.results || r.data)),
         ]);
-        setDetailExpenses(expRes.data.results || expRes.data);
-        setDetailIncomes(incRes.data.results || incRes.data);
+        if (expRes.status === 'fulfilled') setDetailExpenses(expRes.value.data.results || expRes.value.data);
+        if (incRes.status === 'fulfilled') setDetailIncomes(incRes.value.data.results || incRes.value.data);
     };
 
     // ── Summary calculations ──

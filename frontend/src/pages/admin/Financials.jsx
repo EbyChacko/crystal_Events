@@ -87,13 +87,17 @@ const Financials = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [expensesRes, incomesRes, eventsRes] = await Promise.all([
+            const [expensesRes, incomesRes, eventsRes] = await Promise.allSettled([
                 api.get('/expenses/'),
                 api.get('/incomes/'),
                 api.get('/events/')
             ]);
 
-            const expenseData = (expensesRes.data.results || expensesRes.data).map(e => ({
+            const expensesData = expensesRes.status === 'fulfilled' ? (expensesRes.value.data.results || expensesRes.value.data) : [];
+            const incomesData = incomesRes.status === 'fulfilled' ? (incomesRes.value.data.results || incomesRes.value.data) : [];
+            const eventsData = eventsRes.status === 'fulfilled' ? (eventsRes.value.data.results || eventsRes.value.data) : [];
+
+            const expenseData = expensesData.map(e => ({
                 id: `exp_${e.id}`,
                 originalId: e.id,
                 type: 'expense',
@@ -112,7 +116,7 @@ const Financials = () => {
                 isManual: true
             }));
             
-            const incomeData = (incomesRes.data.results || incomesRes.data).map(i => ({
+            const incomeData = incomesData.map(i => ({
                 id: `inc_manual_${i.id}`,
                 originalId: i.id,
                 type: 'income',
@@ -130,7 +134,7 @@ const Financials = () => {
             }));
 
             const eventData = [];
-            (eventsRes.data.results || eventsRes.data).forEach(ev => {
+            eventsData.forEach(ev => {
                 if (parseFloat(ev.received_amount || 0) > 0) {
                     if (ev.audit_log && ev.audit_log.length > 0) {
                         // Extract each individual payment

@@ -149,18 +149,18 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const [evRes, msgRes, qtRes, expRes, incRes] = await Promise.all([
+                const [evRes, msgRes, qtRes, expRes, incRes] = await Promise.allSettled([
                     api.get('/events/'),
                     api.get('/messages/'),
                     api.get('/quotes/'),
                     api.get('/expenses/'),
                     api.get('/incomes/'),
                 ]);
-                setRawEvents(evRes.data);
-                setRawMessages(msgRes.data);
-                setRawQuotes(qtRes.data);
-                setRawExpenses(expRes.data);
-                setRawIncomes(incRes.data);
+                if (evRes.status === 'fulfilled') setRawEvents(evRes.value.data);
+                if (msgRes.status === 'fulfilled') setRawMessages(msgRes.value.data);
+                if (qtRes.status === 'fulfilled') setRawQuotes(qtRes.value.data);
+                if (expRes.status === 'fulfilled') setRawExpenses(expRes.value.data);
+                if (incRes.status === 'fulfilled') setRawIncomes(incRes.value.data);
             } catch (err) {
                 console.error('Failed to fetch dashboard data:', err);
             } finally {
