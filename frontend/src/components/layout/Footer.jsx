@@ -1,8 +1,12 @@
-import { Mail, Phone, MapPin, Camera, Facebook, Instagram } from 'lucide-react';
+import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
+import PrivacyPolicyModal from '../PrivacyPolicyModal';
 
 const Footer = () => {
+    const [showPrivacy, setShowPrivacy] = useState(false);
     return (
         <footer className="section-gradient border-t border-white/5 py-16 px-6 md:px-16 text-white font-sans">
             <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-4 gap-12">
@@ -69,10 +73,14 @@ const Footer = () => {
             <div className="mx-auto max-w-7xl mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
                 <p className="text-white/30 text-xs">© {new Date().getFullYear()} Crystal Events Management. All rights reserved.</p>
                 <div className="flex gap-8 text-white/30 text-xs uppercase tracking-widest">
-                    <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                    <button onClick={() => setShowPrivacy(true)} className="hover:text-white transition-colors">Privacy Policy</button>
                     <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
                 </div>
             </div>
+
+            <AnimatePresence>
+                {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
+            </AnimatePresence>
         </footer>
     );
 };
