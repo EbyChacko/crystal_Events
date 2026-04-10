@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-react';
 import logo from '../../assets/images/logo.png';
+import PrivacyPolicyModal from '../PrivacyPolicyModal';
 
 const defaultCta = {
     label: "Let's Create Something Beautiful",
@@ -12,6 +14,7 @@ const defaultCta = {
 
 const CTAFooter = ({ cta }) => {
     const { label, title, description, buttonText, buttonLink } = cta || defaultCta;
+    const [showPrivacy, setShowPrivacy] = useState(false);
 
     return (
         <div className="section-gradient text-white font-sans">
@@ -108,11 +111,12 @@ const CTAFooter = ({ cta }) => {
             <div className="mx-auto max-w-7xl px-6 md:px-16 pb-8 border-t border-white/5 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p className="text-white/30 text-xs">© {new Date().getFullYear()} Crystal Events Management. All rights reserved.</p>
                 <div className="flex gap-6 text-white/30 text-xs uppercase tracking-widest">
-                    <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                    <button type="button" onClick={() => setShowPrivacy(true)} className="hover:text-white transition-colors">Privacy Policy</button>
                     <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
                 </div>
             </div>
 
+            {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
         </div>
     );
 };
