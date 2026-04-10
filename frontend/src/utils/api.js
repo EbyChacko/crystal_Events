@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-export const API_BASE_URL = isProd ? 'https://crystal-events-backend.onrender.com/api' : 'http://localhost:8000/api';
-export const AUTH_BASE_URL = isProd ? 'https://crystal-events-backend.onrender.com/api/auth' : 'http://localhost:8000/api/auth';
+export const API_BASE_URL = isProd ? 'https://crystal-events-backend.onrender.com/api' : 'http://127.0.0.1:8000/api';
+export const AUTH_BASE_URL = isProd ? 'https://crystal-events-backend.onrender.com/api/auth' : 'http://127.0.0.1:8000/api/auth';
 
 
 const api = axios.create({
