@@ -1,14 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Shield, Mail, Phone } from 'lucide-react';
-
-// Wrapper rendered at document.body level so fixed positioning always works
-const ModalPortal = ({ isOpen, onClose, children }) =>
-    createPortal(
-        <AnimatePresence>{isOpen && children}</AnimatePresence>,
-        document.body
-    );
 
 const Section = ({ title, children }) => (
     <div className="mb-8">
@@ -28,34 +21,30 @@ const BulletList = ({ items }) => (
     </ul>
 );
 
-const ModalContent = ({ onClose }) => {
-    // Close on Escape key
+const PrivacyPolicyModal = ({ onClose }) => {
     useEffect(() => {
         const handle = (e) => { if (e.key === 'Escape') onClose(); };
         window.addEventListener('keydown', handle);
         return () => window.removeEventListener('keydown', handle);
     }, [onClose]);
 
-    // Lock body scroll
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => { document.body.style.overflow = ''; };
     }, []);
 
-    return (
+    return createPortal(
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
             onClick={onClose}
         >
             <motion.div
                 initial={{ opacity: 0, scale: 0.96, y: 16 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96, y: 16 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 className="relative w-full max-w-2xl max-h-[85vh] bg-[#0a1f1f] border border-mustard-gold/20 rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -71,6 +60,7 @@ const ModalContent = ({ onClose }) => {
                         </div>
                     </div>
                     <button
+                        type="button"
                         onClick={onClose}
                         className="h-8 w-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/15 text-white/60 hover:text-white transition-all"
                         aria-label="Close"
@@ -80,7 +70,7 @@ const ModalContent = ({ onClose }) => {
                 </div>
 
                 {/* Scrollable body */}
-                <div className="overflow-y-auto flex-1 px-6 py-6 custom-scrollbar">
+                <div className="overflow-y-auto flex-1 px-6 py-6" style={{ scrollbarWidth: 'thin', scrollbarColor: '#c5a059 transparent' }}>
 
                     <p className="text-white/50 text-sm leading-relaxed mb-8">
                         This Privacy Policy describes how <span className="text-white/80">Crystal Events</span> ("we", "our", or "us") collects, uses, and protects your information when you visit our website <span className="text-mustard-gold">crystaleventsie.com</span>.
@@ -88,19 +78,9 @@ const ModalContent = ({ onClose }) => {
 
                     <Section title="Information We Collect">
                         <p className="text-white/60 text-sm font-medium mb-1">Personal Information</p>
-                        <BulletList items={[
-                            'Name',
-                            'Email address',
-                            'Phone number',
-                            'Event details submitted through contact forms',
-                        ]} />
+                        <BulletList items={['Name', 'Email address', 'Phone number', 'Event details submitted through contact forms']} />
                         <p className="text-white/60 text-sm font-medium mt-4 mb-1">Non-Personal Information</p>
-                        <BulletList items={[
-                            'Browser type',
-                            'IP address',
-                            'Pages visited on our website',
-                            'Date and time of visits',
-                        ]} />
+                        <BulletList items={['Browser type', 'IP address', 'Pages visited on our website', 'Date and time of visits']} />
                     </Section>
 
                     <Section title="How We Use Your Information">
@@ -188,10 +168,11 @@ const ModalContent = ({ onClose }) => {
 
                 </div>
 
-                {/* Footer */}
+                {/* Footer bar */}
                 <div className="px-6 py-4 border-t border-white/10 shrink-0 flex items-center justify-between">
                     <p className="text-white/30 text-xs">© {new Date().getFullYear()} Crystal Events Management</p>
                     <button
+                        type="button"
                         onClick={onClose}
                         className="px-5 py-2 bg-mustard-gold text-deep-teal text-xs font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all"
                     >
@@ -199,14 +180,9 @@ const ModalContent = ({ onClose }) => {
                     </button>
                 </div>
             </motion.div>
-        </motion.div>
+        </motion.div>,
+        document.body
     );
 };
-
-const PrivacyPolicyModal = ({ isOpen, onClose }) => (
-    <ModalPortal isOpen={isOpen} onClose={onClose}>
-        <ModalContent onClose={onClose} />
-    </ModalPortal>
-);
 
 export default PrivacyPolicyModal;

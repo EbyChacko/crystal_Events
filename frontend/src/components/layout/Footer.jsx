@@ -77,7 +77,7 @@ const Footer = () => {
                 </div>
             </div>
 
-            <PrivacyPolicyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />
+            {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
         </footer>
     );
 };
