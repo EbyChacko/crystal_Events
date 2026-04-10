@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { MessageSquare, X, ChevronLeft, ChevronRight, MapPin, Calendar as CalendarIcon, Grid } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
@@ -23,6 +23,11 @@ const EVENT_TYPES = {
 };
 
 const Gallery = () => {
+    const heroRef = useRef(null);
+    const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+    const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+    const heroOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+
     const [events, setEvents] = useState([]);
     const [filter, setFilter] = useState('All');
     const [loading, setLoading] = useState(true);
@@ -135,12 +140,12 @@ const Gallery = () => {
         <div className="bg-background-dark text-white font-sans">
 
             {/* ── Hero ──────────────────────────────────────────────────── */}
-            <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 -z-10">
+            <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+                <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${heroBg})` }} />
-                    <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/70 via-deep-teal/50 to-background-dark" />
-                </div>
-                <div className="text-center space-y-6 px-6 md:px-12 lg:px-20 relative z-10">
+                    <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/50 via-deep-teal/30 to-background-dark" />
+                </motion.div>
+                <div className="text-center space-y-6 px-6 md:px-12 lg:px-20 relative z-10 mt-16">
                     <motion.h2
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -175,8 +180,14 @@ const Gallery = () => {
             </section>
 
             {/* ── Gallery Grid ───────────────────────────────────────────── */}
-            <section className="bg-background-dark rounded-t-[2rem]">
-                <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-20 relative z-10">
+            <section className="section-gradient relative z-10">
+                {/* Separator rule */}
+                <div className="flex items-center justify-center pt-10 pb-2">
+                    <div className="h-px w-24 bg-mustard-gold/40" />
+                    <div className="mx-4 w-1.5 h-1.5 rounded-full bg-mustard-gold/60" />
+                    <div className="h-px w-24 bg-mustard-gold/40" />
+                </div>
+                <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-10 pb-20 relative z-10">
 
                     {/* Filter Bar */}
                     {events.length > 0 && (
@@ -233,10 +244,10 @@ const Gallery = () => {
                                 return (
                                     <motion.div
                                         key={event.id}
-                                        initial={{ opacity: 0, y: 36 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: false, amount: 0.1 }}
-                                        transition={{ duration: 0.55, delay: (idx % 8) * 0.07, ease: 'easeOut' }}
+                                        initial={{ opacity: 0, scale: 0.92 }}
+                                        whileInView={{ opacity: 1, scale: 1 }}
+                                        viewport={{ once: true, amount: 0.08 }}
+                                        transition={{ duration: 0.5, delay: (idx % 8) * 0.05, ease: [0.22, 1, 0.36, 1] }}
                                         onClick={() => openAlbum(event)}
                                         className="masonry-item group relative overflow-hidden rounded-xl bg-[#1a3333] cursor-pointer"
                                     >

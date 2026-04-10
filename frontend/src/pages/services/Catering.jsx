@@ -1,5 +1,6 @@
+import { useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
     UtensilsCrossed, ChefHat, Leaf, Star,
@@ -78,6 +79,10 @@ const whyUs = [
 ];
 
 const Catering = () => {
+    const heroRef = useRef(null);
+    const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+    const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+    const heroOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
     return (
         <>
             <Helmet>
@@ -94,21 +99,21 @@ const Catering = () => {
                 <meta property="og:url" content="https://crystaleventsie.com/services/catering" />
             </Helmet>
 
-            <div className="font-sans text-white bg-background-dark">
+            <div className="font-sans text-white bg-[#011414]">
 
                 {/* ── Hero ── */}
-                <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-                    <div className="absolute inset-0 z-0">
+                <section ref={heroRef} className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+                    <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
                         <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/80 via-deep-teal/60 to-background-dark z-10" />
                         <img
                             src={cateringHero}
                             alt="Traditional Indian cuisine catering Ireland"
                             className="w-full h-full object-cover"
                         />
-                    </div>
+                    </motion.div>
                     <div className="relative z-20 text-center px-4 max-w-4xl pt-24 pb-16">
                         <motion.span
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                             className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
@@ -116,7 +121,7 @@ const Catering = () => {
                             Taste the Difference
                         </motion.span>
                         <motion.h1
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
                             className="text-white text-4xl md:text-7xl font-extrabold mb-6 tracking-tight"
@@ -124,7 +129,7 @@ const Catering = () => {
                             Premium <span className="bg-gradient-to-r from-mustard-gold via-[#e2c283] to-mustard-gold bg-clip-text text-transparent">Catering</span> Services
                         </motion.h1>
                         <motion.p
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
                             className="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
@@ -132,7 +137,7 @@ const Catering = () => {
                             Authentic Indian cuisine, multicultural menus, and bespoke dining experiences crafted to make every celebration truly unforgettable.
                         </motion.p>
                         <motion.div
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
                             className="mt-8"
@@ -147,8 +152,11 @@ const Catering = () => {
                     </div>
                 </section>
 
+                {/* ── Content Sections ── */}
+                <section className="section-gradient px-6 md:px-16 lg:px-40">
+
                 {/* ── What We Offer ── */}
-                <section className="px-6 md:px-16 lg:px-40 py-24 bg-background-dark">
+                <div className="py-24">
                     <div className="max-w-[1200px] mx-auto">
                         <div className="mb-14">
                             <h2 className="text-white text-3xl md:text-4xl font-bold mb-4">What We Offer</h2>
@@ -163,7 +171,7 @@ const Catering = () => {
                             variants={cardContainer}
                             initial="hidden"
                             whileInView="visible"
-                            viewport={{ once: false, amount: 0.1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                         >
                             {cateringServices.map((service) => (
                                 <motion.div
@@ -189,10 +197,12 @@ const Catering = () => {
                             ))}
                         </motion.div>
                     </div>
-                </section>
+                </div>
+
+                <div className="h-px bg-white/10 max-w-[1200px] mx-auto" />
 
                 {/* ── Perfect For ── */}
-                <section className="px-6 md:px-16 lg:px-40 py-20 bg-deep-teal/10">
+                <div className="py-20">
                     <div className="max-w-[1200px] mx-auto">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                             <div>
@@ -206,7 +216,7 @@ const Catering = () => {
                                     variants={cardContainer}
                                     initial="hidden"
                                     whileInView="visible"
-                                    viewport={{ once: false, amount: 0.1 }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                 >
                                     {perfectFor.map((item) => (
                                         <motion.div key={item.title} variants={cardItem}>
@@ -233,7 +243,7 @@ const Catering = () => {
                             <motion.div
                                 initial={{ opacity: 0, x: 20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: false, amount: 0.3 }}
+                                viewport={{ once: true, amount: 0.3 }}
                                 transition={{ duration: 0.6, ease: 'easeOut' }}
                                 className="bg-deep-teal/20 border border-mustard-gold/30 rounded-2xl p-8"
                             >
@@ -254,10 +264,12 @@ const Catering = () => {
                             </motion.div>
                         </div>
                     </div>
-                </section>
+                </div>
+
+                <div className="h-px bg-white/10 max-w-[1200px] mx-auto" />
 
                 {/* ── Why Choose Us ── */}
-                <section className="px-6 md:px-16 lg:px-40 py-24 bg-background-dark">
+                <div className="py-24">
                     <div className="max-w-[1200px] mx-auto">
                         <div className="text-center mb-14">
                             <h2 className="text-white text-3xl md:text-4xl font-bold mb-4">Why Choose Crystal Events Catering?</h2>
@@ -272,7 +284,7 @@ const Catering = () => {
                             variants={cardContainer}
                             initial="hidden"
                             whileInView="visible"
-                            viewport={{ once: false, amount: 0.1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                         >
                             {whyUs.map((point, i) => (
                                 <motion.div
@@ -286,6 +298,8 @@ const Catering = () => {
                             ))}
                         </motion.div>
                     </div>
+                </div>
+
                 </section>
 
             </div>

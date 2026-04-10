@@ -109,7 +109,7 @@ const Landing = () => {
             </section>
 
             {/* ── Services ──────────────────────────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center" id="services">
+            <section className="py-28 md:py-36 px-6 md:px-16 section-gradient text-white" id="services">
                 <div className="mx-auto max-w-7xl">
 
                     {/* Header — cascade: eyebrow → line → body */}
@@ -151,7 +151,7 @@ const Landing = () => {
             </section>
 
             {/* ── About ─────────────────────────────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center" id="about">
+            <section className="py-28 md:py-36 px-6 md:px-16 section-gradient text-white" id="about">
                 <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
                     {/* Left */}
@@ -205,7 +205,7 @@ const Landing = () => {
             </section>
 
             {/* ── Why Choose Us ────────────────────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 px-6 md:px-16 bg-jungle-green text-white rounded-t-[2rem] flex flex-col justify-center" id="why-us">
+            <section className="py-28 md:py-36 px-6 md:px-16 section-gradient text-white" id="why-us">
                 <div className="mx-auto max-w-7xl">
 
                     <motion.div className="text-center mb-14" variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP}>
@@ -242,7 +242,7 @@ const Landing = () => {
             </section>
 
             {/* ── Service Area ──────────────────────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 px-6 md:px-16 bg-background-dark text-white rounded-t-[2rem] flex flex-col justify-center" id="service-area">
+            <section className="py-28 md:py-36 px-6 md:px-16 section-gradient text-white" id="service-area">
                 <div className="mx-auto max-w-7xl">
 
                     <motion.div className="text-center mb-16" variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP}>

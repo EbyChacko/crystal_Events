@@ -4,7 +4,7 @@ import logo from '../../assets/images/logo.png';
 
 const Footer = () => {
     return (
-        <footer className="bg-jungle-green border-t border-white/5 py-16 px-6 md:px-16 text-white font-sans">
+        <footer className="section-gradient border-t border-white/5 py-16 px-6 md:px-16 text-white font-sans">
             <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-4 gap-12">
 
                 {/* Brand Column */}

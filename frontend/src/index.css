@@ -19,6 +19,14 @@
   --font-serif: "Times New Roman", Times, serif;
 }
 
+/* ── Section gradient — light forest-green top → near-black bottom ─
+   Applied to every content section so each one feels visually distinct.
+   The dark bottom of one section contrasts with the light top of the
+   next, creating a clear visual break between sections.                */
+.section-gradient {
+  background: linear-gradient(to bottom, #012424 0%, #011414 100%);
+}
+
 html, body {
   overflow-x: hidden;
   max-width: 100%;

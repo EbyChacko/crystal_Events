@@ -145,7 +145,7 @@ const About = () => {
             </section>
 
             {/* ── Our Story ─────────────────────────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+            <section className="py-28 md:py-36 section-gradient">
                 <div className="px-6 lg:px-20 max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div variants={fromLeft} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="space-y-8">
@@ -207,7 +207,7 @@ const About = () => {
             </section>
 
             {/* ── What We Do & Vision ───────────────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
+            <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-gradient">
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-start">
 
                     {/* What We Do */}
@@ -269,7 +269,7 @@ const About = () => {
             </section>
 
             {/* ── What Makes Us Different ───────────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 px-6 md:px-12 lg:px-20 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+            <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-gradient">
                 <div className="max-w-7xl mx-auto">
                     <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-center mb-16">
                         <motion.span variants={blockReveal} className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold mb-3 inline-block">The Crystal Difference</motion.span>
@@ -304,7 +304,7 @@ const About = () => {
             </section>
 
             {/* ── Who We Serve & Where We Work ─────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 px-6 md:px-12 lg:px-20 bg-deep-teal rounded-t-[2rem] flex flex-col justify-center">
+            <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-gradient">
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
                     <motion.div variants={fromLeft} initial="hidden" whileInView="visible" viewport={VP_CONTENT}>
                         <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT}>
@@ -372,7 +372,7 @@ const About = () => {
 
             {/* ── Team ──────────────────────────────────────────────────── */}
             {!loadingTeam && teamMembers.length > 0 && (
-                <section className="min-h-screen pt-28 pb-20 bg-background-dark rounded-t-[2rem] flex flex-col justify-center">
+                <section className="py-28 md:py-36 section-gradient">
                     <div className="px-6 lg:px-20 max-w-7xl mx-auto min-h-[500px]">
                         <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-center mb-16">
                             <motion.span variants={blockReveal} className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold inline-block">The Visionaries</motion.span>
@@ -422,7 +422,7 @@ const About = () => {
             )}
 
             {/* ── Testimonials ──────────────────────────────────────────── */}
-            <section className="min-h-screen pt-28 pb-20 px-6 lg:px-20 bg-deep-teal border-y border-mustard-gold/10 rounded-t-[2rem] flex flex-col justify-center">
+            <section className="py-28 md:py-36 px-6 lg:px-20 section-gradient border-y border-mustard-gold/10">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-6">
                         <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="max-w-xl">

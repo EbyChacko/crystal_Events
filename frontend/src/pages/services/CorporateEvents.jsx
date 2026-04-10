@@ -1,5 +1,6 @@
+import { useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
     Mic, Rocket, PartyPopper, Users, Lightbulb,
@@ -83,6 +84,10 @@ const ourPromise = [
 ];
 
 const CorporateEvents = () => {
+    const heroRef = useRef(null);
+    const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+    const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+    const heroOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
     return (
         <>
             <Helmet>
@@ -102,21 +107,21 @@ const CorporateEvents = () => {
                 <meta property="og:url" content="https://crystaleventsie.com/services/corporate-events" />
             </Helmet>
 
-            <div className="font-sans text-white bg-background-dark">
+            <div className="font-sans text-white bg-[#011414]">
 
                 {/* ── Hero ── */}
-                <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-                    <div className="absolute inset-0 z-0">
+                <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+                    <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
                         <div
                             className="absolute inset-0 bg-cover bg-center"
                             style={{ backgroundImage: `url(${corporateHero})` }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-background-dark/50 to-background-dark" />
-                    </div>
+                    </motion.div>
 
                     <div className="relative z-10 text-center px-6 md:px-12 max-w-4xl mx-auto pt-24">
                         <motion.span
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                             className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block"
@@ -124,7 +129,7 @@ const CorporateEvents = () => {
                             Corporate Events
                         </motion.span>
                         <motion.h1
-                            initial={{ opacity: 0, y: 16 }}
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.15, ease: 'easeOut' }}
                             className="text-4xl md:text-7xl font-black leading-tight mb-6"
@@ -135,7 +140,7 @@ const CorporateEvents = () => {
                             </span>
                         </motion.h1>
                         <motion.p
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
                             className="text-white/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10"
@@ -143,7 +148,7 @@ const CorporateEvents = () => {
                             Delivering seamless and impactful corporate events across Ireland with precision and style.
                         </motion.p>
                         <motion.div
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.45, ease: 'easeOut' }}
                             className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -165,20 +170,22 @@ const CorporateEvents = () => {
                 </section>
 
                 {/* ── Introduction ── */}
-                <section className="py-24 px-6 md:px-16 lg:px-28 bg-background-dark">
+                <section className="section-gradient px-6 md:px-16 lg:px-28">
+
+                <div className="py-24">
                     <div className="max-w-4xl mx-auto text-center">
                         <motion.div
                             initial={{ scale: 0.92, opacity: 0 }}
                             whileInView={{ scale: 1, opacity: 1 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                         >
                             <Briefcase className="w-12 h-12 text-mustard-gold mx-auto mb-6" strokeWidth={1.5} />
                         </motion.div>
                         <motion.h2
-                            initial={{ opacity: 0, y: 12 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-3xl md:text-4xl font-black mb-6 leading-tight"
                         >
@@ -186,33 +193,36 @@ const CorporateEvents = () => {
                             <span className="text-mustard-gold">Your Brand</span>
                         </motion.h2>
                         <motion.p
-                            initial={{ opacity: 0, y: 12 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed mb-4"
                         >
                             At Crystal Events, we understand that corporate events are more than just gatherings — they represent your brand, your vision, and your professionalism.
                         </motion.p>
                         <motion.p
-                            initial={{ opacity: 0, y: 12 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
                             className="text-white/60 text-lg leading-relaxed"
                         >
                             We provide end-to-end corporate event management services across Ireland, ensuring every detail is handled with efficiency and excellence. Whether it's a conference, product launch, or company celebration, we create events that leave a lasting impression.
                         </motion.p>
                     </div>
-                </section>
+                </div>
+
+                <div className="h-px bg-white/10 max-w-7xl mx-auto" />
+
 
                 {/* ── Our Corporate Event Services ── */}
-                <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal/30">
+                <div className="py-24">
                     <div className="max-w-7xl mx-auto">
                         <motion.div
-                            initial={{ opacity: 0, y: 12 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-center mb-16"
                         >
@@ -229,9 +239,9 @@ const CorporateEvents = () => {
                             {corporateServices.map((service, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 16 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: false, amount: 0.1 }}
+                                    initial={{ opacity: 0 }}
+                                    whileInView={{ opacity: 1 }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group"
                                 >
@@ -253,15 +263,18 @@ const CorporateEvents = () => {
                             ))}
                         </div>
                     </div>
-                </section>
+                </div>
+
+                <div className="h-px bg-white/10 max-w-7xl mx-auto" />
+
 
                 {/* ── Tailored for Your Business & Industries ── */}
-                <section className="py-24 px-6 md:px-16 lg:px-28 bg-background-dark">
+                <div className="py-24">
                     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                         >
                             <div className="flex items-center gap-3 mb-4">
@@ -282,16 +295,16 @@ const CorporateEvents = () => {
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="grid grid-cols-2 gap-4"
                         >
                             {industries.map((item, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 12 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: false, amount: 0.1 }}
+                                    initial={{ opacity: 0 }}
+                                    whileInView={{ opacity: 1 }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-xl p-5 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                 >
@@ -301,15 +314,18 @@ const CorporateEvents = () => {
                             ))}
                         </motion.div>
                     </div>
-                </section>
+                </div>
+
+                <div className="h-px bg-white/10 max-w-7xl mx-auto" />
+
 
                 {/* ── Our Promise ── */}
-                <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal/30">
+                <div className="py-24">
                     <div className="max-w-7xl mx-auto">
                         <motion.div
-                            initial={{ opacity: 0, y: 12 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-center mb-16"
                         >
@@ -326,9 +342,9 @@ const CorporateEvents = () => {
                             {ourPromise.map((item, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 16 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: false, amount: 0.1 }}
+                                    initial={{ opacity: 0 }}
+                                    whileInView={{ opacity: 1 }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group text-center"
                                 >
@@ -343,15 +359,18 @@ const CorporateEvents = () => {
                             ))}
                         </div>
                     </div>
-                </section>
+                </div>
+
+                <div className="h-px bg-white/10 max-w-7xl mx-auto" />
+
 
                 {/* ── Why Choose Crystal Events ── */}
-                <section className="py-24 px-6 md:px-16 lg:px-28 bg-deep-teal rounded-t-[2rem]">
+                <div className="py-24">
                     <div className="max-w-5xl mx-auto">
                         <motion.div
-                            initial={{ opacity: 0, y: 12 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: false, amount: 0.1 }}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true, amount: 0.1 }}
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             className="text-center mb-14"
                         >
@@ -367,9 +386,9 @@ const CorporateEvents = () => {
                             {whyUs.map((point, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 12 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: false, amount: 0.1 }}
+                                    initial={{ opacity: 0 }}
+                                    whileInView={{ opacity: 1 }}
+                                    viewport={{ once: true, amount: 0.1 }}
                                     transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
                                     className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
                                 >
@@ -379,6 +398,10 @@ const CorporateEvents = () => {
                             ))}
                         </div>
                     </div>
+                </div>
+
+                <div className="h-px bg-white/10 max-w-7xl mx-auto" />
+
                 </section>
 
             </div>

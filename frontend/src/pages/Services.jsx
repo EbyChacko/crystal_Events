@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Star, BadgeCheck, ArrowRight, Calendar, PartyPopper, Briefcase, Gem, Music, UtensilsCrossed, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
@@ -58,6 +58,11 @@ const STATIC_SERVICES = [
 ];
 
 const Services = () => {
+    const heroRef = useRef(null);
+    const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+    const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+    const heroOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -95,11 +100,11 @@ const Services = () => {
             <div className="font-sans text-white bg-background-dark">
 
                 {/* ── Hero ──────────────────────────────────────────────── */}
-                <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-                    <div className="absolute inset-0 z-0">
+                <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+                    <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
                         <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/80 via-deep-teal/60 to-background-dark z-10" />
                         <img src={servicesBg} alt="Wedding decoration setup" className="w-full h-full object-cover" />
-                    </div>
+                    </motion.div>
                     <div className="relative z-20 text-center px-4 max-w-4xl pt-20">
                         <motion.span
                             initial={{ opacity: 0, y: 14 }}
@@ -132,7 +137,7 @@ const Services = () => {
                 </section>
 
                 {/* ── Flagship Services ─────────────────────────────────── */}
-                <section className="px-6 md:px-16 lg:px-40 pt-28 pb-20 bg-background-dark rounded-t-[2rem]">
+                <section className="px-6 md:px-16 lg:px-40 pt-28 pb-20 section-gradient">
                     <div className="max-w-[1200px] mx-auto">
 
                         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">

@@ -14,7 +14,7 @@ const CTAFooter = ({ cta }) => {
     const { label, title, description, buttonText, buttonLink } = cta || defaultCta;
 
     return (
-        <div className="bg-jungle-green rounded-t-[2rem] text-white font-sans">
+        <div className="section-gradient text-white font-sans">
 
             {/* ── Compact CTA ── */}
             <div className="mx-auto max-w-5xl px-6 md:px-12 pt-24 pb-12 text-center">
