@@ -193,7 +193,7 @@ const TeamAdmin = () => {
                                     <UsersRound size={22} className="text-mustard-gold" />
                                     <span>Add to Team</span>
                                 </div>
-                                <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white transition-colors">
+                                <button type="button" onClick={() => setShowForm(false)} title="Close" className="text-gray-400 hover:text-white transition-colors">
                                     <X size={24} />
                                 </button>
                             </h2>

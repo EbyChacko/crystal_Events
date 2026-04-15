@@ -227,7 +227,7 @@ const Messages = () => {
                                 className="w-full bg-white/5 border border-white/10 text-sm rounded-xl pl-9 pr-10 py-2 text-white focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
                             />
                             {search && (
-                                <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                                <button onClick={() => setSearch('')} title="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
                                     <X size={14} />
                                 </button>
                             )}
@@ -472,6 +472,7 @@ const Messages = () => {
                                         </button>
                                     )}
                                     <button onClick={() => { setSelectedMessage(null); setConfirmingDeleteId(null); }}
+                                        title="Close message"
                                         className="p-2 hover:bg-white/[0.05] rounded-xl text-gray-400 hover:text-white transition-colors">
                                         <XCircle size={22} />
                                     </button>

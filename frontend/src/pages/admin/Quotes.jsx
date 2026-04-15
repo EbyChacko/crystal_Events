@@ -205,7 +205,7 @@ const Quotes = () => {
                                 placeholder="Search by client or service..."
                                 className="bg-white/5 border border-white/10 text-white text-sm pl-9 pr-10 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 placeholder-gray-600 w-full lg:w-64" />
                             {searchTerm && (
-                                <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                                <button onClick={() => setSearchTerm('')} title="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
                                     <X size={16} />
                                 </button>
                             )}
@@ -288,11 +288,13 @@ const Quotes = () => {
                                                             <Download size={16} />
                                                         </button>
                                                         <button onClick={(e) => { e.stopPropagation(); handleEdit(q); }}
+                                                            title="Edit Quote"
                                                             className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors">
                                                             <Edit3 size={16} />
                                                         </button>
                                                         {user?.is_superuser && (
                                                             <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(q.id); }}
+                                                                title="Delete Quote"
                                                                 className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                                                                 <Trash2 size={16} />
                                                             </button>
@@ -345,10 +347,10 @@ const Quotes = () => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <button onClick={(e) => { e.stopPropagation(); handleDownloadPdf(q.id); }} className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><Download size={14} /></button>
-                                                    <button onClick={(e) => { e.stopPropagation(); handleEdit(q); }} className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleDownloadPdf(q.id); }} title="Download PDF" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><Download size={14} /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleEdit(q); }} title="Edit Quote" className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
                                                     {user?.is_superuser && (
-                                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(q.id); }} className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(q.id); }} title="Delete Quote" className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
                                                     )}
                                                 </>
                                             )}

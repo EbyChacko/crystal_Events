@@ -256,6 +256,7 @@ const UserDetails = () => {
                 <div className="flex items-center space-x-4">
                     <button
                         onClick={() => navigate('/admin/users')}
+                        title="Back to Users"
                         className="p-2 bg-white/5 hover:bg-white/[0.05] rounded-xl text-gray-400 hover:text-white transition-colors"
                     >
                         <ArrowLeft size={20} />
@@ -382,7 +383,7 @@ const UserDetails = () => {
                                     <Pencil size={22} className="text-mustard-gold" />
                                     <span>Edit User Details</span>
                                 </div>
-                                <button type="button" onClick={handleCancelEdit} className="text-gray-400 hover:text-white transition-colors">
+                                <button type="button" onClick={handleCancelEdit} title="Close" className="text-gray-400 hover:text-white transition-colors">
                                     <X size={24} />
                                 </button>
                             </h2>
@@ -401,6 +402,7 @@ const UserDetails = () => {
                                             )}
                                         </div>
                                         <button type="button" onClick={() => fileInputRef.current?.click()}
+                                            title="Change profile photo"
                                             className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                             <Camera size={20} className="text-white" />
                                         </button>

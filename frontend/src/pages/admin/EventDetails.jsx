@@ -866,6 +866,7 @@ const EventDetails = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div className="flex items-start space-x-4">
                     <button onClick={() => navigate('/admin/events')}
+                        title="Back to Events"
                         className="p-2 bg-white/5 hover:bg-white/[0.05] rounded-xl text-gray-400 hover:text-white transition-colors flex-shrink-0 mt-1">
                         <ArrowLeft size={20} />
                     </button>
@@ -910,7 +911,7 @@ const EventDetails = () => {
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative">
-                            <button type="button" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                            <button type="button" onClick={() => setShowPaymentModal(false)} title="Close" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
                             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -1256,7 +1257,7 @@ const EventDetails = () => {
                                     <Pencil size={22} className="text-mustard-gold" />
                                     <span>Edit Event Details</span>
                                 </div>
-                                <button type="button" onClick={handleCancelEdit} className="text-gray-400 hover:text-white transition-colors">
+                                <button type="button" onClick={handleCancelEdit} title="Close" className="text-gray-400 hover:text-white transition-colors">
                                     <X size={24} />
                                 </button>
                             </h2>
@@ -1545,7 +1546,7 @@ const EventDetails = () => {
                                             <FileText size={22} className="text-mustard-gold" />
                                             <span>{editingQuote ? 'Edit Quote' : 'Create Quote'}</span>
                                         </div>
-                                        <button type="button" onClick={() => setShowQuoteForm(false)} className="text-gray-400 hover:text-white transition-colors">
+                                        <button type="button" onClick={() => setShowQuoteForm(false)} title="Close" className="text-gray-400 hover:text-white transition-colors">
                                             <X size={24} />
                                         </button>
                                     </h2>
@@ -1875,7 +1876,7 @@ const EventDetails = () => {
                                     <SlidersHorizontal size={18} className="text-mustard-gold" />
                                     Actions & Details
                                 </h2>
-                                <button onClick={() => setSidebarOpen(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-xl transition-colors">
+                                <button onClick={() => setSidebarOpen(false)} title="Close panel" className="p-2 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-xl transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>
@@ -2017,7 +2018,7 @@ const EventDetails = () => {
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowRefundModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative">
-                            <button type="button" onClick={() => setShowRefundModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                            <button type="button" onClick={() => setShowRefundModal(false)} title="Close" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
                             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -2081,7 +2082,7 @@ const EventDetails = () => {
                                     <PlusCircle className="text-amber-400" size={22} />
                                     Add Expense
                                 </div>
-                                <button type="button" onClick={() => { setShowExpenseModal(false); setExpenseFormData(expenseFormDefault); setExpenseReceiptMode('file'); }} className="text-gray-400 hover:text-white transition-colors">
+                                <button type="button" onClick={() => { setShowExpenseModal(false); setExpenseFormData(expenseFormDefault); setExpenseReceiptMode('file'); }} title="Close" className="text-gray-400 hover:text-white transition-colors">
                                     <X size={20} />
                                 </button>
                             </h3>
@@ -2207,7 +2208,7 @@ const EventDetails = () => {
                                     <Clock className="text-blue-400" size={22} />
                                     Log Staff Pay
                                 </div>
-                                <button type="button" onClick={() => { setShowStaffPayModal(false); setStaffPayFormData(staffPayFormDefault); }} className="text-gray-400 hover:text-white transition-colors">
+                                <button type="button" onClick={() => { setShowStaffPayModal(false); setStaffPayFormData(staffPayFormDefault); }} title="Close" className="text-gray-400 hover:text-white transition-colors">
                                     <X size={20} />
                                 </button>
                             </h3>
@@ -2277,7 +2278,7 @@ const EventDetails = () => {
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentHistoryModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-indigo-500/20 rounded-2xl p-6 w-full max-w-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
-                            <button type="button" onClick={() => setShowPaymentHistoryModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                            <button type="button" onClick={() => setShowPaymentHistoryModal(false)} title="Close" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
                             <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
@@ -2385,7 +2386,7 @@ const EventDetails = () => {
                          onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowGalleryModal(false); setShowImageForm(false); } }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-purple-500/20 rounded-2xl p-6 w-full max-w-3xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
-                            <button type="button" onClick={() => { setShowGalleryModal(false); setShowImageForm(false); }} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                            <button type="button" onClick={() => { setShowGalleryModal(false); setShowImageForm(false); }} title="Close" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
                             <div className="mb-6">
@@ -2520,7 +2521,7 @@ const EventDetails = () => {
                          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowLogbookModal(false); }}>
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
-                            <button type="button" onClick={() => setShowLogbookModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                            <button type="button" onClick={() => setShowLogbookModal(false)} title="Close logbook" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
                             <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">

@@ -197,7 +197,7 @@ const ServicesAdmin = () => {
                                     <Briefcase size={22} className="text-mustard-gold" />
                                     <span>{editingId ? 'Edit Service' : 'Add New Service'}</span>
                                 </div>
-                                <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white transition-colors">
+                                <button type="button" onClick={() => setShowForm(false)} title="Close" className="text-gray-400 hover:text-white transition-colors">
                                     <X size={24} />
                                 </button>
                             </h2>
@@ -263,7 +263,7 @@ const ServicesAdmin = () => {
                         placeholder="Search services..."
                         className="w-full bg-white/5 border border-white/10 text-white text-sm pl-9 pr-10 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 placeholder-gray-600 transition-all" />
                     {searchTerm && (
-                        <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                        <button onClick={() => setSearchTerm('')} title="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
                             <X size={14} />
                         </button>
                     )}
@@ -300,10 +300,12 @@ const ServicesAdmin = () => {
                                 ) : (
                                     <>
                                         <button onClick={() => handleEdit(service)}
+                                            title="Edit Service"
                                             className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors">
                                             <Edit3 size={16} />
                                         </button>
                                         <button onClick={() => setDeleteConfirmId(service.id)}
+                                            title="Delete Service"
                                             className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                                             <Trash2 size={16} />
                                         </button>

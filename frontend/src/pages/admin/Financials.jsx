@@ -483,7 +483,7 @@ const Financials = () => {
                                     {formMode === 'expense' ? <DollarSign size={22} className="text-mustard-gold" /> : <Plus size={22} className="text-emerald-400" />}
                                     <span>{editingId ? `Edit ${formMode === 'expense' ? 'Expense' : 'Income'}` : `Add New ${formMode === 'expense' ? 'Expense' : 'Income'}`}</span>
                                 </div>
-                                <button type="button" onClick={() => setFormMode('none')} className="text-gray-400 hover:text-white transition-colors">
+                                <button type="button" onClick={() => setFormMode('none')} title="Close" className="text-gray-400 hover:text-white transition-colors">
                                     <X size={24} />
                                 </button>
                             </h2>
@@ -623,7 +623,7 @@ const Financials = () => {
                                 placeholder="Search transactions..."
                                 className="bg-white/5 border border-white/10 text-white text-sm pl-9 pr-10 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 placeholder-gray-600 w-full" />
                             {searchTerm && (
-                                <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                                <button onClick={() => setSearchTerm('')} title="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
                                     <X size={16} />
                                 </button>
                             )}
@@ -705,10 +705,12 @@ const Financials = () => {
                                                         {t.isManual && (
                                                             <>
                                                                 <button onClick={() => handleEdit(t)}
+                                                                    title="Edit Transaction"
                                                                     className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors">
                                                                     <Edit3 size={16} />
                                                                 </button>
                                                                 <button onClick={() => setDeleteConfirmId(t.id)}
+                                                                    title="Delete Transaction"
                                                                     className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                                                                     <Trash2 size={16} />
                                                                 </button>
@@ -784,19 +786,19 @@ const Financials = () => {
                                                     )}
                                                     {t.isManual && (
                                                         <>
-                                                            <button onClick={(e) => { e.stopPropagation(); handleEdit(t); }} className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
-                                                            <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(t.id); }} className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleEdit(t); }} title="Edit Transaction" className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
+                                                            <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(t.id); }} title="Delete Transaction" className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
                                                         </>
                                                     )}
                                                     {t.type === 'income' && !t.isManual && (
                                                         <>
-                                                            <button onClick={(e) => { e.stopPropagation(); navigate(`/admin/events/${t.originalId}`); }} className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></button>
+                                                            <button onClick={(e) => { e.stopPropagation(); navigate(`/admin/events/${t.originalId}`); }} title="View Event" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></button>
                                                             <button onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 const token = localStorage.getItem('access_token');
                                                                 const url = `${API_BASE_URL}/events/${t.originalId}/invoice/pdf/?token=${token}${t.logIdx !== undefined ? `&logIdx=${t.logIdx}` : ''}`;
                                                                 window.open(url, '_blank');
-                                                            }} className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Download size={14} /></button>
+                                                            }} title="Download Invoice" className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Download size={14} /></button>
                                                         </>
                                                     )}
                                                 </>
@@ -827,7 +829,7 @@ const Financials = () => {
                                     <SlidersHorizontal size={18} className="text-mustard-gold" />
                                     Actions
                                 </h2>
-                                <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-xl transition-colors">
+                                <button onClick={() => setIsSidebarOpen(false)} title="Close panel" className="p-2 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-xl transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>
@@ -878,7 +880,7 @@ const Financials = () => {
                                 {/* Profit Distribution */}
                                 <p className="text-xs text-gray-500 uppercase tracking-wider font-medium px-2 pt-4 pb-1 flex items-center justify-between">
                                     <span className="flex items-center gap-1"><Crown size={10} className="text-yellow-400" /> Profit Distribution</span>
-                                    <button onClick={fetchProfitData} className="text-gray-600 hover:text-gray-400 transition-colors"><RefreshCw size={11} /></button>
+                                    <button onClick={fetchProfitData} title="Refresh profit data" className="text-gray-600 hover:text-gray-400 transition-colors"><RefreshCw size={11} /></button>
                                 </p>
                                 <div className="p-3 rounded-xl bg-black/30 border border-white/10">
                                     {profitLoading ? (
@@ -958,6 +960,7 @@ const Financials = () => {
                                     </div>
                                 </div>
                                 <button onClick={() => { setShowSplitModal(false); setSplitAmount(''); setSplitMarkAsPaid(false); }}
+                                    title="Close"
                                     className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
                                     <X size={18} />
                                 </button>
