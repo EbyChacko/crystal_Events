@@ -38,14 +38,15 @@ export const firstName = (s) =>
 
 /**
  * Returns a URL safe for viewing a receipt in a new browser tab.
- * PDFs are wrapped in Google Docs Viewer so they open as a document
- * rather than triggering a download or rendering as a Cloudinary image preview.
+ * For Cloudinary image-type PDF URLs, swaps /image/upload/ → /raw/upload/
+ * so the browser receives the actual PDF file (application/pdf) rather
+ * than a Cloudinary JPEG page-preview render.
  */
 export const receiptViewUrl = (url) => {
     if (!url) return null;
     const path = url.toLowerCase().split('?')[0];
-    if (path.endsWith('.pdf')) {
-        return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}`;
+    if (path.endsWith('.pdf') && url.includes('res.cloudinary.com') && url.includes('/image/upload/')) {
+        return url.replace('/image/upload/', '/raw/upload/');
     }
     return url;
 };
