@@ -49,9 +49,11 @@ const AdminLayout = () => {
         { name: 'Quotes', path: '/admin/quotes', icon: <FileText size={20} /> },
     ];
 
+    navItems.push({ name: 'Financials', path: '/admin/financials', icon: <DollarSign size={20} /> });
+    navItems.push({ name: 'My Finance', path: '/admin/my-finance', icon: <Wallet size={20} /> });
+
     if (user?.is_superuser || user?.can_view_financials) {
-        navItems.push({ name: 'Financials', path: '/admin/financials', icon: <DollarSign size={20} /> });
-        navItems.push({ name: 'Staff Finance', path: '/admin/staff-finance', icon: <Wallet size={20} /> });
+        navItems.push({ name: 'Staff Finance', path: '/admin/staff-finance', icon: <UsersRound size={20} /> });
         navItems.push({ name: 'Assets', path: '/admin/assets', icon: <PieChart size={20} /> });
     }
 

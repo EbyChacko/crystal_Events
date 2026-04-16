@@ -709,7 +709,7 @@ const Financials = () => {
                                                                 <ExternalLink size={16} />
                                                             </a>
                                                         )}
-                                                        {t.isManual && (
+                                                        {t.isManual && canManageFinancials && (
                                                             <>
                                                                 <button onClick={() => handleEdit(t)}
                                                                     title="Edit Transaction"
@@ -791,7 +791,7 @@ const Financials = () => {
                                                     {t.receipt_url && (
                                                         <a href={t.receipt_url} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></a>
                                                     )}
-                                                    {t.isManual && (
+                                                    {t.isManual && canManageFinancials && (
                                                         <>
                                                             <button onClick={(e) => { e.stopPropagation(); handleEdit(t); }} title="Edit Transaction" className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
                                                             <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(t.id); }} title="Delete Transaction" className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>

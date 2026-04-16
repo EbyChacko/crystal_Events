@@ -33,6 +33,7 @@ import UserDetails from './pages/admin/UserDetails';
 import Profile from './pages/admin/Profile';
 import Financials from './pages/admin/Financials';
 import StaffFinance from './pages/admin/StaffFinance';
+import MyFinance from './pages/admin/MyFinance';
 import Assets from './pages/admin/Assets';
 import Quotes from './pages/admin/Quotes';
 import ServicesAdmin from './pages/admin/ServicesAdmin';
@@ -84,6 +85,7 @@ function App() {
               <Route path="profile" element={<Profile />} />
               <Route path="financials" element={<Financials />} />
               <Route path="staff-finance" element={<StaffFinance />} />
+              <Route path="my-finance" element={<MyFinance />} />
               <Route path="assets" element={<Assets />} />
               <Route path="quotes" element={<Quotes />} />
               <Route path="services" element={
