@@ -6,7 +6,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
-import { fmtDec, fmtDate, fmtDateTime } from '../../utils/formatters';
+import { fmtDec, fmtDate, fmtDateTime, receiptViewUrl } from '../../utils/formatters';
 
 const isEventPay = (e) => e.category === 'Staffing' && e.event_name;
 
@@ -167,7 +167,7 @@ const MyFinance = () => {
                                                         {fmtDec(item.amount)}
                                                     </span>
                                                     {item.receipt_url && (
-                                                        <a href={item.receipt_url} target="_blank" rel="noopener noreferrer"
+                                                        <a href={receiptViewUrl(item.receipt_url)} target="_blank" rel="noopener noreferrer"
                                                             title="View Receipt"
                                                             className="text-xs flex items-center gap-1 text-gray-500 hover:text-emerald-400 transition-colors">
                                                             <ExternalLink size={12} /> Receipt
@@ -222,7 +222,7 @@ const MyFinance = () => {
                                                                 </span>
                                                             )}
                                                             {item.receipt_url && (
-                                                                <a href={item.receipt_url} target="_blank" rel="noopener noreferrer"
+                                                                <a href={receiptViewUrl(item.receipt_url)} target="_blank" rel="noopener noreferrer"
                                                                     title="View Receipt"
                                                                     className="text-xs flex items-center gap-1 text-gray-600 hover:text-emerald-400 transition-colors">
                                                                     <ExternalLink size={11} /> Receipt
@@ -262,7 +262,7 @@ const MyFinance = () => {
                                             <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
                                                 <span className="text-sm font-bold text-indigo-400">{fmtDec(item.amount)}</span>
                                                 {item.receipt_url && (
-                                                    <a href={item.receipt_url} target="_blank" rel="noopener noreferrer"
+                                                    <a href={receiptViewUrl(item.receipt_url)} target="_blank" rel="noopener noreferrer"
                                                         title="View Receipt"
                                                         className="text-xs flex items-center gap-1 text-gray-500 hover:text-emerald-400 transition-colors">
                                                         <ExternalLink size={11} /> Receipt

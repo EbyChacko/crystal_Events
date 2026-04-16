@@ -12,6 +12,7 @@ import Pagination from '../../components/admin/Pagination';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../../utils/constants';
 import { inputClass, selectClass } from '../../utils/classes';
 import { validateFile } from '../../utils/validation';
+import { receiptViewUrl } from '../../utils/formatters';
 import usePagination from '../../hooks/usePagination';
 
 const StatCard = ({ icon, label, value, sub, delay, isPositive }) => (
@@ -703,7 +704,7 @@ const Financials = () => {
                                                 ) : (
                                                     <div className="flex items-center justify-end space-x-2">
                                                         {t.receipt_url && (
-                                                            <a href={t.receipt_url} target="_blank" rel="noopener noreferrer"
+                                                            <a href={receiptViewUrl(t.receipt_url)} target="_blank" rel="noopener noreferrer"
                                                                 className="p-1.5 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
                                                                 title="View Receipt">
                                                                 <ExternalLink size={16} />
@@ -789,7 +790,7 @@ const Financials = () => {
                                             ) : (
                                                 <>
                                                     {t.receipt_url && (
-                                                        <a href={t.receipt_url} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></a>
+                                                        <a href={receiptViewUrl(t.receipt_url)} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></a>
                                                     )}
                                                     {t.isManual && canManageFinancials && (
                                                         <>
