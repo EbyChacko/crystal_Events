@@ -1376,6 +1376,10 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         self._save_with_image(serializer)
 
     def perform_update(self, serializer):
+        # If paid_by is being cleared, reset paid_back so no ghost pending reimbursements remain
+        if 'paid_by' in serializer.validated_data and serializer.validated_data['paid_by'] is None:
+            serializer.validated_data['paid_back'] = False
+            serializer.validated_data['paid_back_at'] = None
         self._save_with_image(serializer)
 
     @action(detail=False, methods=['post'], url_path='bulk_mark_paid_back')

@@ -30,7 +30,7 @@ const StaffFinance = () => {
     useEffect(() => {
         setSummaryLoading(true);
         Promise.allSettled([
-            api.get('/auth/users/'),
+            api.get('/auth/staff/'),
             api.get('/expenses/'),
             api.get('/incomes/'),
         ]).then(([usersRes, expRes, incRes]) => {

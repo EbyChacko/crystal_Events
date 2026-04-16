@@ -309,6 +309,11 @@ const Financials = () => {
                 await api.patch(`${endpoint}${editingId}/`, data, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
+                // If paid_by was cleared (switched to Company), explicitly null it out
+                // and reset paid_back — FormData can't send null for FK fields
+                if (formMode === 'expense' && !formData.paid_by) {
+                    await api.patch(`${endpoint}${editingId}/`, { paid_by: null, paid_back: false });
+                }
                 addToast(`${typeLabel} updated successfully!`, 'success');
             } else {
                 await api.post(endpoint, data, {
