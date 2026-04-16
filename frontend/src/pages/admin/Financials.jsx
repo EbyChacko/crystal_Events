@@ -700,8 +700,8 @@ const Financials = () => {
                                                     </div>
                                                 ) : (
                                                     <div className="flex items-center justify-end space-x-2">
-                                                        {(t.receipt_image_url || t.receipt_image) && (
-                                                            <a href={t.receipt_image_url || t.receipt_image} target="_blank" rel="noopener noreferrer"
+                                                        {t.receipt_url && (
+                                                            <a href={t.receipt_url} target="_blank" rel="noopener noreferrer"
                                                                 className="p-1.5 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
                                                                 title="View Receipt">
                                                                 <ExternalLink size={16} />
@@ -786,8 +786,8 @@ const Financials = () => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    {(t.receipt_image_url || t.receipt_image) && (
-                                                        <a href={t.receipt_image_url || t.receipt_image} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></a>
+                                                    {t.receipt_url && (
+                                                        <a href={t.receipt_url} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></a>
                                                     )}
                                                     {t.isManual && (
                                                         <>

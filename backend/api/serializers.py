@@ -58,6 +58,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
     event_name = serializers.CharField(source='event.event_name', read_only=True, default=None)
     approved_by_name = serializers.SerializerMethodField()
     paid_by_name = serializers.SerializerMethodField()
+    receipt_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Expense
@@ -73,8 +74,21 @@ class ExpenseSerializer(serializers.ModelSerializer):
             return f"{obj.paid_by.first_name} {obj.paid_by.last_name}".strip() or obj.paid_by.username
         return None
 
+    def get_receipt_url(self, obj):
+        if obj.receipt_image_url:
+            return obj.receipt_image_url
+        if obj.receipt_image:
+            url = obj.receipt_image.url
+            if url.startswith('http'):
+                return url
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(url)
+        return None
+
 class IncomeSerializer(serializers.ModelSerializer):
     paid_by_name = serializers.SerializerMethodField()
+    receipt_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Income
@@ -83,6 +97,18 @@ class IncomeSerializer(serializers.ModelSerializer):
     def get_paid_by_name(self, obj):
         if obj.paid_by:
             return f"{obj.paid_by.first_name} {obj.paid_by.last_name}".strip() or obj.paid_by.username
+        return None
+
+    def get_receipt_url(self, obj):
+        if obj.receipt_image_url:
+            return obj.receipt_image_url
+        if obj.receipt_image:
+            url = obj.receipt_image.url
+            if url.startswith('http'):
+                return url
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(url)
         return None
 
 class TravelRateSerializer(serializers.ModelSerializer):
