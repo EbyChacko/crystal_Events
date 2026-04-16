@@ -56,10 +56,15 @@ def _cloudinary_upload(file_obj, folder='uploads'):
         # so we must reset the pointer before passing it to Cloudinary.
         if hasattr(file_obj, 'seek'):
             file_obj.seek(0)
+        content_type = getattr(file_obj, 'content_type', '')
+        is_pdf = (
+            content_type == 'application/pdf'
+            or str(getattr(file_obj, 'name', '')).lower().endswith('.pdf')
+        )
         result = cloudinary.uploader.upload(
             file_obj,
             folder=f'crystal_events/{folder}',
-            resource_type='auto',
+            resource_type='raw' if is_pdf else 'auto',
         )
         return result.get('secure_url')
     except Exception as exc:
