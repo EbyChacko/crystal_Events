@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { PieChart, TrendingDown, Edit3, Trash2, CheckCircle, X, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Pagination from '../../components/admin/Pagination';
 import usePagination from '../../hooks/usePagination';
@@ -30,6 +31,8 @@ const StatCard = ({ icon, label, value, isPositive = null, delay = 0 }) => (
 
 const Assets = () => {
     const { addToast } = useToast();
+    const { user } = useAuth();
+    const canManageFinancials = user?.is_superuser || user?.can_view_financials;
     const [assetsList, setAssetsList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingAssetId, setEditingAssetId] = useState(null);
@@ -165,15 +168,15 @@ const Assets = () => {
                                                 €{a.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-mustard-gold">
-                                                {editingAssetId === a.originalId ? (
+                                                {canManageFinancials && editingAssetId === a.originalId ? (
                                                     <div className="flex justify-end items-center space-x-2">
-                                                        <input 
-                                                            type="number" 
-                                                            value={assetCurrentValue} 
-                                                            onChange={(e) => setAssetCurrentValue(e.target.value)} 
-                                                            className="w-24 bg-black/40 border border-white/20 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-mustard-gold" 
-                                                            step="0.01" 
-                                                            min="0" 
+                                                        <input
+                                                            type="number"
+                                                            value={assetCurrentValue}
+                                                            onChange={(e) => setAssetCurrentValue(e.target.value)}
+                                                            className="w-24 bg-black/40 border border-white/20 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-mustard-gold"
+                                                            step="0.01"
+                                                            min="0"
                                                         />
                                                         <button onClick={() => saveAssetValue(a)} className="text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 p-1.5 rounded-lg transition-colors"><CheckCircle size={16} /></button>
                                                         <button onClick={() => setEditingAssetId(null)} className="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded-lg transition-colors"><X size={16} /></button>
@@ -182,6 +185,7 @@ const Assets = () => {
                                                     <span>€{a.asset_current_value.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                 )}
                                             </td>
+                                            {canManageFinancials && (
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 {confirmRemoveAssetId === a.originalId ? (
                                                     <div className="flex justify-end items-center space-x-2 border border-red-500/30 p-1.5 rounded-xl bg-red-500/5">
@@ -198,6 +202,7 @@ const Assets = () => {
                                                     </div>
                                                 )}
                                             </td>
+                                            )}
                                         </tr>
                                     ))}
                                 </tbody>
@@ -222,14 +227,14 @@ const Assets = () => {
                                         </div>
                                         <div>
                                             <p className="text-xs text-gray-500 mb-0.5">Current Value</p>
-                                            {editingAssetId === a.originalId ? (
+                                            {canManageFinancials && editingAssetId === a.originalId ? (
                                                 <div className="flex items-center space-x-2">
-                                                    <input 
-                                                        type="number" 
-                                                        value={assetCurrentValue} 
-                                                        onChange={(e) => setAssetCurrentValue(e.target.value)} 
-                                                        className="w-full bg-black/40 border border-white/20 rounded-lg px-2 py-1 text-white text-sm focus:outline-none focus:border-mustard-gold" 
-                                                        step="0.01" min="0" 
+                                                    <input
+                                                        type="number"
+                                                        value={assetCurrentValue}
+                                                        onChange={(e) => setAssetCurrentValue(e.target.value)}
+                                                        className="w-full bg-black/40 border border-white/20 rounded-lg px-2 py-1 text-white text-sm focus:outline-none focus:border-mustard-gold"
+                                                        step="0.01" min="0"
                                                     />
                                                 </div>
                                             ) : (
@@ -242,6 +247,7 @@ const Assets = () => {
                                         <div className="flex items-center gap-1.5 text-xs">
                                             <span>{new Date(a.date).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                         </div>
+                                        {canManageFinancials && (
                                         <div className="flex items-center gap-1 flex-shrink-0">
                                             {confirmRemoveAssetId === a.originalId ? (
                                                 <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
@@ -260,6 +266,7 @@ const Assets = () => {
                                                 </>
                                             )}
                                         </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
