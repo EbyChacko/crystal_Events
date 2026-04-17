@@ -79,6 +79,9 @@ def _cloudinary_upload(file_obj, folder='uploads'):
             except Exception as exc:
                 print(f'Cloudinary upload error ({folder}, resource_type={resource_type}): {exc}')
         return None
+    except Exception as exc:
+        print(f'Cloudinary upload fatal error ({folder}): {exc}')
+        return None
 from .serializers import (
     ServiceSerializer, EventSerializer, ExpenseSerializer, IncomeSerializer,
     QuoteSerializer, MessageSerializer, UserSerializer,
