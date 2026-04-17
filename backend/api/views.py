@@ -52,38 +52,24 @@ def _cloudinary_upload(file_obj, folder='uploads'):
             api_secret=api_secret,
             secure=True,
         )
-        import uuid, os
         # DRF's ImageField.to_internal_value() reads the file during validation,
         # so we must reset the pointer before passing it to Cloudinary.
         if hasattr(file_obj, 'seek'):
             file_obj.seek(0)
-        content_type = getattr(file_obj, 'content_type', '')
-        original_name = getattr(file_obj, 'name', None) or ''
-        is_pdf = (
-            content_type == 'application/pdf'
-            or original_name.lower().endswith('.pdf')
+        # Use resource_type='auto' for everything (images AND PDFs).
+        # 'raw' type is ACL-restricted on this Cloudinary account (returns 401).
+        # 'auto' stores PDFs as image type — publicly accessible — and
+        # the .pdf extension in the returned URL makes Cloudinary deliver
+        # the original PDF file (not a JPEG preview).
+        result = cloudinary.uploader.upload(
+            file_obj,
+            folder=f'crystal_events/{folder}',
+            resource_type='auto',
+            use_filename=True,
+            unique_filename=True,
         )
-        if is_pdf:
-            # Upload PDFs as raw so the URL serves the actual file (not a JPEG preview).
-            # Explicitly set a public_id ending in .pdf so Cloudinary sends
-            # Content-Type: application/pdf and browsers open the file inline.
-            base_name = os.path.splitext(os.path.basename(original_name))[0][:40] or 'receipt'
-            public_id = f'crystal_events/{folder}/{base_name}_{uuid.uuid4().hex[:8]}.pdf'
-            result = cloudinary.uploader.upload(
-                file_obj,
-                public_id=public_id,
-                resource_type='raw',
-            )
-        else:
-            result = cloudinary.uploader.upload(
-                file_obj,
-                folder=f'crystal_events/{folder}',
-                resource_type='auto',
-                use_filename=True,
-                unique_filename=True,
-            )
         url = result.get('secure_url')
-        print(f'Cloudinary upload OK ({folder}, is_pdf={is_pdf}): {url}')
+        print(f'Cloudinary upload OK ({folder}): {url}')
         return url
     except Exception as exc:
         print(f'Cloudinary upload fatal error ({folder}): {exc}')
