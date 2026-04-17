@@ -417,7 +417,7 @@ const Dashboard = () => {
                     </div>
 
                     <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={256}>
                             <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
@@ -450,7 +450,7 @@ const Dashboard = () => {
                     {eventStatusData.length > 0 ? (
                         <>
                             <div className="h-44">
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height={176}>
                                     <PieChart>
                                         <Pie data={eventStatusData} cx="50%" cy="50%" innerRadius={52} outerRadius={78}
                                             dataKey="value" paddingAngle={3}>
@@ -524,7 +524,7 @@ const Dashboard = () => {
                     {quoteStatusData.length > 0 ? (
                         <>
                             <div className="h-44">
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height={176}>
                                     <PieChart>
                                         <Pie data={quoteStatusData} cx="50%" cy="50%" innerRadius={48} outerRadius={72}
                                             dataKey="value" paddingAngle={3}>
@@ -557,7 +557,7 @@ const Dashboard = () => {
                     <SectionHeader icon={<Zap size={18} />} title="Revenue by Event Type" sub="Breakdown by category" />
                     {eventTypeRevenue.length > 0 ? (
                         <div className="h-52">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height={208}>
                                 <BarChart data={eventTypeRevenue} layout="vertical" margin={{ left: 0, right: 10, top: 0, bottom: 0 }}>
                                     <XAxis type="number" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
                                         tickLine={false} tickFormatter={v => `€${v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v}`} />
