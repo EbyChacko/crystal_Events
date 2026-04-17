@@ -452,7 +452,7 @@ const Financials = () => {
             </div>
             <AnimatePresence>
                 {/* Mobile Overview Toggle */}
-                <div key="overview-toggle" className="md:hidden mb-4 mt-8">
+                <div key="overview-toggle" className="lg:hidden mb-4 mt-8">
                     <button
                         onClick={() => setIsOverviewOpen(!isOverviewOpen)}
                         className="w-full flex items-center justify-between bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none"
@@ -650,7 +650,7 @@ const Financials = () => {
                 ) : (
                     <div className="w-full">
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto overflow-y-hidden">
+                        <div className="hidden lg:block overflow-x-auto overflow-y-hidden">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-white/10">
@@ -767,7 +767,7 @@ const Financials = () => {
                         </div>
 
                         {/* Mobile List View (WhatsApp Style) */}
-                        <div className="md:hidden divide-y divide-white/5">
+                        <div className="lg:hidden divide-y divide-white/5">
                             {pagedTransactions.map((t, idx) => (
                                 <div key={t.id || `tx-m-${idx}`} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
                                     <div className="flex justify-between items-start gap-4">

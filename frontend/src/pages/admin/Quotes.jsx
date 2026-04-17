@@ -222,7 +222,7 @@ const Quotes = () => {
                 ) : (
                     <div className="w-full">
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto">
+                        <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-white/10">
@@ -309,7 +309,7 @@ const Quotes = () => {
                         </div>
 
                         {/* Mobile List View (WhatsApp Style) */}
-                        <div className="md:hidden divide-y divide-white/5">
+                        <div className="lg:hidden divide-y divide-white/5">
                             {filteredQuotes.map((q) => (
                                 <div key={q.id} onClick={() => q.event && navigate(`/admin/events/${q.event}`)} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative cursor-pointer">
                                     <div className="flex justify-between items-start gap-4">

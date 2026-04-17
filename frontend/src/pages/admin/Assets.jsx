@@ -143,7 +143,7 @@ const Assets = () => {
                     <div className="p-8 text-center text-gray-500">No active assets tracked. Add expenses and mark them as assets.</div>
                 ) : (
                     <>
-                        <div className="overflow-x-auto hidden md:block">
+                        <div className="overflow-x-auto hidden lg:block">
                             <table className="w-full text-left min-w-[700px]">
                                 <thead>
                                     <tr className="border-b border-white/10">
@@ -210,7 +210,7 @@ const Assets = () => {
                         </div>
 
                         {/* Mobile List View */}
-                        <div className="md:hidden divide-y divide-white/5">
+                        <div className="lg:hidden divide-y divide-white/5">
                             {pagedAssets.map((a) => (
                                 <div key={a.id} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
                                     <div className="flex justify-between items-start gap-4">

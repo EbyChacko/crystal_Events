@@ -149,7 +149,7 @@ const Events = () => {
                 ) : (
                     <div className="w-full">
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto">
+                        <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-white/10">
@@ -208,7 +208,7 @@ const Events = () => {
                         </div>
 
                         {/* Mobile List View (WhatsApp Style) */}
-                        <div className="md:hidden divide-y divide-white/5">
+                        <div className="lg:hidden divide-y divide-white/5">
                             {filteredEvents.map((ev) => (
                                 <div key={ev.id}
                                     onClick={() => navigate(`/admin/events/${ev.id}`)}

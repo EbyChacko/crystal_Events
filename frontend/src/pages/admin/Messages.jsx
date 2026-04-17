@@ -297,7 +297,7 @@ const Messages = () => {
                 ) : (
                 <div className="w-full">
                     {/* Desktop Table View */}
-                    <div className="hidden md:block overflow-x-auto">
+                    <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-white/10">
@@ -366,7 +366,7 @@ const Messages = () => {
                     </div>
 
                     {/* Mobile List View (WhatsApp Style) */}
-                    <div className="md:hidden divide-y divide-white/5">
+                    <div className="lg:hidden divide-y divide-white/5">
                         {/* Global Select All for Mobile */}
                         {filteredMessages.length > 0 && (
                             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
