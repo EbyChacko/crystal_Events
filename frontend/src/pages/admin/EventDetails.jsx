@@ -2114,7 +2114,7 @@ const EventDetails = () => {
                                         <select value={expenseFormData.category}
                                             onChange={(e) => setExpenseFormData(p => ({...p, category: e.target.value}))}
                                             className={`${selectClass} border-amber-500/30`} required>
-                                            {['Catering', 'Decor', 'Logistics', 'Travel', 'Equipment', 'Staffing', 'Venue', 'Entertainment', 'Marketing', 'Other'].map(c => (
+                                            {['Catering', 'Decor', 'Logistics', 'Equipment', 'Staffing', 'Venue', 'Entertainment', 'Marketing', 'Stationery', 'Other'].map(c => (
                                                 <option key={c} value={c} className="bg-gray-900">{c}</option>
                                             ))}
                                         </select>
