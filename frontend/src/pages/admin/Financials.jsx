@@ -677,9 +677,13 @@ const Financials = () => {
                                                     <p className="text-xs text-gray-400 mt-0.5">From: {t.payer_name}</p>
                                                 )}
                                                 {t.type === 'expense' && t.category !== 'Profit Payout' && t.paid_by_name && (
-                                                    <span className={`inline-block text-xs px-2 py-0.5 rounded-md mt-0.5 ${t.paid_back ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
-                                                        Paid by: {t.paid_by_name} {t.paid_back ? '✓' : '· pending'}
-                                                    </span>
+                                                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                                        <span className="text-xs text-gray-500">Paid by: {t.paid_by_name}</span>
+                                                        <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-semibold border ${t.paid_back ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/15 text-amber-400 border-amber-500/30'}`}>
+                                                            <span className={`w-1.5 h-1.5 rounded-full ${t.paid_back ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                                                            {t.paid_back ? 'Paid Back' : 'Pending'}
+                                                        </span>
+                                                    </div>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -764,6 +768,15 @@ const Financials = () => {
                                             <span className="text-sm text-gray-400 truncate block text-left mt-0.5">
                                                 {t.category}
                                             </span>
+                                            {t.type === 'expense' && t.category !== 'Profit Payout' && t.paid_by_name && (
+                                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                                    <span className="text-xs text-gray-500">Paid by: {t.paid_by_name}</span>
+                                                    <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-semibold border ${t.paid_back ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/15 text-amber-400 border-amber-500/30'}`}>
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${t.paid_back ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                                                        {t.paid_back ? 'Paid Back' : 'Pending'}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex-shrink-0 text-right">
                                             <span className={`text-sm font-bold ${t.type === 'income' ? 'text-emerald-400' : 'text-white'}`}>
