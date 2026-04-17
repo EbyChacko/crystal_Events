@@ -68,20 +68,25 @@ def _cloudinary_upload(file_obj, folder='uploads'):
             unique_filename=True,
         )
         url = result.get('secure_url') or ''
-        # Sign raw URLs at upload time so the stored URL is always accessible
+        # Sign raw URLs at upload time so the stored URL is always accessible.
+        # Wrapped in its own try/except so a signing failure never loses the URL.
         if '/raw/upload/' in url:
-            public_id = result.get('public_id')
-            if public_id:
-                signed, _ = cloudinary.utils.cloudinary_url(
-                    public_id,
-                    resource_type='raw',
-                    type='upload',
-                    sign_url=True,
-                    secure=True,
-                )
-                if signed:
-                    print(f'Cloudinary raw→signed ({folder}): {signed}')
-                    return signed
+            try:
+                import cloudinary.utils
+                public_id = result.get('public_id')
+                if public_id:
+                    signed, _ = cloudinary.utils.cloudinary_url(
+                        public_id,
+                        resource_type='raw',
+                        type='upload',
+                        sign_url=True,
+                        secure=True,
+                    )
+                    if signed:
+                        print(f'Cloudinary raw→signed ({folder}): {signed}')
+                        url = signed
+            except Exception as sign_exc:
+                print(f'Cloudinary sign failed ({folder}), using unsigned URL: {sign_exc}')
         print(f'Cloudinary upload OK ({folder}): {url}')
         return url or None
     except Exception as exc:
