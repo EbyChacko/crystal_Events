@@ -450,7 +450,7 @@ const Financials = () => {
             </div>
             <AnimatePresence>
                 {/* Mobile Overview Toggle */}
-                <div className="md:hidden mb-4 mt-8">
+                <div key="overview-toggle" className="md:hidden mb-4 mt-8">
                     <button
                         onClick={() => setIsOverviewOpen(!isOverviewOpen)}
                         className="w-full flex items-center justify-between bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none"
@@ -461,7 +461,7 @@ const Financials = () => {
                 </div>
 
                 {/* Summary Cards */}
-                <div className={`grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 md:mt-8 ${isOverviewOpen ? 'grid' : 'hidden md:grid'}`}>
+                <div key="overview-cards" className={`grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 md:mt-8 ${isOverviewOpen ? 'grid' : 'hidden md:grid'}`}>
                     <StatCard icon={<TrendingUp size={22} />} label="Net Balance" value={`€${netBalance.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={netBalance >= 0} delay={0} />
                     <StatCard icon={<DollarSign size={22} />} label="Total Income" value={`€${totalIncome.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={true} delay={0.1} />
                     <StatCard icon={<Receipt size={22} />} label="Total Expenses" value={`€${totalExpense.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={false} delay={0.2} />
@@ -558,8 +558,8 @@ const Financials = () => {
                                         </label>
                                         <select name="paid_by" value={formData.paid_by} onChange={handleChange} className={selectClass}>
                                             <option value="" className="bg-gray-900">{formMode === 'income' ? '— Select —' : '— Company / Not applicable —'}</option>
-                                            {staffList.map(s => (
-                                                <option key={s.id} value={s.id} className="bg-gray-900">
+                                            {staffList.map((s, idx) => (
+                                                <option key={s.id ?? `staff-${idx}`} value={s.id} className="bg-gray-900">
                                                     {`${s.first_name} ${s.last_name}`.trim() || s.username}
                                                 </option>
                                             ))}
@@ -661,8 +661,8 @@ const Financials = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {pagedTransactions.map((t) => (
-                                        <tr key={t.id} className="hover:bg-white/5 transition-colors group">
+                                    {pagedTransactions.map((t, idx) => (
+                                        <tr key={t.id || `tx-${idx}`} className="hover:bg-white/5 transition-colors group">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                                 {new Date(t.date).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </td>
@@ -757,8 +757,8 @@ const Financials = () => {
 
                         {/* Mobile List View (WhatsApp Style) */}
                         <div className="md:hidden divide-y divide-white/5">
-                            {pagedTransactions.map((t) => (
-                                <div key={t.id} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
+                            {pagedTransactions.map((t, idx) => (
+                                <div key={t.id || `tx-m-${idx}`} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
                                     <div className="flex justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-base font-bold text-white truncate">{t.reason}</h3>
@@ -838,7 +838,7 @@ const Financials = () => {
             <AnimatePresence>
                 {isSidebarOpen && (
                     <>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        <motion.div key="sidebar-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
                             onClick={() => setIsSidebarOpen(false)} />
                         <motion.div
@@ -916,8 +916,8 @@ const Financials = () => {
                                             </div>
                                             {profitData.distribution && profitData.distribution.length > 0 ? (
                                                 <div className="space-y-2 border-t border-white/10 pt-2">
-                                                    {profitData.distribution.map(owner => (
-                                                        <div key={owner.id}>
+                                                    {profitData.distribution.map((owner, idx) => (
+                                                        <div key={owner.id ?? `owner-${idx}`}>
                                                             <div className="flex justify-between items-center mb-0.5">
                                                                 <span className="text-xs text-gray-300 truncate max-w-[140px]">{owner.name}</span>
                                                                 <span className="text-xs font-semibold text-mustard-gold">{owner.profit_percentage}%</span>
