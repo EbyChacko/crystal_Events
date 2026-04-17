@@ -115,6 +115,8 @@ const Financials = () => {
                 paid_by: e.paid_by || null,
                 paid_by_name: e.paid_by_name || null,
                 paid_back: e.paid_back || false,
+                event_id: e.event || null,
+                event_name: e.event_name || null,
                 isManual: true
             }));
             
@@ -685,6 +687,15 @@ const Financials = () => {
                                                         </span>
                                                     </div>
                                                 )}
+                                                {t.type === 'expense' && t.event_name && (
+                                                    <button
+                                                        onClick={() => navigate(`/admin/events/${t.event_id}`)}
+                                                        className="inline-flex items-center gap-1 mt-1 text-xs text-mustard-gold/80 hover:text-mustard-gold transition-colors"
+                                                    >
+                                                        <ExternalLink size={11} />
+                                                        {t.event_name}
+                                                    </button>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="text-sm text-gray-400">
@@ -776,6 +787,15 @@ const Financials = () => {
                                                         {t.paid_back ? 'Paid Back' : 'Pending'}
                                                     </span>
                                                 </div>
+                                            )}
+                                            {t.type === 'expense' && t.event_name && (
+                                                <button
+                                                    onClick={() => navigate(`/admin/events/${t.event_id}`)}
+                                                    className="inline-flex items-center gap-1 mt-1 text-xs text-mustard-gold/80 hover:text-mustard-gold transition-colors"
+                                                >
+                                                    <ExternalLink size={11} />
+                                                    {t.event_name}
+                                                </button>
                                             )}
                                         </div>
                                         <div className="flex-shrink-0 text-right">
