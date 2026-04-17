@@ -68,22 +68,29 @@ def _cloudinary_upload(file_obj, folder='uploads'):
             unique_filename=True,
         )
         url = result.get('secure_url') or ''
-        # Sign raw URLs at upload time so the stored URL is always accessible.
-        # Wrapped in its own try/except so a signing failure never loses the URL.
-        if '/raw/upload/' in url:
+        # This Cloudinary account has Strict Transformations / ACL enabled,
+        # which blocks unsigned PDF delivery (both raw and image types).
+        # Sign at upload time so the stored URL is always accessible.
+        is_raw = '/raw/upload/' in url
+        is_image_pdf = '/image/upload/' in url and url.lower().endswith('.pdf')
+        if is_raw or is_image_pdf:
             try:
                 import cloudinary.utils
                 public_id = result.get('public_id')
+                resource_type = result.get('resource_type', 'raw' if is_raw else 'image')
                 if public_id:
+                    sign_extra = {'secure': True}
+                    if resource_type == 'image':
+                        sign_extra['format'] = 'pdf'
                     signed, _ = cloudinary.utils.cloudinary_url(
                         public_id,
-                        resource_type='raw',
+                        resource_type=resource_type,
                         type='upload',
                         sign_url=True,
-                        secure=True,
+                        **sign_extra,
                     )
                     if signed:
-                        print(f'Cloudinary raw→signed ({folder}): {signed}')
+                        print(f'Cloudinary PDF signed ({folder}): {signed}')
                         url = signed
             except Exception as sign_exc:
                 print(f'Cloudinary sign failed ({folder}), using unsigned URL: {sign_exc}')

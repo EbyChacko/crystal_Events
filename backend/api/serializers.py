@@ -8,15 +8,20 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import Service, Event, Expense, Income, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate, FoodMenu, FoodMenuItem
 
 
-def _sign_cloudinary_raw_url(url):
-    """Return a signed Cloudinary URL for raw/upload resources.
+def _sign_cloudinary_pdf_url(url):
+    """Return a signed Cloudinary URL for PDF resources.
 
-    Raw Cloudinary resources require a signed URL when the account has
-    access-control restrictions (ACL).  The signature is derived from the
-    API secret so it never expires and can be served directly to clients.
-    Falls back to the original URL if signing is not possible.
+    This Cloudinary account has Strict Transformations enabled, which
+    blocks unsigned delivery of PDFs (both raw/upload and image/upload
+    with .pdf format).  Signing with the API secret bypasses the
+    restriction.  Falls back to the original URL if signing fails.
     """
-    if not url or '/raw/upload/' not in url:
+    if not url or 'res.cloudinary.com' not in url:
+        return url
+    # Only sign PDF URLs (raw type always, image type only for .pdf)
+    is_raw = '/raw/upload/' in url
+    is_image_pdf = '/image/upload/' in url and url.lower().endswith('.pdf')
+    if not is_raw and not is_image_pdf:
         return url
     try:
         from django.conf import settings as django_settings
@@ -30,18 +35,30 @@ def _sign_cloudinary_raw_url(url):
             api_secret=cfg.get('API_SECRET', ''),
             secure=True,
         )
-        # Parse: https://res.cloudinary.com/<cloud>/raw/upload/[v<ver>/]<public_id>
-        match = re.search(r'/raw/upload/(?:(v\d+)/)?(.+)$', url)
-        if not match:
-            return url
-        version_token = match.group(1)  # e.g. "v1776396911" or None
-        public_id = match.group(2)      # e.g. "crystal_events/expenses/file.pdf"
-        extra = {}
-        if version_token:
-            extra['version'] = version_token[1:]  # strip leading 'v'
+        if is_raw:
+            # raw public_id INCLUDES the extension: "folder/file.pdf"
+            match = re.search(r'/raw/upload/(?:(v\d+)/)?(.+)$', url)
+            if not match:
+                return url
+            resource_type = 'raw'
+            public_id = match.group(2)
+            extra = {}
+            if match.group(1):
+                extra['version'] = match.group(1)[1:]
+        else:
+            # image public_id EXCLUDES the extension; format is separate
+            match = re.search(r'/image/upload/(?:(v\d+)/)?(.+)\.pdf$', url, re.IGNORECASE)
+            if not match:
+                return url
+            resource_type = 'image'
+            public_id = match.group(2)
+            extra = {'format': 'pdf'}
+            if match.group(1):
+                extra['version'] = match.group(1)[1:]
+
         signed_url, _ = cloudinary.utils.cloudinary_url(
             public_id,
-            resource_type='raw',
+            resource_type=resource_type,
             type='upload',
             sign_url=True,
             **extra,
@@ -120,11 +137,11 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
     def get_receipt_url(self, obj):
         if obj.receipt_image_url:
-            return _sign_cloudinary_raw_url(obj.receipt_image_url)
+            return _sign_cloudinary_pdf_url(obj.receipt_image_url)
         if obj.receipt_image:
             url = obj.receipt_image.url
             if url.startswith('http'):
-                return _sign_cloudinary_raw_url(url)
+                return _sign_cloudinary_pdf_url(url)
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(url)
@@ -145,11 +162,11 @@ class IncomeSerializer(serializers.ModelSerializer):
 
     def get_receipt_url(self, obj):
         if obj.receipt_image_url:
-            return _sign_cloudinary_raw_url(obj.receipt_image_url)
+            return _sign_cloudinary_pdf_url(obj.receipt_image_url)
         if obj.receipt_image:
             url = obj.receipt_image.url
             if url.startswith('http'):
-                return _sign_cloudinary_raw_url(url)
+                return _sign_cloudinary_pdf_url(url)
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(url)
