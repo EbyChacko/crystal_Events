@@ -56,10 +56,6 @@ def _cloudinary_upload(file_obj, folder='uploads'):
         # so we must reset the pointer before passing it to Cloudinary.
         if hasattr(file_obj, 'seek'):
             file_obj.seek(0)
-        # Use resource_type='auto' for everything.
-        # Cloudinary may auto-detect PDFs as 'raw' or 'image' type depending
-        # on the account.  Raw resources are ACL-restricted (return 401),
-        # so if the returned URL is raw/upload we sign it immediately.
         result = cloudinary.uploader.upload(
             file_obj,
             folder=f'crystal_events/{folder}',
@@ -67,35 +63,9 @@ def _cloudinary_upload(file_obj, folder='uploads'):
             use_filename=True,
             unique_filename=True,
         )
-        url = result.get('secure_url') or ''
-        # This Cloudinary account has Strict Transformations / ACL enabled,
-        # which blocks unsigned PDF delivery (both raw and image types).
-        # Sign at upload time so the stored URL is always accessible.
-        is_raw = '/raw/upload/' in url
-        is_image_pdf = '/image/upload/' in url and url.lower().endswith('.pdf')
-        if is_raw or is_image_pdf:
-            try:
-                import cloudinary.utils
-                public_id = result.get('public_id')
-                resource_type = result.get('resource_type', 'raw' if is_raw else 'image')
-                if public_id:
-                    sign_extra = {'secure': True}
-                    if resource_type == 'image':
-                        sign_extra['format'] = 'pdf'
-                    signed, _ = cloudinary.utils.cloudinary_url(
-                        public_id,
-                        resource_type=resource_type,
-                        type='upload',
-                        sign_url=True,
-                        **sign_extra,
-                    )
-                    if signed:
-                        print(f'Cloudinary PDF signed ({folder}): {signed}')
-                        url = signed
-            except Exception as sign_exc:
-                print(f'Cloudinary sign failed ({folder}), using unsigned URL: {sign_exc}')
+        url = result.get('secure_url')
         print(f'Cloudinary upload OK ({folder}): {url}')
-        return url or None
+        return url
     except Exception as exc:
         print(f'Cloudinary upload fatal error ({folder}): {exc}')
         return None
