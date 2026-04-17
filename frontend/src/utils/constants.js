@@ -28,7 +28,7 @@ export const QUOTE_STATUS_OPTIONS = [
 ];
 
 export const EXPENSE_CATEGORIES = [
-    'Decor', 'Catering', 'Venue', 'Logistics', 'Entertainment', 'Staffing', 'Marketing', 'Profit Payout', 'Other'
+    'Decor', 'Catering', 'Venue', 'Logistics', 'Entertainment', 'Staffing', 'Marketing', 'Stationery', 'Profit Payout', 'Other'
 ];
 
 export const INCOME_CATEGORIES = [
