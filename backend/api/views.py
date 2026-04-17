@@ -56,11 +56,10 @@ def _cloudinary_upload(file_obj, folder='uploads'):
         # so we must reset the pointer before passing it to Cloudinary.
         if hasattr(file_obj, 'seek'):
             file_obj.seek(0)
-        # Use resource_type='auto' for everything (images AND PDFs).
-        # 'raw' type is ACL-restricted on this Cloudinary account (returns 401).
-        # 'auto' stores PDFs as image type — publicly accessible — and
-        # the .pdf extension in the returned URL makes Cloudinary deliver
-        # the original PDF file (not a JPEG preview).
+        # Use resource_type='auto' for everything.
+        # Cloudinary may auto-detect PDFs as 'raw' or 'image' type depending
+        # on the account.  Raw resources are ACL-restricted (return 401),
+        # so if the returned URL is raw/upload we sign it immediately.
         result = cloudinary.uploader.upload(
             file_obj,
             folder=f'crystal_events/{folder}',
@@ -68,9 +67,23 @@ def _cloudinary_upload(file_obj, folder='uploads'):
             use_filename=True,
             unique_filename=True,
         )
-        url = result.get('secure_url')
+        url = result.get('secure_url') or ''
+        # Sign raw URLs at upload time so the stored URL is always accessible
+        if '/raw/upload/' in url:
+            public_id = result.get('public_id')
+            if public_id:
+                signed, _ = cloudinary.utils.cloudinary_url(
+                    public_id,
+                    resource_type='raw',
+                    type='upload',
+                    sign_url=True,
+                    secure=True,
+                )
+                if signed:
+                    print(f'Cloudinary raw→signed ({folder}): {signed}')
+                    return signed
         print(f'Cloudinary upload OK ({folder}): {url}')
-        return url
+        return url or None
     except Exception as exc:
         print(f'Cloudinary upload fatal error ({folder}): {exc}')
         return None
