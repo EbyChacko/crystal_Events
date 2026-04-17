@@ -61,14 +61,23 @@ def _cloudinary_upload(file_obj, folder='uploads'):
             content_type == 'application/pdf'
             or str(getattr(file_obj, 'name', '')).lower().endswith('.pdf')
         )
-        result = cloudinary.uploader.upload(
-            file_obj,
-            folder=f'crystal_events/{folder}',
-            resource_type='raw' if is_pdf else 'auto',
-        )
-        return result.get('secure_url')
-    except Exception as exc:
-        print(f'Cloudinary upload error ({folder}): {exc}')
+        # PDFs: try raw first (serves the actual file), fall back to auto
+        for resource_type in (['raw', 'auto'] if is_pdf else ['auto']):
+            try:
+                if hasattr(file_obj, 'seek'):
+                    file_obj.seek(0)
+                result = cloudinary.uploader.upload(
+                    file_obj,
+                    folder=f'crystal_events/{folder}',
+                    resource_type=resource_type,
+                    use_filename=True,
+                    unique_filename=True,
+                )
+                url = result.get('secure_url')
+                print(f'Cloudinary upload OK (resource_type={resource_type}): {url}')
+                return url
+            except Exception as exc:
+                print(f'Cloudinary upload error ({folder}, resource_type={resource_type}): {exc}')
         return None
 from .serializers import (
     ServiceSerializer, EventSerializer, ExpenseSerializer, IncomeSerializer,

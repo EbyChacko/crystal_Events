@@ -14,6 +14,5 @@ urlpatterns = [
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
-# Serve media files during development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve media files in all environments (fallback for when Cloudinary upload fails)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
