@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -5,6 +6,49 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Service, Event, Expense, Income, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate, FoodMenu, FoodMenuItem
+
+
+def _sign_cloudinary_raw_url(url):
+    """Return a signed Cloudinary URL for raw/upload resources.
+
+    Raw Cloudinary resources require a signed URL when the account has
+    access-control restrictions (ACL).  The signature is derived from the
+    API secret so it never expires and can be served directly to clients.
+    Falls back to the original URL if signing is not possible.
+    """
+    if not url or '/raw/upload/' not in url:
+        return url
+    try:
+        from django.conf import settings as django_settings
+        import cloudinary
+        import cloudinary.utils
+
+        cfg = getattr(django_settings, 'CLOUDINARY_STORAGE', {})
+        cloudinary.config(
+            cloud_name=cfg.get('CLOUD_NAME', ''),
+            api_key=cfg.get('API_KEY', ''),
+            api_secret=cfg.get('API_SECRET', ''),
+            secure=True,
+        )
+        # Parse: https://res.cloudinary.com/<cloud>/raw/upload/[v<ver>/]<public_id>
+        match = re.search(r'/raw/upload/(?:(v\d+)/)?(.+)$', url)
+        if not match:
+            return url
+        version_token = match.group(1)  # e.g. "v1776396911" or None
+        public_id = match.group(2)      # e.g. "crystal_events/expenses/file.pdf"
+        extra = {}
+        if version_token:
+            extra['version'] = version_token[1:]  # strip leading 'v'
+        signed_url, _ = cloudinary.utils.cloudinary_url(
+            public_id,
+            resource_type='raw',
+            type='upload',
+            sign_url=True,
+            **extra,
+        )
+        return signed_url or url
+    except Exception:
+        return url
 
 
 def _get_profile_picture_url(profile, request=None):
@@ -76,11 +120,11 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
     def get_receipt_url(self, obj):
         if obj.receipt_image_url:
-            return obj.receipt_image_url
+            return _sign_cloudinary_raw_url(obj.receipt_image_url)
         if obj.receipt_image:
             url = obj.receipt_image.url
             if url.startswith('http'):
-                return url
+                return _sign_cloudinary_raw_url(url)
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(url)
@@ -101,11 +145,11 @@ class IncomeSerializer(serializers.ModelSerializer):
 
     def get_receipt_url(self, obj):
         if obj.receipt_image_url:
-            return obj.receipt_image_url
+            return _sign_cloudinary_raw_url(obj.receipt_image_url)
         if obj.receipt_image:
             url = obj.receipt_image.url
             if url.startswith('http'):
-                return url
+                return _sign_cloudinary_raw_url(url)
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(url)
