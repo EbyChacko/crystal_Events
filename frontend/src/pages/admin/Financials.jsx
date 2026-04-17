@@ -757,7 +757,7 @@ const Financials = () => {
 
                         {/* Mobile List View (WhatsApp Style) */}
                         <div className="md:hidden divide-y divide-white/5">
-                            {filteredTransactions.map((t) => (
+                            {pagedTransactions.map((t) => (
                                 <div key={t.id} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
                                     <div className="flex justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
