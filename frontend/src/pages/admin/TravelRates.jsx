@@ -142,71 +142,74 @@ const TravelRates = () => {
                         </button>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="border-b border-white/10 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    <th className="px-6 py-4">Distance Range (km)</th>
-                                    <th className="px-6 py-4">Cost Rate (€)</th>
-                                    <th className="px-6 py-4 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {rates.map((rate) => (
-                                    <tr key={rate.id} className="hover:bg-white/[0.02] transition-colors">
-                                        <td className="px-6 py-4">
-                                            <span className="text-white font-medium">{rate.distance_from} - {rate.distance_to}</span>
-                                        </td>
-                                        <td className="px-6 py-4 text-mustard-gold font-bold text-lg">
-                                            €{Number(rate.rate).toFixed(2)}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <AnimatePresence mode="wait">
-                                                {rateToDelete === rate.id ? (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, x: 10 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        exit={{ opacity: 0 }}
-                                                        className="flex items-center justify-end space-x-2"
-                                                    >
-                                                        <span className="text-xs text-red-400 font-medium mr-2 hidden sm:inline">Delete?</span>
-                                                        <button onClick={handleDelete} className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
-                                                            Yes
-                                                        </button>
-                                                        <button onClick={() => setRateToDelete(null)} className="text-xs bg-white/10 hover:bg-white/[0.08] text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
-                                                            No
-                                                        </button>
-                                                    </motion.div>
-                                                ) : (
-                                                    <motion.div
-                                                        initial={{ opacity: 0 }}
-                                                        animate={{ opacity: 1 }}
-                                                        exit={{ opacity: 0 }}
-                                                        className="flex justify-end space-x-3"
-                                                    >
-                                                        <button
-                                                            onClick={() => handleOpenForm(rate)}
-                                                            className="p-2 text-gray-400 hover:text-blue-400 bg-white/5 hover:bg-white/[0.05] rounded-lg transition-colors"
-                                                            title="Edit Rate"
-                                                        >
-                                                            <Edit2 size={16} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setRateToDelete(rate.id)}
-                                                            className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-white/[0.05] rounded-lg transition-colors"
-                                                            title="Delete Rate"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </td>
+                    <>
+                        {/* Desktop table */}
+                        <div className="hidden lg:block overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="border-b border-white/10 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-4">Distance Range (km)</th>
+                                        <th className="px-6 py-4">Cost Rate (€)</th>
+                                        <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {rates.map((rate) => (
+                                        <tr key={rate.id} className="hover:bg-white/[0.02] transition-colors">
+                                            <td className="px-6 py-4">
+                                                <span className="text-white font-medium">{rate.distance_from} – {rate.distance_to} km</span>
+                                            </td>
+                                            <td className="px-6 py-4 text-mustard-gold font-bold text-lg">
+                                                €{Number(rate.rate).toFixed(2)}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <AnimatePresence mode="wait">
+                                                    {rateToDelete === rate.id ? (
+                                                        <motion.div key="confirm" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="flex items-center justify-end space-x-2">
+                                                            <span className="text-xs text-red-400 font-medium mr-2">Delete?</span>
+                                                            <button onClick={handleDelete} className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">Yes</button>
+                                                            <button onClick={() => setRateToDelete(null)} className="text-xs bg-white/10 hover:bg-white/[0.08] text-white px-3 py-1.5 rounded-lg font-medium transition-colors">No</button>
+                                                        </motion.div>
+                                                    ) : (
+                                                        <motion.div key="actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-end space-x-3">
+                                                            <button onClick={() => handleOpenForm(rate)} className="p-2 text-gray-400 hover:text-blue-400 bg-white/5 hover:bg-white/[0.05] rounded-lg transition-colors" title="Edit Rate"><Edit2 size={16} /></button>
+                                                            <button onClick={() => setRateToDelete(rate.id)} className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-white/[0.05] rounded-lg transition-colors" title="Delete Rate"><Trash2 size={16} /></button>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile / tablet cards */}
+                        <div className="lg:hidden divide-y divide-white/5">
+                            {rates.map((rate) => (
+                                <div key={rate.id} className="flex items-center justify-between px-5 py-4 gap-4">
+                                    <div>
+                                        <p className="text-white font-medium">{rate.distance_from} – {rate.distance_to} km</p>
+                                        <p className="text-mustard-gold font-bold text-lg mt-0.5">€{Number(rate.rate).toFixed(2)}</p>
+                                    </div>
+                                    <AnimatePresence mode="wait">
+                                        {rateToDelete === rate.id ? (
+                                            <motion.div key="confirm" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-2 shrink-0">
+                                                <span className="text-xs text-red-400 font-medium">Delete?</span>
+                                                <button onClick={handleDelete} className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">Yes</button>
+                                                <button onClick={() => setRateToDelete(null)} className="text-xs bg-white/10 hover:bg-white/[0.08] text-white px-3 py-1.5 rounded-lg font-medium transition-colors">No</button>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div key="actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex gap-2 shrink-0">
+                                                <button onClick={() => handleOpenForm(rate)} className="p-2 text-gray-400 hover:text-blue-400 bg-white/5 rounded-lg transition-colors" title="Edit Rate"><Edit2 size={16} /></button>
+                                                <button onClick={() => setRateToDelete(rate.id)} className="p-2 text-gray-400 hover:text-red-400 bg-white/5 rounded-lg transition-colors" title="Delete Rate"><Trash2 size={16} /></button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            ))}
+                        </div>
+                    </>
                 )}
             </div>
 

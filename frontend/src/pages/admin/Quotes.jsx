@@ -143,7 +143,7 @@ const Quotes = () => {
             </div>
 
             {/* Mobile Overview Toggle */}
-            <div className="md:hidden mb-4">
+            <div className="lg:hidden mb-4">
                 <button
                     onClick={() => setIsOverviewOpen(!isOverviewOpen)}
                     className="w-full flex items-center justify-between bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none"
@@ -154,7 +154,7 @@ const Quotes = () => {
             </div>
 
             {/* Summary Cards */}
-            <div className={`grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 ${isOverviewOpen ? 'grid' : 'hidden md:grid'}`}>
+            <div className={`grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 ${isOverviewOpen ? 'grid' : 'hidden lg:grid'}`}>
                 <StatCard icon={<FileText size={22} />} label="Total Quotes" value={quotes.length} delay={0} />
                 <StatCard icon={<CheckCheck size={22} />} label="Accepted Value" value={`€${acceptedValue.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} sub={`${acceptedCount} accepted`} delay={0.1} />
                 <StatCard icon={<Clock size={22} />} label="Pending" value={pendingCount} delay={0.2} />
@@ -177,7 +177,7 @@ const Quotes = () => {
             {/* Filters & Table */}
             <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 {/* Mobile Filter Toggle */}
-                <div className="md:hidden border-b border-white/10">
+                <div className="lg:hidden border-b border-white/10">
                     <button
                         onClick={() => setIsFilterOpen(!isFilterOpen)}
                         className="w-full flex items-center justify-between px-6 py-4 text-white hover:bg-white/5 transition-colors focus:outline-none"
@@ -186,7 +186,7 @@ const Quotes = () => {
                         {isFilterOpen ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
                     </button>
                 </div>
-                <div className={`px-6 py-4 border-b border-white/10 ${isFilterOpen ? 'block' : 'hidden md:block'}`}>
+                <div className={`px-6 py-4 border-b border-white/10 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         <div className="flex flex-wrap gap-2">
                             {[{ value: 'all', label: 'All' }, ...QUOTE_STATUS_OPTIONS].map(tab => (

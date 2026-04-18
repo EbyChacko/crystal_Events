@@ -206,7 +206,7 @@ const Messages = () => {
             {/* Controls */}
             <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden mb-6">
                 {/* Mobile Filter Toggle */}
-                <div className="md:hidden border-b border-white/10">
+                <div className="lg:hidden border-b border-white/10">
                     <button
                         onClick={() => setIsFilterOpen(!isFilterOpen)}
                         className="w-full flex items-center justify-between px-6 py-4 text-white hover:bg-white/5 transition-colors focus:outline-none"
@@ -215,7 +215,7 @@ const Messages = () => {
                         {isFilterOpen ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
                     </button>
                 </div>
-                <div className={`p-4 px-6 md:p-6 ${isFilterOpen ? 'block' : 'hidden md:block'}`}>
+                <div className={`p-4 px-6 lg:p-6 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
                     <div className="flex flex-col md:flex-row gap-4 justify-between">
                         <div className="relative flex-1 max-w-md">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
