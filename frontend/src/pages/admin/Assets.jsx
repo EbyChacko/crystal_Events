@@ -143,8 +143,8 @@ const Assets = () => {
                     <div className="p-8 text-center text-gray-500">No active assets tracked. Add expenses and mark them as assets.</div>
                 ) : (
                     <>
-                        <div className="overflow-x-auto hidden lg:block">
-                            <table className="w-full text-left min-w-[700px]">
+                        <div className="hidden lg:block">
+                            <table className="w-full text-left">
                                 <thead>
                                     <tr className="border-b border-white/10">
                                         <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Asset Name</th>
@@ -157,8 +157,8 @@ const Assets = () => {
                                 <tbody className="divide-y divide-white/5">
                                     {pagedAssets.map(a => (
                                         <tr key={a.id} className="hover:bg-white/5 transition-colors group">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <p className="text-sm font-medium text-white">{a.reason}</p>
+                                            <td className="px-6 py-4">
+                                                <p className="text-sm font-medium text-white break-words">{a.reason}</p>
                                                 <span className="text-xs text-gray-400 mt-0.5 block">{a.category}</span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
