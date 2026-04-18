@@ -2121,6 +2121,12 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = CreateUserSerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperUser]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    throttle_scope = 'user_create'
+
+    def get_throttles(self):
+        throttle = ScopedRateThrottle()
+        throttle.scope = 'user_create'
+        return [throttle]
 
     def perform_create(self, serializer):
         file = self.request.FILES.get('profile_picture')

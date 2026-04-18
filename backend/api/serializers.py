@@ -456,8 +456,8 @@ class TwoFactorLoginSerializer(serializers.Serializer):
         import pyotp
         totp = pyotp.TOTP(user.two_factor_auth.secret_key)
         
-        # Valid window 2 gives up to 1 minute tolerance for clock drift
-        if not totp.verify(str(otp).strip(), valid_window=2):
+        # valid_window=1 allows 1 step (30s) either side for clock drift — minimal brute-force surface
+        if not totp.verify(str(otp).strip(), valid_window=1):
             raise serializers.ValidationError({'error': 'Invalid or expired OTP code. Please try again.'})
 
         # OTP is valid, issue standard JWT tokens

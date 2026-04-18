@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -6,7 +5,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from api.views import CustomTokenObtainPairView, HealthCheckView, EmailTestView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # Django admin is disabled — all user management goes through the app's own UI.
+    # Re-enable only temporarily via a secure, non-guessable path if needed for DB emergencies.
     path('api/health/', HealthCheckView.as_view(), name='health-check'),
     path('api/email-test/', EmailTestView.as_view(), name='email-test'),
     path('api/', include('api.urls')),

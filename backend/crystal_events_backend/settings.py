@@ -28,7 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'REDACTED_SECRET_KEY')
+_secret_key = os.environ.get('SECRET_KEY')
+if not _secret_key:
+    raise Exception('SECRET_KEY environment variable is not set. Refusing to start.')
+SECRET_KEY = _secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
@@ -90,9 +93,12 @@ WSGI_APPLICATION = 'crystal_events_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+_database_url = os.environ.get('DATABASE_URL')
+if not _database_url:
+    raise Exception('DATABASE_URL environment variable is not set. Refusing to start.')
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'postgresql://neondb_owner:REDACTED_DB_PASSWORD@ep-green-voice-abfwopob-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require'),
+        default=_database_url,
         conn_max_age=600,
         conn_health_checks=True,
     )
@@ -186,6 +192,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django REST Framework
 REST_FRAMEWORK = {
+    # All endpoints require authentication unless explicitly overridden
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -198,8 +208,23 @@ REST_FRAMEWORK = {
         'user': '1000/hour',
         'login': '10/minute',
         'contact': '5/minute',
+        'user_create': '5/hour',  # Strictly limit staff account creation
     },
 }
+
+# Password reset tokens expire in 1 hour (Django default is 24 hours)
+PASSWORD_RESET_TIMEOUT = 3600
+
+# Production security headers (safe to set in all environments)
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # Simple JWT Settings
 SIMPLE_JWT = {
