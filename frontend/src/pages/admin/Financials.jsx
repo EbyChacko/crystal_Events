@@ -766,85 +766,104 @@ const Financials = () => {
                             </table>
                         </div>
 
-                        {/* Mobile List View (WhatsApp Style) */}
+                        {/* Mobile Card View */}
                         <div className="lg:hidden divide-y divide-white/5">
                             {pagedTransactions.map((t, idx) => (
-                                <div key={t.id || `tx-m-${idx}`} className="p-4 hover:bg-white/5 transition-colors group flex flex-col gap-2 relative">
-                                    <div className="flex justify-between items-start gap-4">
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-base font-bold text-white truncate">{t.reason}</h3>
-                                            {t.type === 'income' && t.payer_name && (
-                                                <span className="text-xs text-gray-400 truncate block mt-0.5">From: {t.payer_name}</span>
-                                            )}
-                                            <span className="text-sm text-gray-400 truncate block text-left mt-0.5">
-                                                {t.category}
-                                            </span>
-                                            {t.type === 'expense' && t.category !== 'Profit Payout' && t.paid_by_name && (
-                                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                                    <span className="text-xs text-gray-500">Paid by: {t.paid_by_name}</span>
-                                                    <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-semibold border ${t.paid_back ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/15 text-amber-400 border-amber-500/30'}`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${t.paid_back ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-                                                        {t.paid_back ? 'Paid Back' : 'Pending'}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {t.type === 'expense' && t.event_name && (
-                                                <button
-                                                    onClick={() => navigate(`/admin/events/${t.event_id}`)}
-                                                    className="inline-flex items-center gap-1 mt-1 text-xs text-mustard-gold/80 hover:text-mustard-gold transition-colors"
-                                                >
-                                                    <ExternalLink size={11} />
-                                                    {t.event_name}
-                                                </button>
-                                            )}
-                                        </div>
-                                        <div className="flex-shrink-0 text-right">
-                                            <span className={`text-sm font-bold ${t.type === 'income' ? 'text-emerald-400' : 'text-white'}`}>
-                                                {t.type === 'income' ? '+' : '-'}€{t.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </span>
-                                        </div>
-                                    </div>
+                                <div key={t.id || `tx-m-${idx}`} className="p-4 hover:bg-white/5 transition-colors">
 
-                                    <div className="flex justify-between items-end gap-2 text-sm text-gray-400 mt-1">
-                                        <div className="flex flex-col gap-1 min-w-0">
-                                            <div className="flex items-center gap-1.5 text-xs">
-                                                <span>{new Date(t.date).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                                            </div>
-                                            <span className={`inline-block w-max px-2 py-0.5 rounded text-[10px] font-medium border ${t.type === 'income' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                                    {/* Row 1 — type badge + date + amount */}
+                                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wide border ${t.type === 'income' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
                                                 {t.type.toUpperCase()}
                                             </span>
+                                            <span className="text-xs text-gray-500">
+                                                {new Date(t.date).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </span>
                                         </div>
-                                        <div className="flex items-center gap-1 flex-shrink-0">
-                                            {deleteConfirmId === t.id ? (
-                                                <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
-                                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(t); }} className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Yes</button>
-                                                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08]">No</button>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    {t.receipt_url && (
-                                                        <a href={receiptViewUrl(t.receipt_url)} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></a>
-                                                    )}
-                                                    {t.isManual && canManageFinancials && (
-                                                        <>
-                                                            <button onClick={(e) => { e.stopPropagation(); handleEdit(t); }} title="Edit Transaction" className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
-                                                            <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(t.id); }} title="Delete Transaction" className="p-2 text-gray-400 hover:text-red-400 bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
-                                                        </>
-                                                    )}
-                                                    {t.type === 'income' && !t.isManual && (
-                                                        <>
-                                                            <button onClick={(e) => { e.stopPropagation(); navigate(`/admin/events/${t.originalId}`); }} title="View Event" className="p-2 text-gray-400 hover:text-emerald-400 bg-emerald-500/10 rounded-lg transition-colors"><ExternalLink size={14} /></button>
-                                                            <button onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                const token = localStorage.getItem('access_token');
-                                                                const url = `${API_BASE_URL}/events/${t.originalId}/invoice/pdf/?token=${token}${t.logIdx !== undefined ? `&logIdx=${t.logIdx}` : ''}`;
-                                                                window.open(url, '_blank');
-                                                            }} title="Download Invoice" className="p-2 text-gray-400 hover:text-mustard-gold bg-mustard-gold/10 rounded-lg transition-colors"><Download size={14} /></button>
-                                                        </>
-                                                    )}
-                                                </>
-                                            )}
+                                        <span className={`text-base font-bold tabular-nums ${t.type === 'income' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                            {t.type === 'income' ? '+' : '−'}€{t.amount.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+
+                                    {/* Row 2 — reason */}
+                                    <p className="text-sm font-semibold text-white leading-snug mb-1">{t.reason}</p>
+
+                                    {/* Row 3 — category + event link */}
+                                    <div className="flex items-center flex-wrap gap-x-2 gap-y-1 mb-1.5">
+                                        <span className="text-xs text-gray-500">{t.category}</span>
+                                        {t.type === 'income' && t.payer_name && (
+                                            <span className="text-xs text-gray-500">· From: {t.payer_name}</span>
+                                        )}
+                                        {t.type === 'expense' && t.event_name && (
+                                            <button
+                                                onClick={() => navigate(`/admin/events/${t.event_id}`)}
+                                                className="inline-flex items-center gap-1 text-xs text-mustard-gold/80 hover:text-mustard-gold transition-colors"
+                                            >
+                                                <ExternalLink size={10} />
+                                                {t.event_name}
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Row 4 — paid by + reimbursement status */}
+                                    {t.type === 'expense' && t.category !== 'Profit Payout' && t.paid_by_name && (
+                                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                                            <span className="text-xs text-gray-500">Paid by: <span className="text-gray-400">{t.paid_by_name}</span></span>
+                                            <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-semibold border ${t.paid_back ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/15 text-amber-400 border-amber-500/30'}`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${t.paid_back ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                                                {t.paid_back ? 'Paid Back' : 'Pending'}
+                                            </span>
                                         </div>
+                                    )}
+
+                                    {/* Row 5 — action buttons */}
+                                    <div className="flex items-center gap-1.5 pt-2.5 border-t border-white/5">
+                                        {deleteConfirmId === t.id ? (
+                                            <div className="flex items-center gap-1 border border-red-500/30 px-2 py-1 rounded-lg">
+                                                <span className="text-xs text-red-400 mr-1">Delete?</span>
+                                                <button onClick={() => handleDelete(t)} className="px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors">Yes</button>
+                                                <button onClick={() => setDeleteConfirmId(null)} className="px-2 py-0.5 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08] transition-colors">No</button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {t.receipt_url && (
+                                                    <a href={receiptViewUrl(t.receipt_url)} target="_blank" rel="noopener noreferrer"
+                                                        title="View Receipt"
+                                                        className="flex items-center gap-1 px-2.5 py-1 text-xs text-gray-400 hover:text-emerald-400 bg-white/5 hover:bg-emerald-500/10 rounded-lg transition-colors border border-white/5">
+                                                        <Receipt size={12} /> Receipt
+                                                    </a>
+                                                )}
+                                                {t.isManual && canManageFinancials && (
+                                                    <>
+                                                        <button onClick={() => handleEdit(t)} title="Edit"
+                                                            className="flex items-center gap-1 px-2.5 py-1 text-xs text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors border border-white/5">
+                                                            <Edit3 size={12} /> Edit
+                                                        </button>
+                                                        <button onClick={() => setDeleteConfirmId(t.id)} title="Delete"
+                                                            className="flex items-center gap-1 px-2.5 py-1 text-xs text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-colors border border-white/5">
+                                                            <Trash2 size={12} /> Delete
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {t.type === 'income' && !t.isManual && (
+                                                    <>
+                                                        <button onClick={() => navigate(`/admin/events/${t.originalId}`)} title="View Event"
+                                                            className="flex items-center gap-1 px-2.5 py-1 text-xs text-gray-400 hover:text-emerald-400 bg-white/5 hover:bg-emerald-500/10 rounded-lg transition-colors border border-white/5">
+                                                            <ExternalLink size={12} /> Event
+                                                        </button>
+                                                        <button onClick={() => {
+                                                            const token = localStorage.getItem('access_token');
+                                                            const url = `${API_BASE_URL}/events/${t.originalId}/invoice/pdf/?token=${token}${t.logIdx !== undefined ? `&logIdx=${t.logIdx}` : ''}`;
+                                                            window.open(url, '_blank');
+                                                        }} title="Download Invoice"
+                                                            className="flex items-center gap-1 px-2.5 py-1 text-xs text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors border border-white/5">
+                                                            <Download size={12} /> Invoice
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             ))}
