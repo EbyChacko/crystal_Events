@@ -2317,6 +2317,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     """Custom login view to check for 2FA requirement before issuing tokens."""
     serializer_class = CustomTokenObtainPairSerializer
     throttle_scope = 'login'
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def get_throttles(self):
         throttle = ScopedRateThrottle()
