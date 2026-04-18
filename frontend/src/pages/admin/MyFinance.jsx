@@ -28,8 +28,7 @@ const MyFinance = () => {
             if (expRes.status === 'fulfilled') setExpenses(expRes.value.data.results || expRes.value.data);
             if (incRes.status === 'fulfilled') setIncomes(incRes.value.data.results || incRes.value.data);
             if (expRes.status === 'rejected' || incRes.status === 'rejected') addToast('Failed to load some records.', 'error');
-        }).catch(() => addToast('Failed to load records.', 'error'))
-          .finally(() => setLoading(false));
+        }).finally(() => setLoading(false));
     }, [user?.id]);
 
     const allPending = expenses.filter(e => !e.paid_back);
