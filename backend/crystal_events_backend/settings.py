@@ -34,10 +34,21 @@ if not _secret_key:
 SECRET_KEY = _secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# Default is False — must be explicitly opted into via DEBUG=true in .env (local only).
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 _allowed = os.environ.get('ALLOWED_HOSTS', '')
 ALLOWED_HOSTS = [h.strip() for h in _allowed.split(',') if h.strip()] if _allowed else ['localhost', '127.0.0.1']
+
+# Refuse to start if DEBUG is on but ALLOWED_HOSTS contains non-local hosts.
+# This prevents accidentally deploying with DEBUG=True.
+if DEBUG:
+    _non_local = [h for h in ALLOWED_HOSTS if h not in ('localhost', '127.0.0.1', '')]
+    if _non_local:
+        raise Exception(
+            f'DEBUG=True is not allowed when ALLOWED_HOSTS contains public hosts: {_non_local}. '
+            'Set DEBUG=False or remove public hosts from ALLOWED_HOSTS.'
+        )
 
 
 # Application definition
