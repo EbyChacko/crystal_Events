@@ -243,7 +243,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=10)
     profile_picture = serializers.ImageField(required=False, write_only=True)
     is_staff = serializers.BooleanField(required=False, default=True)
-    is_superuser = serializers.BooleanField(required=False, default=False)
+    # is_superuser is intentionally excluded — superuser status must be set via Django shell only
     designation = serializers.CharField(required=False, default='', allow_blank=True, max_length=100)
     phone = serializers.CharField(required=False, default='', allow_blank=True, max_length=20)
     address = serializers.CharField(required=False, default='', allow_blank=True, max_length=500)
@@ -258,7 +258,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         profile_picture = validated_data.pop('profile_picture', None)
         is_staff = validated_data.pop('is_staff', True)
-        is_superuser = validated_data.pop('is_superuser', False)
+        is_superuser = False  # Never allow API to create superusers
         designation = validated_data.pop('designation', '')
         phone = validated_data.pop('phone', '')
         address = validated_data.pop('address', '')

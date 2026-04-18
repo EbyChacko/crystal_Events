@@ -104,17 +104,12 @@ DATABASES = {
     )
 }
 
-# CORS Configuration
+# CORS Configuration — wildcard is never allowed regardless of DEBUG
+CORS_ALLOW_ALL_ORIGINS = False
 cors_env = os.environ.get('CORS_ALLOWED_ORIGINS', '')
-if cors_env.strip() == '*':
-    # Only allow-all in DEBUG mode
-    CORS_ALLOW_ALL_ORIGINS = DEBUG
-    CORS_ALLOWED_ORIGINS = [] if DEBUG else ['http://localhost:5173']
-elif cors_env.strip():
+if cors_env.strip() and cors_env.strip() != '*':
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_env.split(',') if origin.strip()]
-    CORS_ALLOW_ALL_ORIGINS = False
 else:
-    CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173']
 
 CORS_ALLOW_CREDENTIALS = True

@@ -40,7 +40,7 @@ def _cloudinary_upload(file_obj, folder='uploads'):
     api_key    = cloud_cfg.get('API_KEY', '')
     api_secret = cloud_cfg.get('API_SECRET', '')
     if not cloud_name or not api_key or not api_secret:
-        print(f'Cloudinary not configured — skipping upload for folder "{folder}".')
+        logger.warning('Cloudinary not configured — skipping upload for folder "%s".', folder)
         return None
     try:
         import cloudinary
@@ -64,10 +64,10 @@ def _cloudinary_upload(file_obj, folder='uploads'):
             unique_filename=True,
         )
         url = result.get('secure_url')
-        print(f'Cloudinary upload OK ({folder}): {url}')
+        logger.info('Cloudinary upload OK (%s).', folder)
         return url
     except Exception as exc:
-        print(f'Cloudinary upload fatal error ({folder}): {exc}')
+        logger.error('Cloudinary upload fatal error (%s): %s', folder, exc)
         return None
 from .serializers import (
     ServiceSerializer, EventSerializer, ExpenseSerializer, IncomeSerializer,
@@ -151,10 +151,25 @@ class IsSuperUser(permissions.BasePermission):
         return request.user and request.user.is_superuser
 
 
+class IsStaffOrFinancials(permissions.BasePermission):
+    """Allows access to superusers, staff, or users with can_view_financials."""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser or request.user.is_staff:
+            return True
+        return bool(getattr(getattr(request.user, 'profile', None), 'can_view_financials', False))
+
+
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticated(), IsSuperUser()]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def _save_with_image(self, serializer, **kwargs):
@@ -185,7 +200,7 @@ class TravelRateViewSet(viewsets.ModelViewSet):
 class IncomeViewSet(viewsets.ModelViewSet):
     queryset = Income.objects.select_related('paid_by', 'added_by').all()
     serializer_class = IncomeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
@@ -229,7 +244,7 @@ class IncomeViewSet(viewsets.ModelViewSet):
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.select_related('assigned_to', 'created_by').prefetch_related('images').all()
     serializer_class = EventSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         from django.utils import timezone
@@ -295,7 +310,7 @@ class EventViewSet(viewsets.ModelViewSet):
                     fail_silently=False,
                 )
             except Exception as e:
-                print(f"Error sending booking confirmation: {e}")
+                logger.error('Error sending booking confirmation: %s', e)
 
         # Notify staff about new event
         try:
@@ -340,7 +355,7 @@ class EventViewSet(viewsets.ModelViewSet):
             msg.attach_alternative(html, 'text/html')
             msg.send(fail_silently=True)
         except Exception as e:
-            print(f"Error sending new event notification: {e}")
+            logger.error('Error sending new event notification: %s', e)
 
     def perform_update(self, serializer):
         user = self.request.user
@@ -587,7 +602,7 @@ class EventViewSet(viewsets.ModelViewSet):
                 colored_logo.save(colored_logo_buffer, format="PNG")
                 colored_logo_buffer.seek(0)
             except Exception as e:
-                print(f"Error processing logo: {e}")
+                logger.error('Error processing logo: %s', e)
 
         brand_title = '<font name="Times-Bold" color="#012d2d" size="24">CRYSTAL </font><font name="Times-Roman" color="#012d2d" size="24">EVENTS</font>'
         
@@ -1139,7 +1154,7 @@ class EventViewSet(viewsets.ModelViewSet):
                 colored_logo.save(colored_logo_buffer, format='PNG')
                 colored_logo_buffer.seek(0)
             except Exception as e:
-                print(f'Error processing logo: {e}')
+                logger.error('Error processing logo: %s', e)
 
         # ── NumberedCanvas for "Page X / Y" ───────────────────────────────
         class NumberedCanvas(rl_canvas.Canvas):
@@ -1353,7 +1368,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
@@ -1405,7 +1420,7 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 class EventImageViewSet(viewsets.ModelViewSet):
     queryset = EventImage.objects.all()
     serializer_class = EventImageSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def perform_create(self, serializer):
@@ -1431,9 +1446,13 @@ class EventImageViewSet(viewsets.ModelViewSet):
 class TeamMemberViewSet(viewsets.ModelViewSet):
     queryset = TeamMember.objects.select_related('user', 'user__profile').all()
     serializer_class = TeamMemberSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    @action(detail=False, methods=['post'])
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticated(), IsSuperUser()]
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated, IsSuperUser])
     def reorder(self, request):
         ordered_ids = request.data.get('ordered_ids', [])
         if not isinstance(ordered_ids, list):
@@ -1451,7 +1470,7 @@ class TeamMemberViewSet(viewsets.ModelViewSet):
 class QuoteViewSet(viewsets.ModelViewSet):
     queryset = Quote.objects.prefetch_related('items', 'items__service').select_related('event').all()
     serializer_class = QuoteSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
 
     def _log_quote_action(self, quote, action, user):
         """Append a quote-related entry to the linked event's audit log."""
@@ -1551,7 +1570,7 @@ class QuoteViewSet(viewsets.ModelViewSet):
             msg.attach_alternative(html, 'text/html')
             msg.send(fail_silently=True)
         except Exception as e:
-            print(f"Error sending quote accepted notification: {e}")
+            logger.error('Error sending quote accepted notification: %s', e)
 
     def perform_create(self, serializer):
         quote = serializer.save()
@@ -1625,7 +1644,7 @@ class QuoteViewSet(viewsets.ModelViewSet):
                 solid_color.save(colored_logo_buffer, format='PNG')
                 colored_logo_buffer.seek(0)
             except Exception as e:
-                print(f"Failed to colorize logo: {e}")
+                logger.error('Failed to colorize logo: %s', e)
                 colored_logo_buffer = None
 
         quote = self.get_object()
@@ -1917,9 +1936,9 @@ class MessageViewSet(viewsets.ModelViewSet):
                 [message.email],
                 fail_silently=True,
             )
-            print(f"[EMAIL] Customer confirmation sent to {message.email}")
+            logger.info('[EMAIL] Customer confirmation sent.')
         except Exception as e:
-            print(f"[EMAIL ERROR] Customer confirmation failed: {e}")
+            logger.error('[EMAIL ERROR] Customer confirmation failed: %s', e)
 
         # 2. Staff notification
         try:
@@ -1942,9 +1961,9 @@ class MessageViewSet(viewsets.ModelViewSet):
                 recipients,
                 fail_silently=True,
             )
-            print(f"[EMAIL] Staff notification sent to {recipients}")
+            logger.info('[EMAIL] Staff notification sent.')
         except Exception as e:
-            print(f"[EMAIL ERROR] Staff notification failed: {e}")
+            logger.error('[EMAIL ERROR] Staff notification failed: %s', e)
 
     @action(detail=True, methods=['post'])
     def reply(self, request, pk=None):
@@ -2339,10 +2358,7 @@ class TwoFactorSetupView(generics.GenericAPIView):
 
         totp = pyotp.TOTP(secret_key)
         provisioning_uri = totp.provisioning_uri(name=user.email or user.username, issuer_name="Crystal Events")
-        print(f"--- 2FA SETUP GENERATING NEW QR ---")
-        print(f"Secret: {secret_key}")
-        print(f"URI: {provisioning_uri}")
-        print(f"-----------------------------------")
+        # 2FA secret must never be logged
 
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
         qr.add_data(provisioning_uri)
@@ -2468,8 +2484,8 @@ class PasswordResetConfirmView(APIView):
         if new_password != confirm_password:
             return Response({'error': 'Passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if len(new_password) < 8:
-            return Response({'error': 'Password must be at least 8 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(new_password) < 10:
+            return Response({'error': 'Password must be at least 10 characters.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user_id = force_str(urlsafe_base64_decode(uid))
@@ -2489,6 +2505,7 @@ class PasswordResetConfirmView(APIView):
 class FoodMenuViewSet(viewsets.ModelViewSet):
     queryset = FoodMenu.objects.select_related('event').prefetch_related('items').all()
     serializer_class = FoodMenuSerializer
+    permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
 
     def _user_display(self, user):
         if not user or not user.is_authenticated:
