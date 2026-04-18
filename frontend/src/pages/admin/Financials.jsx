@@ -650,7 +650,7 @@ const Financials = () => {
                 ) : (
                     <div className="w-full">
                         {/* Desktop Table View */}
-                        <div className="hidden lg:block overflow-x-auto overflow-y-hidden">
+                        <div className="hidden lg:block">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-white/10">
@@ -673,8 +673,8 @@ const Financials = () => {
                                                     {t.type.toUpperCase()}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <p className="text-sm font-medium text-white">{t.reason}</p>
+                                            <td className="px-6 py-4">
+                                                <p className="text-sm font-medium text-white break-words">{t.reason}</p>
                                                 {t.type === 'income' && t.payer_name && (
                                                     <p className="text-xs text-gray-400 mt-0.5">From: {t.payer_name}</p>
                                                 )}
@@ -697,7 +697,7 @@ const Financials = () => {
                                                     </button>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4">
                                                 <span className="text-sm text-gray-400">
                                                     {t.category}
                                                 </span>
