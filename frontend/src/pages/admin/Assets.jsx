@@ -115,7 +115,7 @@ const Assets = () => {
                 {/* Mobile Overview Toggle */}
                 <button
                     onClick={() => setIsOverviewOpen(!isOverviewOpen)}
-                    className="md:hidden flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/[0.05] hover:text-white transition-all font-medium w-full"
+                    className="lg:hidden flex items-center justify-center space-x-2 bg-white/5 text-gray-300 border border-white/10 px-4 py-3 rounded-xl hover:bg-white/[0.05] hover:text-white transition-all font-medium w-full"
                 >
                     {isOverviewOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     <span>{isOverviewOpen ? 'Hide Overview' : 'Show Overview'}</span>
@@ -123,7 +123,7 @@ const Assets = () => {
             </div>
 
             {/* Overview Stats */}
-            <div className={`grid-cols-1 md:grid-cols-3 gap-5 mb-8 ${isOverviewOpen ? 'grid' : 'hidden md:grid'}`}>
+            <div className={`grid-cols-1 lg:grid-cols-3 gap-5 mb-8 ${isOverviewOpen ? 'grid' : 'hidden lg:grid'}`}>
                 <StatCard icon={<DollarSign size={22} />} label="Total Purchase Value" value={`€${totalPurchaseValue.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={null} delay={0} />
                 <StatCard icon={<PieChart size={22} />} label="Total Current Value" value={`€${totalCurrentValue.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={true} delay={0.1} />
                 <StatCard icon={<TrendingDown size={22} />} label="Total Depreciation" value={`€${totalDepreciation.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={totalDepreciation > 0 ? false : null} delay={0.2} />

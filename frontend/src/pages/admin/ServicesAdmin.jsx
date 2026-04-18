@@ -16,6 +16,7 @@ const ServicesAdmin = () => {
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [viewingService, setViewingService] = useState(null);
     const { addToast } = useToast();
     const [submitting, setSubmitting] = useState(false);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -23,15 +24,14 @@ const ServicesAdmin = () => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && showForm) {
-                setShowForm(false);
-                setEditingId(null);
-                setFormData(initialFormData);
+            if (e.key === 'Escape') {
+                if (viewingService) { setViewingService(null); return; }
+                if (showForm) { setShowForm(false); setEditingId(null); setFormData(initialFormData); }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [showForm]);
+    }, [showForm, viewingService]);
 
     const initialFormData = { name: '', description: '', base_price: '', image: null, image_url: '' };
     const [formData, setFormData] = useState(initialFormData);
@@ -69,7 +69,6 @@ const ServicesAdmin = () => {
             image: null,
             image_url: existingUrl,
         });
-        // Pre-select URL mode if there's an existing image URL
         setImageMode(existingUrl ? 'url' : 'file');
         setEditingId(service.id);
         setShowForm(true);
@@ -85,7 +84,6 @@ const ServicesAdmin = () => {
         uploadData.append('base_price', formData.base_price);
         if (imageMode === 'url') {
             uploadData.append('image_url', formData.image_url);
-            // Clear out previous file if switching to URL mode
             uploadData.append('image', '');
         } else if (formData.image) {
             uploadData.append('image', formData.image);
@@ -138,16 +136,17 @@ const ServicesAdmin = () => {
         }
     };
 
-    const handleToggleVisibility = async (service) => {
+    const handleToggleVisibility = async (service, e) => {
+        e?.stopPropagation();
         const updated = { show_on_website: !service.show_on_website };
-        // Optimistic update
         setServices(prev => prev.map(s => s.id === service.id ? { ...s, ...updated } : s));
+        if (viewingService?.id === service.id) setViewingService(prev => ({ ...prev, ...updated }));
         try {
             await api.patch(`/services/${service.id}/`, updated);
             addToast(updated.show_on_website ? 'Service is now visible on website.' : 'Service hidden from website.', 'success');
         } catch {
-            // Revert on failure
             setServices(prev => prev.map(s => s.id === service.id ? service : s));
+            if (viewingService?.id === service.id) setViewingService(service);
             addToast('Failed to update visibility.', 'error');
         }
     };
@@ -157,6 +156,8 @@ const ServicesAdmin = () => {
         return s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             s.description?.toLowerCase().includes(searchTerm.toLowerCase());
     });
+
+    const serviceImage = (service) => service.image_url || service.image || null;
 
     return (
         <div>
@@ -220,7 +221,6 @@ const ServicesAdmin = () => {
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Service Image</label>
-                                        {/* Toggle */}
                                         <div className="flex rounded-xl overflow-hidden border border-white/10 mb-3 w-fit">
                                             <button type="button"
                                                 onClick={() => setImageMode('file')}
@@ -250,6 +250,94 @@ const ServicesAdmin = () => {
                                     {submitting ? 'Saving...' : editingId ? 'Update Service' : 'Add Service'}
                                 </button>
                             </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Service Detail View Modal */}
+            <AnimatePresence>
+                {viewingService && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                            onClick={() => setViewingService(null)}
+                        />
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="relative w-full max-w-lg bg-[#080c10] border border-white/10 rounded-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] max-h-[90vh] overflow-y-auto"
+                        >
+                            {/* Image */}
+                            {serviceImage(viewingService) && (
+                                <div className="w-full h-52 overflow-hidden rounded-t-2xl">
+                                    <img
+                                        src={serviceImage(viewingService)}
+                                        alt={viewingService.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                            )}
+                            <div className="p-6">
+                                {/* Header */}
+                                <div className="flex items-start justify-between gap-3 mb-4">
+                                    <div className="flex items-center gap-3">
+                                        {!serviceImage(viewingService) && (
+                                            <div className="w-10 h-10 rounded-xl bg-mustard-gold/10 flex items-center justify-center text-mustard-gold flex-shrink-0">
+                                                <Tag size={20} />
+                                            </div>
+                                        )}
+                                        <h2 className="text-xl font-bold text-white">{viewingService.name}</h2>
+                                    </div>
+                                    <button onClick={() => setViewingService(null)} className="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                                        <X size={22} />
+                                    </button>
+                                </div>
+
+                                {/* Description */}
+                                <p className="text-sm text-gray-300 leading-relaxed mb-5 whitespace-pre-wrap">{viewingService.description}</p>
+
+                                {/* Price + visibility */}
+                                <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/10">
+                                    <div className="flex items-center gap-2">
+                                        <DollarSign size={16} className="text-mustard-gold" />
+                                        <span className="text-xl font-bold text-white">
+                                            €{parseFloat(viewingService.base_price).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </span>
+                                        <span className="text-xs text-gray-500">base price</span>
+                                    </div>
+                                    <button
+                                        onClick={(e) => handleToggleVisibility(viewingService, e)}
+                                        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
+                                            viewingService.show_on_website
+                                                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25'
+                                                : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/[0.05] hover:text-gray-300'
+                                        }`}
+                                    >
+                                        {viewingService.show_on_website ? <><Eye size={12} /> Visible</> : <><EyeOff size={12} /> Hidden</>}
+                                    </button>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex gap-3 mt-4">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setViewingService(null); handleEdit(viewingService); }}
+                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-mustard-gold/10 border border-mustard-gold/20 text-mustard-gold hover:bg-mustard-gold/20 transition-colors text-sm font-semibold"
+                                    >
+                                        <Edit3 size={15} /> Edit
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setViewingService(null); setDeleteConfirmId(viewingService.id); }}
+                                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-colors text-sm font-semibold"
+                                    >
+                                        <Trash2 size={15} /> Delete
+                                    </button>
+                                </div>
+                            </div>
                         </motion.div>
                     </div>
                 )}
@@ -285,66 +373,81 @@ const ServicesAdmin = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05, duration: 0.3 }}
-                            className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/[0.04] transition-all group relative"
+                            onClick={() => setViewingService(service)}
+                            className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.04] hover:border-white/20 transition-all group cursor-pointer relative"
                         >
-                            {/* Actions */}
-                            <div className="absolute top-4 right-4 flex space-x-1">
-                                {deleteConfirmId === service.id ? (
-                                    <div className="flex items-center space-x-1.5 bg-[#071212]/90 rounded-lg px-2 py-1">
-                                        <span className="text-xs text-red-400">Delete?</span>
-                                        <button onClick={() => handleDelete(service.id)}
-                                            className="px-1.5 py-0.5 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors">Yes</button>
-                                        <button onClick={() => setDeleteConfirmId(null)}
-                                            className="px-1.5 py-0.5 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08] transition-colors">No</button>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <button onClick={() => handleEdit(service)}
-                                            title="Edit Service"
-                                            className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors">
-                                            <Edit3 size={16} />
-                                        </button>
-                                        <button onClick={() => setDeleteConfirmId(service.id)}
-                                            title="Delete Service"
-                                            className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-
-                            {/* Icon */}
-                            <div className="w-12 h-12 rounded-xl bg-mustard-gold/10 flex items-center justify-center text-mustard-gold mb-4 group-hover:bg-mustard-gold/20 transition-colors">
-                                <Tag size={22} />
-                            </div>
-
-                            {/* Content */}
-                            <h3 className="text-lg font-bold text-white mb-2">{service.name}</h3>
-                            <p className="text-sm text-gray-400 mb-4 line-clamp-3">{service.description}</p>
-
-                            {/* Price + visibility toggle */}
-                            <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                                <div className="flex items-center space-x-2">
-                                    <DollarSign size={16} className="text-mustard-gold" />
-                                    <span className="text-lg font-bold text-white">
-                                        €{parseFloat(service.base_price).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </span>
-                                    <span className="text-xs text-gray-500">base price</span>
+                            {/* Image */}
+                            {serviceImage(service) && (
+                                <div className="w-full h-36 overflow-hidden">
+                                    <img
+                                        src={serviceImage(service)}
+                                        alt={service.name}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
                                 </div>
-                                <button
-                                    onClick={() => handleToggleVisibility(service)}
-                                    title={service.show_on_website ? 'Visible on website — click to hide' : 'Hidden from website — click to show'}
-                                    className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
-                                        service.show_on_website
-                                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25'
-                                            : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/[0.05] hover:text-gray-300'
-                                    }`}
-                                >
-                                    {service.show_on_website
-                                        ? <><Eye size={12} /> Visible</>
-                                        : <><EyeOff size={12} /> Hidden</>
-                                    }
-                                </button>
+                            )}
+
+                            <div className="p-5">
+                                {/* Action buttons */}
+                                <div className="absolute top-3 right-3 flex space-x-1">
+                                    {deleteConfirmId === service.id ? (
+                                        <div className="flex items-center space-x-1.5 bg-[#071212]/90 rounded-lg px-2 py-1" onClick={e => e.stopPropagation()}>
+                                            <span className="text-xs text-red-400">Delete?</span>
+                                            <button onClick={(e) => { e.stopPropagation(); handleDelete(service.id); }}
+                                                className="px-1.5 py-0.5 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors">Yes</button>
+                                            <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }}
+                                                className="px-1.5 py-0.5 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08] transition-colors">No</button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <button onClick={(e) => { e.stopPropagation(); handleEdit(service); }}
+                                                title="Edit Service"
+                                                className="p-1.5 text-gray-400 hover:text-mustard-gold hover:bg-mustard-gold/10 rounded-lg transition-colors">
+                                                <Edit3 size={16} />
+                                            </button>
+                                            <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(service.id); }}
+                                                title="Delete Service"
+                                                className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Icon (only if no image) */}
+                                {!serviceImage(service) && (
+                                    <div className="w-12 h-12 rounded-xl bg-mustard-gold/10 flex items-center justify-center text-mustard-gold mb-4 group-hover:bg-mustard-gold/20 transition-colors">
+                                        <Tag size={22} />
+                                    </div>
+                                )}
+
+                                {/* Content */}
+                                <h3 className="text-lg font-bold text-white mb-2 pr-16">{service.name}</h3>
+                                <p className="text-sm text-gray-400 mb-4 line-clamp-2">{service.description}</p>
+
+                                {/* Price + visibility toggle */}
+                                <div className="flex flex-wrap items-center gap-2 justify-between pt-4 border-t border-white/10">
+                                    <div className="flex items-center gap-1.5">
+                                        <DollarSign size={15} className="text-mustard-gold flex-shrink-0" />
+                                        <span className="text-base font-bold text-white">
+                                            €{parseFloat(service.base_price).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={(e) => handleToggleVisibility(service, e)}
+                                        title={service.show_on_website ? 'Visible on website — click to hide' : 'Hidden from website — click to show'}
+                                        className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border transition-all flex-shrink-0 ${
+                                            service.show_on_website
+                                                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25'
+                                                : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/[0.05] hover:text-gray-300'
+                                        }`}
+                                    >
+                                        {service.show_on_website
+                                            ? <><Eye size={11} /> Visible</>
+                                            : <><EyeOff size={11} /> Hidden</>
+                                        }
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     ))}

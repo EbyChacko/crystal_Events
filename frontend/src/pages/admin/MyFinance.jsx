@@ -67,7 +67,7 @@ const MyFinance = () => {
             </div>
 
             {/* Summary cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4">
                     <div className="flex items-center gap-1.5 mb-1">
                         <Clock size={13} className="text-blue-400" />
