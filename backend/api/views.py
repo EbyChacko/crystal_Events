@@ -725,23 +725,21 @@ class EventViewSet(viewsets.ModelViewSet):
                     food_menu = event.food_menu
                 except Exception:
                     food_menu = None
-                items_extra = 0.0
+                sub_style = ParagraphStyle('SubDetail', parent=styles['Normal'], fontSize=7.5, leading=10, textColor=colors.HexColor('#666666'))
+                wrap_style = ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11)
                 if food_menu:
                     items_extra = sum(float(it.amount) for it in food_menu.items.all() if it.amount is not None)
-                base_catering = catering_cost - items_extra
-                if food_menu and base_catering > 0:
-                    catering_detail = (
-                        f"Catering — {food_menu.adult_count} Adult(s) × €{float(food_menu.adult_rate):,.2f}"
-                        f" + {food_menu.kid_count} Kid(s) × €{float(food_menu.kid_rate):,.2f}"
-                    )
-                    catering_col = Paragraph(catering_detail, ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-                    table_data.append([str(len(table_data)), catering_col, f'€{base_catering:,.2f}'])
-                elif not food_menu:
-                    catering_col = Paragraph("Catering", ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-                    table_data.append([str(len(table_data)), catering_col, f'€{catering_cost:,.2f}'])
-                if items_extra > 0:
-                    extra_col = Paragraph("Special Charges", ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-                    table_data.append([str(len(table_data)), extra_col, f'€{items_extra:,.2f}'])
+                    base_catering = catering_cost - items_extra
+                    lines = [f'<font size="9">Catering</font>']
+                    if base_catering > 0:
+                        lines.append(f'<font size="7" color="#888888">  {food_menu.adult_count} Adult(s) × €{float(food_menu.adult_rate):,.2f} + {food_menu.kid_count} Kid(s) × €{float(food_menu.kid_rate):,.2f}  →  €{base_catering:,.2f}</font>')
+                    for it in food_menu.items.all():
+                        if it.amount is not None:
+                            lines.append(f'<font size="7" color="#888888">  {it.name}: +€{float(it.amount):,.2f}</font>')
+                    catering_col = Paragraph('<br/>'.join(lines), wrap_style)
+                else:
+                    catering_col = Paragraph('Catering', wrap_style)
+                table_data.append([str(len(table_data)), catering_col, f'€{catering_cost:,.2f}'])
 
         svc_table = Table(table_data, colWidths=[30, 310, 100])
         svc_table.setStyle(TableStyle([
@@ -1541,34 +1539,22 @@ class QuoteViewSet(viewsets.ModelViewSet):
                 food_menu = event.food_menu
             except Exception:
                 food_menu = None
-            items_extra = 0.0
+            catering_description = ''
             if food_menu:
                 items_extra = sum(float(it.amount) for it in food_menu.items.all() if it.amount is not None)
-            base_catering = float(quote.catering_cost) - items_extra
-            catering_description = ''
-            if food_menu and base_catering > 0:
-                catering_description = (
-                    f"{food_menu.adult_count} adult(s) × €{float(food_menu.adult_rate):,.2f}"
-                    f" + {food_menu.kid_count} kid(s) × €{float(food_menu.kid_rate):,.2f}"
-                )
-                entry['services_detail'].append({
-                    'name': 'Catering',
-                    'amount': f'{base_catering:.2f}',
-                    'description': catering_description
-                })
-            elif not food_menu:
-                entry['services_detail'].append({
-                    'name': 'Catering',
-                    'amount': str(quote.catering_cost),
-                    'description': catering_description
-                })
-            if items_extra > 0:
-                entry['services_detail'].append({
-                    'name': 'Special Charges',
-                    'amount': f'{items_extra:.2f}',
-                    'description': 'Additional charges from food menu items'
-                })
-                entry['services'].append('Special Charges')
+                base_catering = float(quote.catering_cost) - items_extra
+                parts = []
+                if base_catering > 0:
+                    parts.append(f"{food_menu.adult_count} adult(s) × €{float(food_menu.adult_rate):,.2f} + {food_menu.kid_count} kid(s) × €{float(food_menu.kid_rate):,.2f}")
+                for it in food_menu.items.all():
+                    if it.amount is not None:
+                        parts.append(f"{it.name}: +€{float(it.amount):,.2f}")
+                catering_description = '; '.join(parts)
+            entry['services_detail'].append({
+                'name': 'Catering',
+                'amount': str(quote.catering_cost),
+                'description': catering_description
+            })
             entry['services'].append('Catering')
 
         log = list(event.audit_log or [])
@@ -1838,23 +1824,20 @@ class QuoteViewSet(viewsets.ModelViewSet):
                     food_menu = quote.event.food_menu
                 except Exception:
                     food_menu = None
-            items_extra = 0.0
+            wrap_style = ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11)
             if food_menu:
                 items_extra = sum(float(it.amount) for it in food_menu.items.all() if it.amount is not None)
-            base_catering = float(quote.catering_cost) - items_extra
-            if food_menu and base_catering > 0:
-                catering_detail = (
-                    f"Catering — {food_menu.adult_count} Adult(s) × €{food_menu.adult_rate:,.2f}"
-                    f" + {food_menu.kid_count} Kid(s) × €{food_menu.kid_rate:,.2f}"
-                )
-                catering_col = Paragraph(catering_detail, ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-                table_data.append([str(len(table_data)), catering_col, f'€{base_catering:,.2f}'])
-            elif not food_menu:
-                catering_col = Paragraph("Catering", ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-                table_data.append([str(len(table_data)), catering_col, f'€{quote.catering_cost:,.2f}'])
-            if items_extra > 0:
-                extra_col = Paragraph("Special Charges", ParagraphStyle('ServiceWrap', parent=styles['Normal'], fontSize=9, leading=11))
-                table_data.append([str(len(table_data)), extra_col, f'€{items_extra:,.2f}'])
+                base_catering = float(quote.catering_cost) - items_extra
+                lines = [f'<font size="9">Catering</font>']
+                if base_catering > 0:
+                    lines.append(f'<font size="7" color="#888888">  {food_menu.adult_count} Adult(s) × €{float(food_menu.adult_rate):,.2f} + {food_menu.kid_count} Kid(s) × €{float(food_menu.kid_rate):,.2f}  →  €{base_catering:,.2f}</font>')
+                for it in food_menu.items.all():
+                    if it.amount is not None:
+                        lines.append(f'<font size="7" color="#888888">  {it.name}: +€{float(it.amount):,.2f}</font>')
+                catering_col = Paragraph('<br/>'.join(lines), wrap_style)
+            else:
+                catering_col = Paragraph('Catering', wrap_style)
+            table_data.append([str(len(table_data)), catering_col, f'€{quote.catering_cost:,.2f}'])
 
         svc_table = Table(table_data, colWidths=[30, 310, 100])
         svc_table.setStyle(TableStyle([
