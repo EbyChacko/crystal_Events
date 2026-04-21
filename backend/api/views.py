@@ -1500,12 +1500,19 @@ class QuoteViewSet(viewsets.ModelViewSet):
     serializer_class = QuoteSerializer
     permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
 
-    def _log_quote_action(self, quote, action, user):
+    def _log_quote_action(self, quote, action, user, old_quote_data=None):
         """Append a quote-related entry to the linked event's audit log."""
         if not quote.event:
             return
         event = quote.event
         from django.utils import timezone
+        new_services_detail = [
+            {
+                'name': item.service.name,
+                'amount': str(item.quoted_amount),
+                'description': item.comment or ''
+            } for item in quote.items.select_related('service').all()
+        ]
         entry = {
             'timestamp': timezone.now().isoformat(),
             'action': action,
@@ -1515,15 +1522,28 @@ class QuoteViewSet(viewsets.ModelViewSet):
             'quote_discount': str(quote.discount_amount),
             'quote_total': str(quote.total),
             'quote_status': quote.get_status_display(),
-            'services_detail': [
-                {
-                    'name': item.service.name,
-                    'amount': str(item.quoted_amount),
-                    'description': item.comment or ''
-                } for item in quote.items.select_related('service').all()
-            ],
+            'services_detail': new_services_detail,
             'services': [item.service.name for item in quote.items.select_related('service').all()],
         }
+
+        if action == 'quote_updated' and old_quote_data:
+            changes = {}
+            simple_fields = [
+                ('Status', old_quote_data.get('quote_status'), quote.get_status_display()),
+                ('Travel Cost', old_quote_data.get('quote_travel_cost'), str(quote.travel_cost)),
+                ('Catering Cost', old_quote_data.get('quote_catering_cost'), str(quote.catering_cost)),
+                ('Discount %', old_quote_data.get('quote_discount_pct'), str(quote.discount_percentage)),
+                ('Subtotal', old_quote_data.get('quote_subtotal'), str(quote.subtotal)),
+                ('Total', old_quote_data.get('quote_total'), str(quote.total)),
+            ]
+            for label, old_val, new_val in simple_fields:
+                if str(old_val) != str(new_val):
+                    changes[label] = {'old': str(old_val), 'new': str(new_val)}
+            old_svc = old_quote_data.get('services_detail', [])
+            if old_svc != new_services_detail:
+                changes['services'] = {'old': old_svc, 'new': new_services_detail}
+            if changes:
+                entry['changes'] = changes
         
         if quote.travel_cost and quote.travel_cost > 0:
             entry['services_detail'].append({
@@ -1625,7 +1645,20 @@ class QuoteViewSet(viewsets.ModelViewSet):
         self._log_quote_action(quote, 'quote_created', self.request.user)
 
     def perform_update(self, serializer):
-        old_status = self.get_object().status
+        old_quote = self.get_object()
+        old_status = old_quote.status
+        old_quote_data = {
+            'quote_status': old_quote.get_status_display(),
+            'quote_travel_cost': str(old_quote.travel_cost),
+            'quote_catering_cost': str(old_quote.catering_cost),
+            'quote_discount_pct': str(old_quote.discount_percentage),
+            'quote_subtotal': str(old_quote.subtotal),
+            'quote_total': str(old_quote.total),
+            'services_detail': [
+                {'name': item.service.name, 'amount': str(item.quoted_amount), 'description': item.comment or ''}
+                for item in old_quote.items.select_related('service').all()
+            ],
+        }
         quote = serializer.save()
         if quote.event:
             event = quote.event
@@ -1641,7 +1674,7 @@ class QuoteViewSet(viewsets.ModelViewSet):
         if quote.status == 'accepted' and old_status != 'accepted':
             self._notify_quote_accepted(quote)
 
-        self._log_quote_action(quote, 'quote_updated', self.request.user)
+        self._log_quote_action(quote, 'quote_updated', self.request.user, old_quote_data)
 
     @action(detail=True, methods=['get'], url_path='pdf')
     def generate_pdf(self, request, pk=None):
@@ -2553,11 +2586,15 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
         full = f"{user.first_name} {user.last_name}".strip()
         return full or user.username
 
-    def _log_menu_action(self, menu, action, user):
+    def _log_menu_action(self, menu, action, user, old_menu_data=None):
         from django.utils import timezone
         event = menu.event
         if not event:
             return
+        current_items = [
+            {'name': item.name, 'amount': str(item.amount) if item.amount is not None else None}
+            for item in menu.items.all()
+        ]
         log_entry = {
             'timestamp': timezone.now().isoformat(),
             'action': action,
@@ -2568,9 +2605,25 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
                 'kid_count': menu.kid_count,
                 'kid_rate': str(menu.kid_rate),
                 'total_cost': str(menu.total_cost),
-                'items': [item.name for item in menu.items.all()],
+                'items': current_items,
             }
         }
+        if action == 'menu_updated' and old_menu_data:
+            changes = {}
+            simple_fields = [
+                ('Adults', str(old_menu_data.get('adult_count')), str(menu.adult_count)),
+                ('Adult Rate', str(old_menu_data.get('adult_rate')), str(menu.adult_rate)),
+                ('Kids', str(old_menu_data.get('kid_count')), str(menu.kid_count)),
+                ('Kid Rate', str(old_menu_data.get('kid_rate')), str(menu.kid_rate)),
+            ]
+            for label, old_val, new_val in simple_fields:
+                if old_val != new_val:
+                    changes[label] = {'old': old_val, 'new': new_val}
+            old_items = old_menu_data.get('items', [])
+            if old_items != current_items:
+                changes['items'] = {'old': old_items, 'new': current_items}
+            if changes:
+                log_entry['changes'] = changes
         log = list(event.audit_log or [])
         log.append(log_entry)
         event.audit_log = log
@@ -2601,9 +2654,20 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
         self._log_menu_action(menu, 'menu_added', self.request.user)
 
     def perform_update(self, serializer):
+        old_menu = self.get_object()
+        old_menu_data = {
+            'adult_count': old_menu.adult_count,
+            'adult_rate': old_menu.adult_rate,
+            'kid_count': old_menu.kid_count,
+            'kid_rate': old_menu.kid_rate,
+            'items': [
+                {'name': item.name, 'amount': str(item.amount) if item.amount is not None else None}
+                for item in old_menu.items.all()
+            ],
+        }
         menu = serializer.save()
         self._sync_quote_catering(menu)
-        self._log_menu_action(menu, 'menu_updated', self.request.user)
+        self._log_menu_action(menu, 'menu_updated', self.request.user, old_menu_data)
 
     def get_permissions(self):
         return [permissions.IsAuthenticated()]

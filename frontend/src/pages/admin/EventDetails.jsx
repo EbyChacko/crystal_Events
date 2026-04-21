@@ -1815,9 +1815,19 @@ const EventDetails = () => {
                             <div className="bg-white/[0.03] border border-white/5 rounded-xl px-5 py-4">
                                 <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Menu Selection</h4>
                                 {eventFoodMenu.items && eventFoodMenu.items.length > 0 ? (
-                                    <ul className="space-y-2 list-disc list-inside text-gray-300">
+                                    <ul className="space-y-2">
                                         {eventFoodMenu.items.map((item, i) => (
-                                            <li key={i}>{item.name}</li>
+                                            <li key={i} className="flex items-center justify-between gap-3 text-gray-300">
+                                                <span className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-mustard-gold/60 flex-shrink-0" />
+                                                    {item.name}
+                                                </span>
+                                                {item.amount != null && parseFloat(item.amount) > 0 && (
+                                                    <span className="text-xs font-semibold text-mustard-gold bg-mustard-gold/10 border border-mustard-gold/20 px-2 py-0.5 rounded-full flex-shrink-0">
+                                                        €{parseFloat(item.amount).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </span>
+                                                )}
+                                            </li>
                                         ))}
                                     </ul>
                                 ) : (
@@ -2789,7 +2799,57 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
                             ) : isMenuAction ? (
                                 /* Food menu action details */
                                 <div className="mt-4">
-                                    <p className="text-xs text-orange-400/70 uppercase tracking-wider mb-3 font-medium">Food Menu Details</p>
+                                    {entry.action === 'menu_updated' && entry.changes ? (
+                                        <>
+                                            <p className="text-xs text-orange-400/70 uppercase tracking-wider mb-3 font-medium">Changed Details</p>
+                                            <div className="space-y-3">
+                                                {Object.entries(entry.changes).map(([field, diff]) => {
+                                                    if (field === 'items') {
+                                                        const renderItems = (items) => Array.isArray(items) ? items : [];
+                                                        const fmtItem = (it) => typeof it === 'string' ? it : (it.amount ? `${it.name} (€${parseFloat(it.amount).toFixed(2)})` : it.name);
+                                                        return (
+                                                            <div key={field} className="border-b border-white/5 pb-3">
+                                                                <span className="text-xs text-gray-500 font-medium block mb-2">Menu Items</span>
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <div className="bg-red-500/5 border border-red-500/15 rounded-lg p-2.5">
+                                                                        <span className="text-[10px] uppercase tracking-wider text-red-400/70 font-semibold block mb-1">Before</span>
+                                                                        <ul className="space-y-0.5">{renderItems(diff.old).map((it, i) => <li key={i} className="text-xs text-red-300/70 line-through">{fmtItem(it)}</li>)}</ul>
+                                                                    </div>
+                                                                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-2.5">
+                                                                        <span className="text-[10px] uppercase tracking-wider text-emerald-400/70 font-semibold block mb-1">After</span>
+                                                                        <ul className="space-y-0.5">{renderItems(diff.new).map((it, i) => <li key={i} className="text-xs text-emerald-300">{fmtItem(it)}</li>)}</ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    const fmtMenuVal = (f, v) => {
+                                                        if (f === 'Adult Rate' || f === 'Kid Rate') return v ? `€${parseFloat(v).toFixed(2)}/head` : '—';
+                                                        return v ?? '—';
+                                                    };
+                                                    return (
+                                                        <div key={field} className="py-2 border-b border-white/5 last:border-0 last:pb-0">
+                                                            <span className="text-xs text-gray-500 font-medium block mb-2">{field}</span>
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                <div className="flex items-center gap-1.5 bg-red-500/5 border border-red-500/15 rounded-lg px-2.5 py-1.5">
+                                                                    <span className="text-[10px] uppercase tracking-wider text-red-400/70 font-semibold">Was</span>
+                                                                    <span className="text-xs text-red-300/70 line-through">{fmtMenuVal(field, diff.old)}</span>
+                                                                </div>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-gray-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                                                <div className="flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-2.5 py-1.5">
+                                                                    <span className="text-[10px] uppercase tracking-wider text-emerald-400/70 font-semibold">Now</span>
+                                                                    <span className="text-xs text-emerald-300 font-medium">{fmtMenuVal(field, diff.new)}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            <p className="text-xs text-orange-400/70 uppercase tracking-wider mt-5 mb-3 font-medium">Current State</p>
+                                        </>
+                                    ) : (
+                                        <p className="text-xs text-orange-400/70 uppercase tracking-wider mb-3 font-medium">Food Menu Details</p>
+                                    )}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3">
                                             <span className="text-xs text-orange-300/70 block mb-1">Adults</span>
@@ -2809,12 +2869,19 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
                                             <div className="md:col-span-2 bg-white/[0.03] border border-white/10 rounded-xl p-3">
                                                 <span className="text-xs text-orange-300/70 block mb-2 font-medium">Menu Items</span>
                                                 <ul className="space-y-1">
-                                                    {entry.menu.items.map((item, i) => (
-                                                        <li key={i} className="flex items-center gap-2 text-xs text-gray-300">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
-                                                            {item}
-                                                        </li>
-                                                    ))}
+                                                    {entry.menu.items.map((item, i) => {
+                                                        const name = typeof item === 'string' ? item : item.name;
+                                                        const amount = typeof item === 'object' && item.amount ? item.amount : null;
+                                                        return (
+                                                            <li key={i} className="flex items-center justify-between gap-2 text-xs text-gray-300">
+                                                                <span className="flex items-center gap-2">
+                                                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
+                                                                    {name}
+                                                                </span>
+                                                                {amount && <span className="text-mustard-gold font-medium">€{parseFloat(amount).toFixed(2)}</span>}
+                                                            </li>
+                                                        );
+                                                    })}
                                                 </ul>
                                             </div>
                                         )}
@@ -2823,6 +2890,59 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
                             ) : isQuoteAction ? (
                                 /* Quote action details */
                                 <div className="mt-3">
+                                    {entry.action === 'quote_updated' && entry.changes && (
+                                        <>
+                                            <p className="text-xs text-pink-400/70 uppercase tracking-wider mb-3 font-medium">Changed Details</p>
+                                            <div className="space-y-3 mb-5">
+                                                {Object.entries(entry.changes).map(([field, diff]) => {
+                                                    if (field === 'services') {
+                                                        const renderSvcList = (list) => Array.isArray(list) ? list : [];
+                                                        return (
+                                                            <div key={field} className="border-b border-white/5 pb-3">
+                                                                <span className="text-xs text-gray-500 font-medium block mb-2">Quote Line Items</span>
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <div className="bg-red-500/5 border border-red-500/15 rounded-lg p-2.5">
+                                                                        <span className="text-[10px] uppercase tracking-wider text-red-400/70 font-semibold block mb-1">Before</span>
+                                                                        {renderSvcList(diff.old).map((s, i) => (
+                                                                            <div key={i} className="flex justify-between text-xs text-red-300/70 line-through py-0.5">{s.name}<span>€{parseFloat(s.amount || 0).toFixed(2)}</span></div>
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-2.5">
+                                                                        <span className="text-[10px] uppercase tracking-wider text-emerald-400/70 font-semibold block mb-1">After</span>
+                                                                        {renderSvcList(diff.new).map((s, i) => (
+                                                                            <div key={i} className="flex justify-between text-xs text-emerald-300 py-0.5">{s.name}<span>€{parseFloat(s.amount || 0).toFixed(2)}</span></div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    const fmtQuoteVal = (f, v) => {
+                                                        if (['Travel Cost','Catering Cost','Subtotal','Total'].includes(f)) return v ? `€${parseFloat(v).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—';
+                                                        if (f === 'Discount %') return v ? `${parseFloat(v).toFixed(2)}%` : '—';
+                                                        return v ?? '—';
+                                                    };
+                                                    return (
+                                                        <div key={field} className="py-2 border-b border-white/5 last:border-0 last:pb-0">
+                                                            <span className="text-xs text-gray-500 font-medium block mb-2">{field}</span>
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                <div className="flex items-center gap-1.5 bg-red-500/5 border border-red-500/15 rounded-lg px-2.5 py-1.5">
+                                                                    <span className="text-[10px] uppercase tracking-wider text-red-400/70 font-semibold">Was</span>
+                                                                    <span className="text-xs text-red-300/70 line-through">{fmtQuoteVal(field, diff.old)}</span>
+                                                                </div>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-gray-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                                                <div className="flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-2.5 py-1.5">
+                                                                    <span className="text-[10px] uppercase tracking-wider text-emerald-400/70 font-semibold">Now</span>
+                                                                    <span className="text-xs text-emerald-300 font-medium">{fmtQuoteVal(field, diff.new)}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            <p className="text-xs text-pink-400/70 uppercase tracking-wider mb-3 font-medium">Current State</p>
+                                        </>
+                                    )}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
                                         <div className="flex items-baseline py-1 border-b border-white/5">
                                             <span className="text-xs text-gray-500 w-32 flex-shrink-0">Quote #</span>
@@ -2921,18 +3041,35 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
 
                                                 if (isLongText) {
                                                     return (
-                                                        <div key={field} className="border-b border-white/5 pb-2">
-                                                            <span className="text-xs text-gray-500 font-medium block mb-1">{fieldLabel}</span>
-                                                            <div className="text-xs text-gray-300 whitespace-pre-wrap break-words">{diff.new || '—'}</div>
+                                                        <div key={field} className="border-b border-white/5 pb-3">
+                                                            <span className="text-xs text-gray-500 font-medium block mb-2">{fieldLabel}</span>
+                                                            <div className="grid grid-cols-1 gap-2">
+                                                                <div className="bg-red-500/5 border border-red-500/15 rounded-lg p-2.5">
+                                                                    <span className="text-[10px] uppercase tracking-wider text-red-400/70 font-semibold block mb-1">Before</span>
+                                                                    <p className="text-xs text-red-300/80 whitespace-pre-wrap break-words line-through decoration-red-400/40">{diff.old || '—'}</p>
+                                                                </div>
+                                                                <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-2.5">
+                                                                    <span className="text-[10px] uppercase tracking-wider text-emerald-400/70 font-semibold block mb-1">After</span>
+                                                                    <p className="text-xs text-emerald-300 whitespace-pre-wrap break-words">{diff.new || '—'}</p>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     );
                                                 }
 
                                                 return (
-                                                    <div key={field} className="flex flex-col sm:flex-row sm:items-baseline py-2 border-b border-white/5 last:border-0 last:pb-0">
-                                                        <span className="text-xs text-gray-400 w-32 flex-shrink-0 font-medium">{fieldLabel}</span>
-                                                        <div className="flex items-center space-x-3 mt-1 sm:mt-0 flex-1 min-w-0">
-                                                            <span className="text-xs text-emerald-400 font-medium truncate flex-1">{formatValue(field, diff.new)}</span>
+                                                    <div key={field} className="py-2 border-b border-white/5 last:border-0 last:pb-0">
+                                                        <span className="text-xs text-gray-500 font-medium block mb-2">{fieldLabel}</span>
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <div className="flex items-center gap-1.5 bg-red-500/5 border border-red-500/15 rounded-lg px-2.5 py-1.5 min-w-0">
+                                                                <span className="text-[10px] uppercase tracking-wider text-red-400/70 font-semibold flex-shrink-0">Was</span>
+                                                                <span className="text-xs text-red-300/70 line-through decoration-red-400/50 truncate">{formatValue(field, diff.old)}</span>
+                                                            </div>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-gray-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                                            <div className="flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-2.5 py-1.5 min-w-0">
+                                                                <span className="text-[10px] uppercase tracking-wider text-emerald-400/70 font-semibold flex-shrink-0">Now</span>
+                                                                <span className="text-xs text-emerald-300 font-medium truncate">{formatValue(field, diff.new)}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 );
