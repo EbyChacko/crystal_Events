@@ -77,7 +77,7 @@ const EventDetails = () => {
     const [showGalleryModal, setShowGalleryModal] = useState(false);
     const [showLogbookModal, setShowLogbookModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [paymentData, setPaymentData] = useState({ type: 'full', discount: '0', received: '' });
+    const [paymentData, setPaymentData] = useState({ type: 'full', discount: '0', received: '', tip: '' });
     const [paymentSubmitting, setPaymentSubmitting] = useState(false);
 
     // Refund state
@@ -410,7 +410,8 @@ const EventDetails = () => {
         setPaymentData({
             type: 'full',
             discount: '0',
-            received: balance > 0 ? balance.toFixed(2) : '0'
+            received: balance > 0 ? balance.toFixed(2) : '0',
+            tip: '',
         });
         setShowPaymentModal(true);
     };
@@ -427,9 +428,14 @@ const EventDetails = () => {
             const totalReceived = currentReceived + newReceived;
             const totalDiscount = currentDiscount + newDiscount;
 
+            const currentTip = parseFloat(event?.tip_amount || 0);
+            const newTip = parseFloat(paymentData.tip) || 0;
+            const totalTip = currentTip + newTip;
+
             const payload = {
                 received_amount: totalReceived,
-                payment_discount: totalDiscount
+                payment_discount: totalDiscount,
+                tip_amount: totalTip,
             };
             await api.patch(`/events/${id}/`, payload);
             addToast('Payment recorded successfully!', 'success');
@@ -1009,6 +1015,33 @@ const EventDetails = () => {
                                             Amount exceeds the balance due.
                                         </div>
                                     )}
+
+                                    {/* Tip Field */}
+                                    <div className="pt-4 border-t border-white/10">
+                                        <label className="block text-mustard-gold text-sm font-semibold mb-1">
+                                            Tip (Optional)
+                                        </label>
+                                        <p className="text-xs text-gray-500 mb-2">Customer gratitude tip — tracked separately from payment</p>
+                                        <input
+                                            type="number"
+                                            value={paymentData.tip}
+                                            onChange={(e) => {
+                                                let val = e.target.value;
+                                                if (val.includes('.')) {
+                                                    const parts = val.split('.');
+                                                    val = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                                                }
+                                                setPaymentData({ ...paymentData, tip: val });
+                                            }}
+                                            className={selectClass.replace('cursor-pointer', '')}
+                                            placeholder="0.00" step="0.01" min="0"
+                                        />
+                                        {parseFloat(event?.tip_amount || 0) > 0 && (
+                                            <p className="text-xs text-mustard-gold/70 mt-1">
+                                                Previously received: €{parseFloat(event.tip_amount).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in tips
+                                            </p>
+                                        )}
+                                    </div>
 
                                     <div className="pt-4 border-t border-white/10 flex justify-between items-center">
                                         <span className="text-mustard-gold font-semibold">Balance Due</span>
@@ -2787,6 +2820,12 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
                                             <span className="text-xs text-indigo-300 font-bold">Remaining Balance</span>
                                             <span className="text-lg font-bold text-mustard-gold">€{parseFloat(entry.remaining_balance || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                         </div>
+                                        {entry.tip_received_now && parseFloat(entry.tip_received_now) > 0 && (
+                                            <div className="flex items-center justify-between py-2 mt-1 bg-mustard-gold/5 border border-mustard-gold/20 rounded-xl px-3">
+                                                <span className="text-xs text-mustard-gold font-bold">Tip Received</span>
+                                                <span className="text-lg font-bold text-mustard-gold">+€{parseFloat(entry.tip_received_now).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ) : isRefundAction ? (

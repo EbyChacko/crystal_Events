@@ -41,6 +41,7 @@ import Settings from './pages/admin/Settings';
 import CalendarView from './pages/admin/CalendarView';
 import TeamAdmin from './pages/admin/TeamAdmin';
 import TravelRates from './pages/admin/TravelRates';
+import ProfitSplit from './pages/admin/ProfitSplit';
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
               <Route path="events/:id" element={<EventDetails />} />
               <Route path="profile" element={<Profile />} />
               <Route path="financials" element={<Financials />} />
+              <Route path="profit-split" element={<ProfitSplit />} />
               <Route path="staff-finance" element={<StaffFinance />} />
               <Route path="my-finance" element={<MyFinance />} />
               <Route path="assets" element={<Assets />} />

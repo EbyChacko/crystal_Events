@@ -6,6 +6,7 @@ from .views import (
     EventImageViewSet, TeamMemberViewSet, TravelRateViewSet,
     TwoFactorLoginView, TwoFactorSetupView, TwoFactorVerifySetupView, TwoFactorDisableView,
     FoodMenuViewSet, ProfitDistributionView, StaffPickerView, SplitProfitView,
+    TipDistributionView, SplitTipView,
     PasswordResetRequestView, PasswordResetConfirmView,
 )
 
@@ -35,6 +36,8 @@ urlpatterns = [
     path('auth/2fa/disable/', TwoFactorDisableView.as_view(), name='two-factor-disable'),
     path('financials/profit-distribution/', ProfitDistributionView.as_view(), name='profit-distribution'),
     path('financials/split-profit/', SplitProfitView.as_view(), name='split-profit'),
+    path('financials/tip-distribution/', TipDistributionView.as_view(), name='tip-distribution'),
+    path('financials/split-tip/', SplitTipView.as_view(), name='split-tip'),
     path('auth/password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('auth/password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 ]

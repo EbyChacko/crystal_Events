@@ -366,21 +366,24 @@ class EventViewSet(viewsets.ModelViewSet):
         
         old_received = old_instance.received_amount or 0
         old_discount = old_instance.payment_discount or 0
-        
+        old_tip = old_instance.tip_amount or 0
+
         event = serializer.save()
-        
+
         new_received = event.received_amount or 0
         new_discount = event.payment_discount or 0
-        
+        new_tip = event.tip_amount or 0
+
         current_log = list(event.audit_log or [])
-        
+
         # Check if this was purely a payment update (to separate payment logs from data updates)
-        if new_received > old_received or new_discount > old_discount:
+        if new_received > old_received or new_discount > old_discount or new_tip > old_tip:
             amount_now = new_received - old_received
+            tip_now = new_tip - old_tip
             budget = event.budget or 0
             discount = event.payment_discount or 0
             remaining = budget - new_received - discount
-            
+
             quote_snapshot = []
             quote_to_use = event.quotes.filter(status='accepted').first() or event.quotes.order_by('-created_at').first()
             if quote_to_use and quote_to_use.items.exists():
@@ -397,7 +400,7 @@ class EventViewSet(viewsets.ModelViewSet):
                         'comment': '',
                         'quoted_amount': str(travel_cost)
                     })
-            
+
             log_entry = {
                 'timestamp': __import__('django.utils.timezone', fromlist=['now']).now().isoformat(),
                 'action': 'payment_received',
@@ -407,8 +410,11 @@ class EventViewSet(viewsets.ModelViewSet):
                 'quoted_amount': str(budget),
                 'discount': str(discount),
                 'remaining_balance': str(remaining),
-                'quote_items_snapshot': quote_snapshot
+                'quote_items_snapshot': quote_snapshot,
             }
+            if tip_now > 0:
+                log_entry['tip_received_now'] = str(tip_now)
+                log_entry['total_tip_amount'] = str(new_tip)
             current_log.append(log_entry)
         else:
             # Snapshot the NEW state and diff against old to see what actually changed
@@ -2374,6 +2380,103 @@ class SplitProfitView(APIView):
             })
 
         return Response({'created': created, 'total_split': float(amount)}, status=status.HTTP_201_CREATED)
+
+
+class TipDistributionView(APIView):
+    """Returns total tips collected and equal per-staff share preview."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from decimal import Decimal
+        from django.db.models import Sum
+
+        total_tips = Event.objects.aggregate(total=Sum('tip_amount'))['total'] or Decimal('0')
+
+        staff = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        staff_count = staff.count()
+        staff_list = []
+        for u in staff:
+            share = (total_tips / staff_count).quantize(Decimal('0.01')) if staff_count > 0 else Decimal('0')
+            staff_list.append({
+                'id': u.id,
+                'name': f"{u.first_name} {u.last_name}".strip() or u.username,
+                'username': u.username,
+                'share': float(share),
+            })
+
+        return Response({
+            'total_tips': float(total_tips),
+            'staff_count': staff_count,
+            'staff': staff_list,
+        })
+
+
+class SplitTipView(APIView):
+    """Split collected tips equally among staff or as a single staff party expense."""
+    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
+
+    def post(self, request):
+        from .models import Expense
+        from decimal import Decimal, InvalidOperation
+        from django.db.models import Sum
+        from django.utils import timezone
+
+        amount_raw = request.data.get('amount')
+        mode = request.data.get('mode', 'split')   # 'split' or 'party'
+        mark_as_paid = request.data.get('mark_as_paid', False)
+
+        try:
+            amount = Decimal(str(amount_raw)).quantize(Decimal('0.01'))
+        except (InvalidOperation, TypeError):
+            return Response({'error': 'Invalid amount.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if amount <= 0:
+            return Response({'error': 'Amount must be greater than zero.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_tips = Event.objects.aggregate(total=Sum('tip_amount'))['total'] or Decimal('0')
+        if amount > total_tips:
+            return Response({'error': f'Amount exceeds total tips of €{total_tips:.2f}.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        today = timezone.now().date()
+        paid_back_at = timezone.now() if mark_as_paid else None
+        date_str = today.strftime('%d %b %Y')
+        created = []
+
+        if mode == 'party':
+            exp = Expense.objects.create(
+                date=today,
+                amount=amount,
+                reason=f'Staff Party / Get-together – {date_str}',
+                category='Staff Party',
+                approved_by=request.user,
+                paid_back=bool(mark_as_paid),
+                paid_back_at=paid_back_at,
+            )
+            created.append({'reason': exp.reason, 'amount': float(exp.amount)})
+        else:
+            staff = User.objects.filter(is_active=True)
+            staff_count = staff.count()
+            if staff_count == 0:
+                return Response({'error': 'No active staff found.'}, status=status.HTTP_400_BAD_REQUEST)
+            share = (amount / staff_count).quantize(Decimal('0.01'))
+            for u in staff:
+                exp = Expense.objects.create(
+                    date=today,
+                    amount=share,
+                    reason=f'Tip Share – {date_str}',
+                    category='Tip Payout',
+                    approved_by=request.user,
+                    paid_by=u,
+                    paid_back=bool(mark_as_paid),
+                    paid_back_at=paid_back_at,
+                )
+                created.append({
+                    'id': exp.id,
+                    'user_name': f"{u.first_name} {u.last_name}".strip() or u.username,
+                    'amount': float(share),
+                })
+
+        return Response({'created': created, 'total_split': float(amount), 'mode': mode}, status=status.HTTP_201_CREATED)
 
 
 # ── Two-Factor Authentication Views ───────────────────────────────

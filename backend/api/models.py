@@ -62,6 +62,7 @@ class Event(models.Model):
     # Payment Fields
     received_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     payment_discount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    tip_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0, blank=True)
 
     # Notes
     notes = models.TextField(blank=True, default='')
