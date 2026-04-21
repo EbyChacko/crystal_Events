@@ -1678,9 +1678,29 @@ const EventDetails = () => {
                                                 <div>
                                                     <p className="text-orange-400 text-sm font-bold">Catering</p>
                                                     {eventFoodMenu ? (
-                                                        <p className="text-xs text-gray-400 mt-0.5">
-                                                            Food menu: {eventFoodMenu.adult_count} adults × €{parseFloat(eventFoodMenu.adult_rate).toFixed(2)} + {eventFoodMenu.kid_count} kids × €{parseFloat(eventFoodMenu.kid_rate).toFixed(2)}
-                                                        </p>
+                                                        <div className="mt-1 space-y-0.5">
+                                                            {(() => {
+                                                                const itemsExtra = (eventFoodMenu.items || []).reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
+                                                                const baseCatering = parseFloat(eventFoodMenu.total_cost) - itemsExtra;
+                                                                const chargedItems = (eventFoodMenu.items || []).filter(it => parseFloat(it.amount) > 0);
+                                                                return (
+                                                                    <>
+                                                                        {baseCatering > 0 && (
+                                                                            <p className="text-xs text-gray-400">
+                                                                                {eventFoodMenu.adult_count} Adult(s) × €{parseFloat(eventFoodMenu.adult_rate).toFixed(2)}
+                                                                                {eventFoodMenu.kid_count > 0 && ` + ${eventFoodMenu.kid_count} Kid(s) × €${parseFloat(eventFoodMenu.kid_rate).toFixed(2)}`}
+                                                                                <span className="text-gray-500"> → </span>€{baseCatering.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                            </p>
+                                                                        )}
+                                                                        {chargedItems.map((it, i) => (
+                                                                            <p key={i} className="text-xs text-gray-400">
+                                                                                {it.name}: <span className="text-purple-400 font-medium">+€{parseFloat(it.amount).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                            </p>
+                                                                        ))}
+                                                                    </>
+                                                                );
+                                                            })()}
+                                                        </div>
                                                     ) : (
                                                         <p className="text-xs text-gray-500 mt-0.5">No food menu added yet. Add a food menu to auto-fill.</p>
                                                     )}
