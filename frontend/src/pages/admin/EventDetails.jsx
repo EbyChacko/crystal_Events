@@ -2554,7 +2554,7 @@ const EventDetails = () => {
                             ) : (
                                 <div className="space-y-3">
                                     {auditLog.map((entry, idx) => (
-                                        <LogbookEntry key={idx} entry={entry} isFirst={idx === 0} isLast={idx === auditLog.length - 1} eventId={id} logIdx={idx} />
+                                        <LogbookEntry key={idx} entry={entry} isFirst={idx === 0} isLast={idx === auditLog.length - 1} eventId={id} logIdx={idx} isSuperUser={user?.is_superuser} onDeleteEntry={() => fetchEvent()} />
                                     ))}
                                 </div>
                             )}
@@ -2570,8 +2570,23 @@ const EventDetails = () => {
 
 /* ── Logbook Entry Component ─────────────────────────────────────── */
 
-const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
+const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, onDeleteEntry }) => {
     const [expanded, setExpanded] = useState(isFirst);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
+    const handleDeleteEntry = async (e) => {
+        e.stopPropagation();
+        if (!confirmDelete) { setConfirmDelete(true); return; }
+        setDeleting(true);
+        try {
+            await api.delete(`/events/${eventId}/delete_log_entry/?log_idx=${logIdx}`);
+            onDeleteEntry();
+        } catch {
+            setDeleting(false);
+            setConfirmDelete(false);
+        }
+    };
     const isCreated = entry.action === 'created';
     const isQuoteAction = entry.action === 'quote_created' || entry.action === 'quote_updated';
     const isPaymentAction = entry.action === 'payment_received';
@@ -2685,6 +2700,34 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx }) => {
                         >
                             <Download size={14} /> <span className="hidden sm:inline">Credit Note</span>
                         </button>
+                    )}
+                    {isSuperUser && (
+                        confirmDelete ? (
+                            <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                                <span className="text-xs text-red-400 font-medium">Delete?</span>
+                                <button
+                                    onClick={handleDeleteEntry}
+                                    disabled={deleting}
+                                    className="text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 px-2 py-1 rounded-lg font-medium transition-colors disabled:opacity-50"
+                                >
+                                    {deleting ? '...' : 'Yes'}
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setConfirmDelete(false); }}
+                                    className="text-xs bg-white/10 hover:bg-white/[0.08] text-gray-400 px-2 py-1 rounded-lg font-medium transition-colors"
+                                >
+                                    No
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={handleDeleteEntry}
+                                className="p-1.5 text-gray-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                title="Delete log entry"
+                            >
+                                <Trash2 size={14} />
+                            </button>
+                        )
                     )}
                     {expanded ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
                 </div>

@@ -1374,6 +1374,28 @@ class EventViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = f'inline; filename="Notes_{safe_name}.pdf"'
         return response
 
+    @action(detail=True, methods=['delete'], url_path='delete_log_entry',
+            permission_classes=[permissions.IsAuthenticated, IsSuperUser])
+    def delete_log_entry(self, request, pk=None):
+        """Delete a single audit log entry by its reversed index. Superuser only."""
+        event = self.get_object()
+        try:
+            log_idx = int(request.query_params.get('log_idx', ''))
+        except (TypeError, ValueError):
+            return Response({'error': 'log_idx query param required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        log = list(event.audit_log or [])
+        actual_idx = len(log) - 1 - log_idx
+        if actual_idx < 0 or actual_idx >= len(log):
+            return Response({'error': 'Log entry not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        log.pop(actual_idx)
+        event.audit_log = log
+        event.save(update_fields=['audit_log'])
+        logger.info('Audit log entry %s deleted from event %s by %s', log_idx, event.id, request.user)
+        return Response({'audit_log': log}, status=status.HTTP_200_OK)
+
+
 class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseSerializer
     permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
