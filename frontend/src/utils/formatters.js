@@ -4,7 +4,7 @@ export const fmt = (n) => {
     const val = parseFloat(n || 0);
     const abs = Math.abs(val);
     const formatted = abs.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return val < 0 ? `€-${formatted}` : `€${formatted}`;
+    return val < 0 ? `-€${formatted}` : `€${formatted}`;
 };
 
 export const fmtDec = (n) =>
