@@ -307,7 +307,9 @@ class FoodMenu(models.Model):
 
     @property
     def total_cost(self):
-        return (self.adult_count * self.adult_rate) + (self.kid_count * self.kid_rate)
+        base = (self.adult_count * self.adult_rate) + (self.kid_count * self.kid_rate)
+        items_total = sum(item.amount for item in self.items.all() if item.amount is not None)
+        return base + items_total
 
     def __str__(self):
         return f"Food Menu for {self.event.event_name}"
@@ -315,6 +317,7 @@ class FoodMenu(models.Model):
 class FoodMenuItem(models.Model):
     menu = models.ForeignKey(FoodMenu, on_delete=models.CASCADE, related_name='items')
     name = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return self.name

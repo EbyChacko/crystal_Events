@@ -5,7 +5,7 @@ import api from '../../utils/api';
 import { inputClass, labelClass } from '../../utils/classes';
 import { useToast } from '../../context/ToastContext';
 
-const defaultItem = { name: '' };
+const defaultItem = { name: '', amount: '' };
 
 const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
     const { addToast } = useToast();
@@ -25,7 +25,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
             setKidCount(menu.kid_count || 0);
             setKidRate(parseFloat(menu.kid_rate) || 0);
             if (menu.items && menu.items.length > 0) {
-                setItems(menu.items.map(i => ({ name: i.name })));
+                setItems(menu.items.map(i => ({ name: i.name, amount: i.amount ?? '' })));
             } else {
                 setItems([{ ...defaultItem }]);
             }
@@ -55,13 +55,16 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
         }
     };
 
-    const totalCost = (adultCount * adultRate) + (kidCount * kidRate);
+    const itemsTotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    const totalCost = (adultCount * adultRate) + (kidCount * kidRate) + itemsTotal;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        const validItems = items.filter(item => item.name.trim() !== '');
+        const validItems = items
+            .filter(item => item.name.trim() !== '')
+            .map(item => ({ name: item.name, amount: item.amount !== '' ? item.amount : null }));
 
         const payload = {
             event: event.id,
@@ -212,7 +215,21 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                                                 className={inputClass}
                                             />
                                         </div>
-                                        
+
+                                        <div className="relative w-32 flex-shrink-0">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm">€</span>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={item.amount}
+                                                onChange={(e) => handleItemChange(index, 'amount', e.target.value)}
+                                                onFocus={(e) => e.target.select()}
+                                                placeholder="Optional"
+                                                className={`${inputClass} pl-7`}
+                                            />
+                                        </div>
+
                                         {/* Inline Add Button for the latest active item */}
                                         {item.name.trim() !== '' && index === items.length - 1 && (
                                             <button
@@ -224,7 +241,7 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                                                 <Plus size={20} />
                                             </button>
                                         )}
-                                        
+
                                         {items.length > 1 && (
                                             <button
                                                 type="button"
@@ -246,7 +263,19 @@ const FoodMenuForm = ({ event, menu, onClose, onSuccess }) => {
                 <div className="flex-shrink-0 border-t border-white/10 bg-[#040c18] p-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                         
-                        <div className="flex-1 w-full bg-white/5 rounded-xl p-4 border border-white/10">
+                        <div className="flex-1 w-full bg-white/5 rounded-xl p-4 border border-white/10 space-y-1">
+                            {itemsTotal > 0 && (
+                                <div className="flex items-center justify-between text-xs text-gray-500">
+                                    <span>Guest catering:</span>
+                                    <span>€{((adultCount * adultRate) + (kidCount * kidRate)).toFixed(2)}</span>
+                                </div>
+                            )}
+                            {itemsTotal > 0 && (
+                                <div className="flex items-center justify-between text-xs text-gray-500">
+                                    <span>Item extras:</span>
+                                    <span>€{itemsTotal.toFixed(2)}</span>
+                                </div>
+                            )}
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-400">Total Catering Cost:</span>
                                 <span className="text-2xl font-bold text-white">€{totalCost.toFixed(2)}</span>

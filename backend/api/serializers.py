@@ -471,7 +471,7 @@ class TwoFactorLoginSerializer(serializers.Serializer):
 class FoodMenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoodMenuItem
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'amount']
 
 class FoodMenuSerializer(serializers.ModelSerializer):
     items = FoodMenuItemSerializer(many=True)
