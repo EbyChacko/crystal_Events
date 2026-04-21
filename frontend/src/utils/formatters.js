@@ -1,7 +1,11 @@
 // ── Shared formatting utilities ──
 
-export const fmt = (n) =>
-    `€${parseFloat(n || 0).toLocaleString('en-IE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+export const fmt = (n) => {
+    const val = parseFloat(n || 0);
+    const abs = Math.abs(val);
+    const formatted = abs.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return val < 0 ? `-€${formatted}` : `€${formatted}`;
+};
 
 export const fmtDec = (n) =>
     `€${parseFloat(n || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

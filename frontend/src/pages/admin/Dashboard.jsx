@@ -329,7 +329,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <KpiCard delay={0} color={netProfit >= 0 ? 'emerald' : 'red'}
                     icon={<DollarSign size={20} className={netProfit >= 0 ? 'text-emerald-400' : 'text-red-400'} />}
-                    label="Net Profit" value={fmt(Math.abs(netProfit))}
+                    label="Net Profit" value={fmt(netProfit)}
                     sub={netProfit < 0 ? 'Net loss for period' : `${pct(profitMargin)} margin`}
                     linkTo="/admin/financials"
                 />
@@ -406,7 +406,7 @@ const Dashboard = () => {
                         {[
                             { label: 'Income', value: fmt(totalIncome), color: '#10b981' },
                             { label: 'Expenses', value: fmt(totalExpenses), color: '#ef4444' },
-                            { label: 'Net', value: fmt(Math.abs(netProfit)), color: netProfit >= 0 ? '#10b981' : '#ef4444' },
+                            { label: 'Net', value: fmt(netProfit), color: netProfit >= 0 ? '#10b981' : '#ef4444' },
                         ].map(s => (
                             <div key={s.label} className="flex items-center gap-2">
                                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
