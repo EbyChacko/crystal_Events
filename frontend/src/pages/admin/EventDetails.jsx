@@ -1456,17 +1456,34 @@ const EventDetails = () => {
                                         <span className="text-sm font-bold text-white">€{parseFloat(eventQuote.travel_cost).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                 )}
-                                {parseFloat(eventQuote.catering_cost) > 0 && (
-                                    <div className="flex items-center justify-between bg-white/[0.03] border border-orange-500/30 rounded-xl px-4 py-3 mt-3">
-                                        <div>
-                                            <span className="text-sm text-orange-400 font-bold block">Catering</span>
-                                            {eventFoodMenu && (
-                                                <span className="text-xs text-gray-400">{eventFoodMenu.adult_count} adults + {eventFoodMenu.kid_count} kids</span>
+                                {parseFloat(eventQuote.catering_cost) > 0 && (() => {
+                                    const itemsExtra = eventFoodMenu?.items?.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0) || 0;
+                                    const baseCatering = parseFloat(eventQuote.catering_cost) - itemsExtra;
+                                    return (
+                                        <>
+                                            {baseCatering > 0 && (
+                                                <div className="flex items-center justify-between bg-white/[0.03] border border-orange-500/30 rounded-xl px-4 py-3 mt-3">
+                                                    <div>
+                                                        <span className="text-sm text-orange-400 font-bold block">Catering</span>
+                                                        {eventFoodMenu && (
+                                                            <span className="text-xs text-gray-400">{eventFoodMenu.adult_count} adults + {eventFoodMenu.kid_count} kids</span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-sm font-bold text-white">€{baseCatering.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                </div>
                                             )}
-                                        </div>
-                                        <span className="text-sm font-bold text-white">€{parseFloat(eventQuote.catering_cost).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                    </div>
-                                )}
+                                            {itemsExtra > 0 && (
+                                                <div className="flex items-center justify-between bg-white/[0.03] border border-purple-500/30 rounded-xl px-4 py-3 mt-3">
+                                                    <div>
+                                                        <span className="text-sm text-purple-400 font-bold block">Special Charges</span>
+                                                        <span className="text-xs text-gray-400">Additional charges from menu items</span>
+                                                    </div>
+                                                    <span className="text-sm font-bold text-white">€{itemsExtra.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                </div>
+                                            )}
+                                        </>
+                                    );
+                                })()}
                             </div>
                             <div className="flex flex-col items-end space-y-1 text-sm">
                                 <div className="flex items-center space-x-6">
