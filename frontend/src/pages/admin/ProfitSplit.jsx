@@ -369,56 +369,86 @@ const ProfitSplit = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-12 gap-3 px-5 py-3 border-b border-white/10 bg-white/[0.02]">
-                                <div className="col-span-1 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    <Hash size={11} /> Event ID
+                            {/* Desktop table */}
+                            <div className="hidden sm:block">
+                                <div className="grid grid-cols-12 gap-3 px-5 py-3 border-b border-white/10 bg-white/[0.02]">
+                                    <div className="col-span-2 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        <Hash size={11} /> Event ID
+                                    </div>
+                                    <div className="col-span-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Event</div>
+                                    <div className="col-span-3 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        <Calendar size={11} /> Tip Received
+                                    </div>
+                                    <div className={`${isSuperuser ? 'col-span-2' : 'col-span-3'} text-right text-xs font-semibold text-gray-500 uppercase tracking-wider`}>Amount</div>
+                                    {isSuperuser && <div className="col-span-1" />}
                                 </div>
-                                <div className="col-span-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Event</div>
-                                <div className="col-span-3 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    <Calendar size={11} /> Tip Received
+                                <div className="divide-y divide-white/5">
+                                    {tipEntries.map((entry, idx) => {
+                                        const isConfirming = confirm?.id === entry.event_id && confirm?.action === 'delete-event';
+                                        return (
+                                            <motion.div key={entry.event_id}
+                                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }}
+                                                className="grid grid-cols-12 gap-3 px-5 py-4 hover:bg-white/[0.03] transition-colors items-center">
+                                                <div className="col-span-2">
+                                                    <span className="text-xs font-mono font-semibold text-mustard-gold/80 bg-mustard-gold/10 px-2 py-0.5 rounded">{entry.event_uid}</span>
+                                                </div>
+                                                <div className="col-span-4">
+                                                    <p className="text-sm font-medium text-white truncate">{entry.event_name}</p>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <p className="text-sm text-gray-400">{entry.tip_date}</p>
+                                                </div>
+                                                <div className={`${isSuperuser ? 'col-span-2' : 'col-span-3'} text-right`}>
+                                                    <span className="text-sm font-bold text-mustard-gold">{fmtEur(entry.tip_amount)}</span>
+                                                </div>
+                                                {isSuperuser && (
+                                                    <div className="col-span-1 flex justify-end">
+                                                        {isConfirming ? (
+                                                            <ConfirmButtons onConfirm={() => handleDeleteEventTip(entry.event_id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Remove" />
+                                                        ) : (
+                                                            <button onClick={() => setConfirm({ id: entry.event_id, action: 'delete-event' })}
+                                                                className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Remove tip entry">
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        );
+                                    })}
                                 </div>
-                                <div className={`${isSuperuser ? 'col-span-2' : 'col-span-4'} text-right text-xs font-semibold text-gray-500 uppercase tracking-wider`}>Amount</div>
-                                {isSuperuser && <div className="col-span-2" />}
                             </div>
 
-                            <div className="divide-y divide-white/5">
+                            {/* Mobile cards */}
+                            <div className="sm:hidden divide-y divide-white/5">
                                 {tipEntries.map((entry, idx) => {
                                     const isConfirming = confirm?.id === entry.event_id && confirm?.action === 'delete-event';
                                     return (
                                         <motion.div key={entry.event_id}
                                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }}
-                                            className="grid grid-cols-12 gap-3 px-5 py-4 hover:bg-white/[0.03] transition-colors items-center">
-                                            <div className="col-span-1">
-                                                <span className="text-xs font-mono font-semibold text-mustard-gold/80 bg-mustard-gold/10 px-2 py-0.5 rounded">{entry.event_uid}</span>
-                                            </div>
-                                            <div className="col-span-4">
-                                                <p className="text-sm font-medium text-white truncate">{entry.event_name}</p>
-                                            </div>
-                                            <div className="col-span-3">
-                                                <p className="text-sm text-gray-400">{entry.tip_date}</p>
-                                            </div>
-                                            <div className={`${isSuperuser ? 'col-span-2' : 'col-span-4'} text-right`}>
-                                                <span className="text-sm font-bold text-mustard-gold">{fmtEur(entry.tip_amount)}</span>
-                                            </div>
-                                            {isSuperuser && (
-                                                <div className="col-span-2 flex justify-end">
-                                                    {isConfirming ? (
-                                                        <ConfirmButtons
-                                                            onConfirm={() => handleDeleteEventTip(entry.event_id)}
-                                                            onCancel={() => setConfirm(null)}
-                                                            busy={actionBusy}
-                                                            label="Remove"
-                                                        />
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => setConfirm({ id: entry.event_id, action: 'delete-event' })}
-                                                            className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                                            title="Remove tip entry">
-                                                            <Trash2 size={14} />
-                                                        </button>
+                                            className="px-4 py-4 hover:bg-white/[0.03] transition-colors">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="text-xs font-mono font-semibold text-mustard-gold/80 bg-mustard-gold/10 px-2 py-0.5 rounded">{entry.event_uid}</span>
+                                                    </div>
+                                                    <p className="text-sm font-semibold text-white truncate">{entry.event_name}</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5">{entry.tip_date}</p>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                                                    <span className="text-base font-bold text-mustard-gold">{fmtEur(entry.tip_amount)}</span>
+                                                    {isSuperuser && (
+                                                        isConfirming ? (
+                                                            <ConfirmButtons onConfirm={() => handleDeleteEventTip(entry.event_id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Remove" />
+                                                        ) : (
+                                                            <button onClick={() => setConfirm({ id: entry.event_id, action: 'delete-event' })}
+                                                                className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Remove tip entry">
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        )
                                                     )}
                                                 </div>
-                                            )}
+                                            </div>
                                         </motion.div>
                                     );
                                 })}
@@ -445,18 +475,91 @@ const ProfitSplit = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-12 gap-3 px-5 py-3 border-b border-white/10 bg-white/[0.02]">
-                                <div className="col-span-2 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    <Calendar size={11} /> Date
+                            {/* Desktop table */}
+                            <div className="hidden sm:block">
+                                <div className="grid grid-cols-12 gap-3 px-5 py-3 border-b border-white/10 bg-white/[0.02]">
+                                    <div className="col-span-2 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        <Calendar size={11} /> Date
+                                    </div>
+                                    <div className="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</div>
+                                    <div className="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Paid To</div>
+                                    <div className="col-span-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</div>
+                                    <div className="col-span-1 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</div>
+                                    {isSuperuser && <div className="col-span-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</div>}
                                 </div>
-                                <div className="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</div>
-                                <div className="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Paid To</div>
-                                <div className="col-span-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</div>
-                                <div className="col-span-1 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</div>
-                                {isSuperuser && <div className="col-span-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</div>}
+                                <div className="divide-y divide-white/5">
+                                    {distributionEntries.map((entry, idx) => {
+                                        const isConfirmingDelete = confirm?.id === entry.id && confirm?.action === 'delete-expense';
+                                        const isConfirmingRevert = confirm?.id === entry.id && confirm?.action === 'revert-expense';
+                                        const isConfirmingPaid = confirm?.id === entry.id && confirm?.action === 'mark-paid';
+                                        return (
+                                            <motion.div key={entry.id}
+                                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }}
+                                                className="grid grid-cols-12 gap-3 px-5 py-4 hover:bg-white/[0.03] transition-colors items-center">
+                                                <div className="col-span-2">
+                                                    <p className="text-sm text-gray-400">{entry.date}</p>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <p className="text-sm font-medium text-white leading-tight">{entry.reason}</p>
+                                                    <span className={`text-xs px-1.5 py-0.5 rounded-full mt-0.5 inline-block font-medium ${
+                                                        entry.category === 'Tip Payout'
+                                                            ? 'bg-mustard-gold/10 text-mustard-gold border border-mustard-gold/20'
+                                                            : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                                                    }`}>{entry.category}</span>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <p className="text-sm text-gray-300 truncate">{entry.paid_to || '—'}</p>
+                                                </div>
+                                                <div className="col-span-2 text-right">
+                                                    <span className="text-sm font-bold text-blue-400">{fmtEur(entry.amount)}</span>
+                                                </div>
+                                                <div className="col-span-1 text-center">
+                                                    <span className={`inline-flex items-center text-xs font-medium px-1.5 py-0.5 rounded-full ${
+                                                        entry.paid_back
+                                                            ? 'bg-emerald-500/10 text-emerald-400'
+                                                            : 'bg-orange-500/10 text-orange-400'
+                                                    }`}>
+                                                        {entry.paid_back ? 'Paid' : 'Pending'}
+                                                    </span>
+                                                </div>
+                                                {isSuperuser && (
+                                                    <div className="col-span-2 flex items-center justify-end gap-1.5">
+                                                        {isConfirmingDelete ? (
+                                                            <ConfirmButtons onConfirm={() => handleDeleteExpense(entry.id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Delete" />
+                                                        ) : isConfirmingRevert ? (
+                                                            <ConfirmButtons onConfirm={() => handleRevertPaid(entry.id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Revert" danger={false} />
+                                                        ) : isConfirmingPaid ? (
+                                                            <ConfirmButtons onConfirm={() => handleMarkAsPaid(entry.id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Confirm" danger={false} />
+                                                        ) : (
+                                                            <>
+                                                                {!entry.paid_back && (
+                                                                    <button onClick={() => setConfirm({ id: entry.id, action: 'mark-paid' })}
+                                                                        className="p-1.5 rounded-lg text-gray-600 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors" title="Mark as paid">
+                                                                        <BadgeCheck size={14} />
+                                                                    </button>
+                                                                )}
+                                                                {entry.paid_back && (
+                                                                    <button onClick={() => setConfirm({ id: entry.id, action: 'revert-expense' })}
+                                                                        className="p-1.5 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10 transition-colors" title="Revert paid status">
+                                                                        <RotateCcw size={14} />
+                                                                    </button>
+                                                                )}
+                                                                <button onClick={() => setConfirm({ id: entry.id, action: 'delete-expense' })}
+                                                                    className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete entry">
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
-                            <div className="divide-y divide-white/5">
+                            {/* Mobile cards */}
+                            <div className="sm:hidden divide-y divide-white/5">
                                 {distributionEntries.map((entry, idx) => {
                                     const isConfirmingDelete = confirm?.id === entry.id && confirm?.action === 'delete-expense';
                                     const isConfirmingRevert = confirm?.id === entry.id && confirm?.action === 'revert-expense';
@@ -464,86 +567,57 @@ const ProfitSplit = () => {
                                     return (
                                         <motion.div key={entry.id}
                                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }}
-                                            className="grid grid-cols-12 gap-3 px-5 py-4 hover:bg-white/[0.03] transition-colors items-center">
-                                            <div className="col-span-2">
-                                                <p className="text-sm text-gray-400">{entry.date}</p>
-                                            </div>
-                                            <div className="col-span-3">
-                                                <p className="text-sm font-medium text-white leading-tight">{entry.reason}</p>
-                                                <span className={`text-xs px-1.5 py-0.5 rounded-full mt-0.5 inline-block font-medium ${
-                                                    entry.category === 'Tip Payout'
-                                                        ? 'bg-mustard-gold/10 text-mustard-gold border border-mustard-gold/20'
-                                                        : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
-                                                }`}>{entry.category}</span>
-                                            </div>
-                                            <div className="col-span-2">
-                                                <p className="text-sm text-gray-300 truncate">{entry.paid_to || '—'}</p>
-                                            </div>
-                                            <div className="col-span-2 text-right">
-                                                <span className="text-sm font-bold text-blue-400">{fmtEur(entry.amount)}</span>
-                                            </div>
-                                            <div className="col-span-1 text-center">
-                                                <span className={`inline-flex items-center text-xs font-medium px-1.5 py-0.5 rounded-full ${
-                                                    entry.paid_back
-                                                        ? 'bg-emerald-500/10 text-emerald-400'
-                                                        : 'bg-orange-500/10 text-orange-400'
-                                                }`}>
-                                                    {entry.paid_back ? 'Paid' : 'Pending'}
-                                                </span>
-                                            </div>
-                                            {isSuperuser && (
-                                                <div className="col-span-2 flex items-center justify-end gap-1.5">
-                                                    {isConfirmingDelete ? (
-                                                        <ConfirmButtons
-                                                            onConfirm={() => handleDeleteExpense(entry.id)}
-                                                            onCancel={() => setConfirm(null)}
-                                                            busy={actionBusy}
-                                                            label="Delete"
-                                                        />
-                                                    ) : isConfirmingRevert ? (
-                                                        <ConfirmButtons
-                                                            onConfirm={() => handleRevertPaid(entry.id)}
-                                                            onCancel={() => setConfirm(null)}
-                                                            busy={actionBusy}
-                                                            label="Revert"
-                                                            danger={false}
-                                                        />
-                                                    ) : isConfirmingPaid ? (
-                                                        <ConfirmButtons
-                                                            onConfirm={() => handleMarkAsPaid(entry.id)}
-                                                            onCancel={() => setConfirm(null)}
-                                                            busy={actionBusy}
-                                                            label="Confirm"
-                                                            danger={false}
-                                                        />
-                                                    ) : (
-                                                        <>
-                                                            {!entry.paid_back && (
-                                                                <button
-                                                                    onClick={() => setConfirm({ id: entry.id, action: 'mark-paid' })}
-                                                                    className="p-1.5 rounded-lg text-gray-600 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
-                                                                    title="Mark as paid">
-                                                                    <BadgeCheck size={14} />
+                                            className="px-4 py-4 hover:bg-white/[0.03] transition-colors">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                                                            entry.category === 'Tip Payout'
+                                                                ? 'bg-mustard-gold/10 text-mustard-gold border border-mustard-gold/20'
+                                                                : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                                                        }`}>{entry.category}</span>
+                                                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${
+                                                            entry.paid_back
+                                                                ? 'bg-emerald-500/10 text-emerald-400'
+                                                                : 'bg-orange-500/10 text-orange-400'
+                                                        }`}>{entry.paid_back ? 'Paid' : 'Pending'}</span>
+                                                    </div>
+                                                    <p className="text-sm font-semibold text-white">{entry.reason}</p>
+                                                    {entry.paid_to && <p className="text-xs text-gray-400 mt-0.5">{entry.paid_to}</p>}
+                                                    <p className="text-xs text-gray-500 mt-0.5">{entry.date}</p>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                                                    <span className="text-base font-bold text-blue-400">{fmtEur(entry.amount)}</span>
+                                                    {isSuperuser && (
+                                                        isConfirmingDelete ? (
+                                                            <ConfirmButtons onConfirm={() => handleDeleteExpense(entry.id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Delete" />
+                                                        ) : isConfirmingRevert ? (
+                                                            <ConfirmButtons onConfirm={() => handleRevertPaid(entry.id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Revert" danger={false} />
+                                                        ) : isConfirmingPaid ? (
+                                                            <ConfirmButtons onConfirm={() => handleMarkAsPaid(entry.id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Confirm" danger={false} />
+                                                        ) : (
+                                                            <div className="flex items-center gap-1">
+                                                                {!entry.paid_back && (
+                                                                    <button onClick={() => setConfirm({ id: entry.id, action: 'mark-paid' })}
+                                                                        className="p-1.5 rounded-lg text-gray-600 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors" title="Mark as paid">
+                                                                        <BadgeCheck size={14} />
+                                                                    </button>
+                                                                )}
+                                                                {entry.paid_back && (
+                                                                    <button onClick={() => setConfirm({ id: entry.id, action: 'revert-expense' })}
+                                                                        className="p-1.5 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10 transition-colors" title="Revert paid status">
+                                                                        <RotateCcw size={14} />
+                                                                    </button>
+                                                                )}
+                                                                <button onClick={() => setConfirm({ id: entry.id, action: 'delete-expense' })}
+                                                                    className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete entry">
+                                                                    <Trash2 size={14} />
                                                                 </button>
-                                                            )}
-                                                            {entry.paid_back && (
-                                                                <button
-                                                                    onClick={() => setConfirm({ id: entry.id, action: 'revert-expense' })}
-                                                                    className="p-1.5 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10 transition-colors"
-                                                                    title="Revert paid status">
-                                                                    <RotateCcw size={14} />
-                                                                </button>
-                                                            )}
-                                                            <button
-                                                                onClick={() => setConfirm({ id: entry.id, action: 'delete-expense' })}
-                                                                className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                                                title="Delete entry">
-                                                                <Trash2 size={14} />
-                                                            </button>
-                                                        </>
+                                                            </div>
+                                                        )
                                                     )}
                                                 </div>
-                                            )}
+                                            </div>
                                         </motion.div>
                                     );
                                 })}
