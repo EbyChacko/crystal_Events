@@ -286,7 +286,7 @@ const ProfitSplit = () => {
     const availableBalance = tipData?.available_balance || 0;
     const tipEntries = tipData?.tip_entries || [];
     const distributionEntries = tipData?.distribution_entries || [];
-    const isSuperuser = user?.is_superuser;
+    const isSuperuser = user?.is_superuser || user?.can_view_financials;
 
     return (
         <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
