@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, CheckCircle, ChevronDown, ArrowLeft, TrendingDown, Search, X, Clock, Banknote, Receipt, CalendarCheck } from 'lucide-react';
+import { Users, CheckCircle, ChevronDown, ArrowLeft, TrendingDown, Search, X, Clock, Banknote, Receipt, CalendarCheck, RotateCcw } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
@@ -26,6 +26,8 @@ const StaffFinance = () => {
     const [activeTab, setActiveTab] = useState('payments');
     const [confirmingId, setConfirmingId] = useState(null);   // item id for single-pay confirm
     const [confirmAction, setConfirmAction] = useState(null); // 'selected' | 'all' for bulk confirm
+    const [revertingId, setRevertingId] = useState(null);     // item id pending revert confirm
+    const [revertBusy, setRevertBusy] = useState(false);
 
     useEffect(() => {
         setSummaryLoading(true);
@@ -129,6 +131,17 @@ const StaffFinance = () => {
             await refreshDetail();
         } catch { addToast('Failed to update.', 'error'); }
         finally { setMarkingBack(false); }
+    };
+
+    const handleRevertPaid = async (id) => {
+        setRevertBusy(true);
+        setRevertingId(null);
+        try {
+            await api.patch(`/expenses/${id}/`, { paid_back: false, paid_back_at: null });
+            addToast('Payment reverted to pending.', 'success');
+            await refreshDetail();
+        } catch { addToast('Failed to revert payment.', 'error'); }
+        finally { setRevertBusy(false); }
     };
 
     // ── Summary list view ──────────────────────────────────────
@@ -445,6 +458,7 @@ const StaffFinance = () => {
                                         <div className="space-y-2 mt-3">
                                             {[...allSettled].sort((a, b) => new Date(b.paid_back_at || 0) - new Date(a.paid_back_at || 0)).map(item => {
                                                 const eventPay = isEventPay(item);
+                                                const isConfirmingRevert = revertingId === item.id;
                                                 return (
                                                     <div key={item.id} className="flex items-start gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
                                                         <CheckCircle size={15} className="text-emerald-500 flex-shrink-0 mt-0.5" />
@@ -465,13 +479,33 @@ const StaffFinance = () => {
                                                                 Recorded: {fmtDate(item.date)}
                                                             </p>
                                                         </div>
-                                                        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+                                                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                                             <span className="text-sm font-bold text-gray-500">{fmtDec(item.amount)}</span>
                                                             {item.paid_back_at && (
                                                                 <span className="text-xs text-emerald-600 flex items-center gap-1">
                                                                     <CalendarCheck size={10} />
                                                                     {fmtDateTime(item.paid_back_at)}
                                                                 </span>
+                                                            )}
+                                                            {user?.is_superuser && (
+                                                                isConfirmingRevert ? (
+                                                                    <span className="inline-flex items-center gap-1 mt-1">
+                                                                        <button onClick={() => setRevertingId(null)} disabled={revertBusy}
+                                                                            className="text-xs px-2 py-0.5 rounded border border-white/15 text-gray-400 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-40">
+                                                                            Cancel
+                                                                        </button>
+                                                                        <button onClick={() => handleRevertPaid(item.id)} disabled={revertBusy}
+                                                                            className="text-xs px-2 py-0.5 rounded font-semibold bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/30 transition-colors disabled:opacity-40">
+                                                                            {revertBusy ? '...' : 'Revert'}
+                                                                        </button>
+                                                                    </span>
+                                                                ) : (
+                                                                    <button onClick={() => setRevertingId(item.id)}
+                                                                        className="mt-1 p-1 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10 transition-colors"
+                                                                        title="Revert payment">
+                                                                        <RotateCcw size={13} />
+                                                                    </button>
+                                                                )
                                                             )}
                                                         </div>
                                                     </div>

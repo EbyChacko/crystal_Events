@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     CheckCircle, ChevronDown, TrendingDown, Clock, Banknote,
-    Receipt, CalendarCheck, ExternalLink, AlertCircle
+    Receipt, CalendarCheck, ExternalLink, AlertCircle, RotateCcw
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -17,6 +17,8 @@ const MyFinance = () => {
     const [incomes, setIncomes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('payments');
+    const [revertingId, setRevertingId] = useState(null);
+    const [revertBusy, setRevertBusy] = useState(false);
 
     useEffect(() => {
         if (!user?.id) return;
@@ -30,6 +32,18 @@ const MyFinance = () => {
             if (expRes.status === 'rejected' || incRes.status === 'rejected') addToast('Failed to load some records.', 'error');
         }).finally(() => setLoading(false));
     }, [user?.id]);
+
+    const handleRevertPaid = async (id) => {
+        setRevertBusy(true);
+        setRevertingId(null);
+        try {
+            await api.patch(`/expenses/${id}/`, { paid_back: false, paid_back_at: null });
+            const expRes = await api.get(`/expenses/?paid_by=${user.id}`);
+            setExpenses(expRes.data.results || expRes.data);
+            addToast('Payment reverted to pending.', 'success');
+        } catch { addToast('Failed to revert payment.', 'error'); }
+        finally { setRevertBusy(false); }
+    };
 
     const allPending = expenses.filter(e => !e.paid_back);
     const allSettled = expenses.filter(e => e.paid_back);
@@ -197,6 +211,7 @@ const MyFinance = () => {
                                             .sort((a, b) => new Date(b.paid_back_at || 0) - new Date(a.paid_back_at || 0))
                                             .map(item => {
                                                 const eventPay = isEventPay(item);
+                                                const isConfirmingRevert = revertingId === item.id;
                                                 return (
                                                     <div key={item.id} className="flex items-start gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
                                                         <CheckCircle size={15} className="text-emerald-500 flex-shrink-0 mt-0.5" />
@@ -226,6 +241,26 @@ const MyFinance = () => {
                                                                     className="text-xs flex items-center gap-1 text-gray-600 hover:text-emerald-400 transition-colors">
                                                                     <ExternalLink size={11} /> Receipt
                                                                 </a>
+                                                            )}
+                                                            {user?.is_superuser && (
+                                                                isConfirmingRevert ? (
+                                                                    <span className="inline-flex items-center gap-1 mt-1">
+                                                                        <button onClick={() => setRevertingId(null)} disabled={revertBusy}
+                                                                            className="text-xs px-2 py-0.5 rounded border border-white/15 text-gray-400 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-40">
+                                                                            Cancel
+                                                                        </button>
+                                                                        <button onClick={() => handleRevertPaid(item.id)} disabled={revertBusy}
+                                                                            className="text-xs px-2 py-0.5 rounded font-semibold bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/30 transition-colors disabled:opacity-40">
+                                                                            {revertBusy ? '...' : 'Revert'}
+                                                                        </button>
+                                                                    </span>
+                                                                ) : (
+                                                                    <button onClick={() => setRevertingId(item.id)}
+                                                                        className="mt-1 p-1 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10 transition-colors"
+                                                                        title="Revert payment">
+                                                                        <RotateCcw size={13} />
+                                                                    </button>
+                                                                )
                                                             )}
                                                         </div>
                                                     </div>
