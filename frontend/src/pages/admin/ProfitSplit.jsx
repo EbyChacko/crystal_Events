@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     PartyPopper, RefreshCw, AlertCircle, CheckCircle, X,
-    Users, Wallet, TrendingDown, Calendar, Hash, Trash2, RotateCcw,
+    Users, Wallet, TrendingDown, Calendar, Hash, Trash2, RotateCcw, BadgeCheck,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../utils/api';
@@ -245,10 +245,24 @@ const ProfitSplit = () => {
         }
     };
 
+    const handleMarkAsPaid = async (expId) => {
+        setActionBusy(true);
+        try {
+            await api.patch(`/financials/tip-expense/${expId}/`, { action: 'mark_paid' });
+            addToast('Marked as paid.', 'success');
+            setConfirm(null);
+            fetchData();
+        } catch {
+            addToast('Failed to mark as paid.', 'error');
+        } finally {
+            setActionBusy(false);
+        }
+    };
+
     const handleRevertPaid = async (expId) => {
         setActionBusy(true);
         try {
-            await api.patch(`/financials/tip-expense/${expId}/`, { revert: true });
+            await api.patch(`/financials/tip-expense/${expId}/`, { action: 'revert' });
             addToast('Payment status reverted to pending.', 'success');
             setConfirm(null);
             fetchData();
@@ -446,6 +460,7 @@ const ProfitSplit = () => {
                                 {distributionEntries.map((entry, idx) => {
                                     const isConfirmingDelete = confirm?.id === entry.id && confirm?.action === 'delete-expense';
                                     const isConfirmingRevert = confirm?.id === entry.id && confirm?.action === 'revert-expense';
+                                    const isConfirmingPaid = confirm?.id === entry.id && confirm?.action === 'mark-paid';
                                     return (
                                         <motion.div key={entry.id}
                                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }}
@@ -493,8 +508,24 @@ const ProfitSplit = () => {
                                                             label="Revert"
                                                             danger={false}
                                                         />
+                                                    ) : isConfirmingPaid ? (
+                                                        <ConfirmButtons
+                                                            onConfirm={() => handleMarkAsPaid(entry.id)}
+                                                            onCancel={() => setConfirm(null)}
+                                                            busy={actionBusy}
+                                                            label="Confirm"
+                                                            danger={false}
+                                                        />
                                                     ) : (
                                                         <>
+                                                            {!entry.paid_back && (
+                                                                <button
+                                                                    onClick={() => setConfirm({ id: entry.id, action: 'mark-paid' })}
+                                                                    className="p-1.5 rounded-lg text-gray-600 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                                                                    title="Mark as paid">
+                                                                    <BadgeCheck size={14} />
+                                                                </button>
+                                                            )}
                                                             {entry.paid_back && (
                                                                 <button
                                                                     onClick={() => setConfirm({ id: entry.id, action: 'revert-expense' })}

@@ -2565,14 +2565,20 @@ class TipExpenseActionView(APIView):
         return Response({'ok': True}, status=status.HTTP_200_OK)
 
     def patch(self, request, pk):
-        """Revert paid_back to False."""
+        """Mark as paid or revert paid status on a tip expense."""
         from .models import Expense
+        from django.utils import timezone
         try:
             exp = Expense.objects.get(pk=pk, category__in=['Tip Payout', 'Staff Party'])
         except Expense.DoesNotExist:
             return Response({'error': 'Tip expense not found.'}, status=status.HTTP_404_NOT_FOUND)
-        exp.paid_back = False
-        exp.paid_back_at = None
+        action = request.data.get('action', 'revert')
+        if action == 'mark_paid':
+            exp.paid_back = True
+            exp.paid_back_at = timezone.now()
+        else:
+            exp.paid_back = False
+            exp.paid_back_at = None
         exp.save(update_fields=['paid_back', 'paid_back_at'])
         return Response({'ok': True}, status=status.HTTP_200_OK)
 
