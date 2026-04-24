@@ -371,7 +371,7 @@ const ProfitSplit = () => {
                         <>
                             <div className="grid grid-cols-12 gap-3 px-5 py-3 border-b border-white/10 bg-white/[0.02]">
                                 <div className="col-span-1 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    <Hash size={11} /> ID
+                                    <Hash size={11} /> Event ID
                                 </div>
                                 <div className="col-span-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Event</div>
                                 <div className="col-span-3 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -389,7 +389,7 @@ const ProfitSplit = () => {
                                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }}
                                             className="grid grid-cols-12 gap-3 px-5 py-4 hover:bg-white/[0.03] transition-colors items-center">
                                             <div className="col-span-1">
-                                                <span className="text-xs font-mono text-gray-500 bg-white/5 px-2 py-0.5 rounded">#{entry.event_id}</span>
+                                                <span className="text-xs font-mono font-semibold text-mustard-gold/80 bg-mustard-gold/10 px-2 py-0.5 rounded">{entry.event_uid}</span>
                                             </div>
                                             <div className="col-span-4">
                                                 <p className="text-sm font-medium text-white truncate">{entry.event_name}</p>

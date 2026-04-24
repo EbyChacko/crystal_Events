@@ -2414,6 +2414,7 @@ class TipDistributionView(APIView):
                     break
             tip_entries.append({
                 'event_id': e.id,
+                'event_uid': e.event_uid or f'CE-{e.id:05d}',
                 'event_name': e.event_name,
                 'tip_date': tip_date or e.event_date.strftime('%d %b %Y'),
                 'tip_amount': float(e.tip_amount),
