@@ -40,34 +40,58 @@ const AdminLayout = () => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
-    // Determine the navigation order based on user roles and permissions
-    const navItems = [
-        { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
-        { name: 'Calendar', path: '/admin/calendar', icon: <CalendarDays size={20} /> },
-        { name: 'Messages', path: '/admin/messages', icon: <Mail size={20} /> },
-        { name: 'Events', path: '/admin/events', icon: <Calendar size={20} /> },
-        { name: 'Quotes', path: '/admin/quotes', icon: <FileText size={20} /> },
+    // Build categorised nav groups
+    const financeItems = [
+        { name: 'Financials', path: '/admin/financials', icon: <DollarSign size={20} /> },
+        { name: 'My Finance', path: '/admin/my-finance', icon: <Wallet size={20} /> },
+        { name: 'Assets', path: '/admin/assets', icon: <PieChart size={20} /> },
+    ];
+    if (user?.is_superuser || user?.can_view_financials) {
+        financeItems.push({ name: 'Staff Finance', path: '/admin/staff-finance', icon: <UsersRound size={20} /> });
+    }
+    if (user?.is_superuser) {
+        financeItems.push({ name: 'Tips', path: '/admin/profit-split', icon: <PartyPopper size={20} /> });
+    }
+
+    const navGroups = [
+        {
+            label: 'Overview',
+            items: [
+                { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
+                { name: 'Calendar', path: '/admin/calendar', icon: <CalendarDays size={20} /> },
+            ],
+        },
+        {
+            label: 'Work',
+            items: [
+                { name: 'Messages', path: '/admin/messages', icon: <Mail size={20} /> },
+                { name: 'Events', path: '/admin/events', icon: <Calendar size={20} /> },
+                { name: 'Quotes', path: '/admin/quotes', icon: <FileText size={20} /> },
+            ],
+        },
+        {
+            label: 'Finance',
+            items: financeItems,
+        },
+        ...(user?.is_superuser ? [{
+            label: 'Admin',
+            items: [
+                { name: 'Services', path: '/admin/services', icon: <Briefcase size={20} /> },
+                { name: 'Users', path: '/admin/users', icon: <Users size={20} /> },
+                { name: 'Team', path: '/admin/team', icon: <UsersRound size={20} /> },
+                { name: 'Travel Rates', path: '/admin/travel-rates', icon: <Map size={20} /> },
+            ],
+        }] : []),
+        {
+            label: 'Account',
+            items: [
+                { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
+            ],
+        },
     ];
 
-    navItems.push({ name: 'Financials', path: '/admin/financials', icon: <DollarSign size={20} /> });
-    navItems.push({ name: 'My Finance', path: '/admin/my-finance', icon: <Wallet size={20} /> });
-    navItems.push({ name: 'Assets', path: '/admin/assets', icon: <PieChart size={20} /> });
-    if (user?.is_superuser) {
-        navItems.push({ name: 'Tips', path: '/admin/profit-split', icon: <PartyPopper size={20} /> });
-    }
-
-    if (user?.is_superuser || user?.can_view_financials) {
-        navItems.push({ name: 'Staff Finance', path: '/admin/staff-finance', icon: <UsersRound size={20} /> });
-    }
-
-    if (user?.is_superuser) {
-        navItems.push({ name: 'Services', path: '/admin/services', icon: <Briefcase size={20} /> });
-        navItems.push({ name: 'Users', path: '/admin/users', icon: <Users size={20} /> });
-        navItems.push({ name: 'Team', path: '/admin/team', icon: <UsersRound size={20} /> });
-        navItems.push({ name: 'Travel Rates', path: '/admin/travel-rates', icon: <Map size={20} /> });
-    }
-
-    navItems.push({ name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> });
+    // Flat list still needed for active-check logic
+    const navItems = navGroups.flatMap(g => g.items);
 
     const handleLogout = () => {
         logout();
@@ -110,32 +134,39 @@ const AdminLayout = () => {
                 </Link>
 
                 {/* Navigation */}
-                <nav className="flex-1 overflow-y-auto p-4 mt-2 space-y-1">
-                    {navItems.map((item) => {
-                        const isActive = location.pathname === item.path ||
-                            (item.path === '/admin/dashboard' && location.pathname === '/admin');
-                        return (
-                            <Link
-                                key={item.name}
-                                to={item.path}
-                                className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
-                                    ? 'bg-gradient-to-r from-mustard-gold/20 to-mustard-gold/5 text-mustard-gold border border-mustard-gold/20'
-                                    : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
-                                    }`}
-                            >
-                                {item.icon}
-                                <span className="text-sm font-medium">{item.name}</span>
-                                <div className="ml-auto flex items-center gap-2">
-                                    {item.name === 'Messages' && unreadCount > 0 && (
-                                        <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center leading-none">
-                                            {unreadCount > 99 ? '99+' : unreadCount}
-                                        </span>
-                                    )}
-                                    {isActive && <div className="w-1.5 h-1.5 rounded-full bg-mustard-gold" />}
-                                </div>
-                            </Link>
-                        );
-                    })}
+                <nav className="flex-1 overflow-y-auto p-4 mt-2 space-y-4">
+                    {navGroups.map((group) => (
+                        <div key={group.label}>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-600 px-4 mb-1">{group.label}</p>
+                            <div className="space-y-0.5">
+                                {group.items.map((item) => {
+                                    const isActive = location.pathname === item.path ||
+                                        (item.path === '/admin/dashboard' && location.pathname === '/admin');
+                                    return (
+                                        <Link
+                                            key={item.name}
+                                            to={item.path}
+                                            className={`flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 ${isActive
+                                                ? 'bg-gradient-to-r from-mustard-gold/20 to-mustard-gold/5 text-mustard-gold border border-mustard-gold/20'
+                                                : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
+                                                }`}
+                                        >
+                                            {item.icon}
+                                            <span className="text-sm font-medium">{item.name}</span>
+                                            <div className="ml-auto flex items-center gap-2">
+                                                {item.name === 'Messages' && unreadCount > 0 && (
+                                                    <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center leading-none">
+                                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                                    </span>
+                                                )}
+                                                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-mustard-gold" />}
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
                 </nav>
 
                 {/* Logout Button */}
@@ -206,27 +237,39 @@ const AdminLayout = () => {
                             </Link>
 
                             {/* Navigation */}
-                            <nav className="flex-1 overflow-y-auto p-4 mt-2 space-y-1">
-                                {navItems.map((item) => {
-                                    const isActive = location.pathname === item.path ||
-                                        (item.path === '/admin/dashboard' && location.pathname === '/admin');
-                                    return (
-                                        <Link
-                                            key={item.name}
-                                            to={item.path}
-                                            className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
-                                                ? 'bg-gradient-to-r from-mustard-gold/20 to-mustard-gold/5 text-mustard-gold border border-mustard-gold/20'
-                                                : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
-                                                }`}
-                                        >
-                                            {item.icon}
-                                            <span className="text-sm font-medium">{item.name}</span>
-                                            {isActive && (
-                                                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-mustard-gold" />
-                                            )}
-                                        </Link>
-                                    );
-                                })}
+                            <nav className="flex-1 overflow-y-auto p-4 mt-2 space-y-4">
+                                {navGroups.map((group) => (
+                                    <div key={group.label}>
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-600 px-4 mb-1">{group.label}</p>
+                                        <div className="space-y-0.5">
+                                            {group.items.map((item) => {
+                                                const isActive = location.pathname === item.path ||
+                                                    (item.path === '/admin/dashboard' && location.pathname === '/admin');
+                                                return (
+                                                    <Link
+                                                        key={item.name}
+                                                        to={item.path}
+                                                        className={`flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 ${isActive
+                                                            ? 'bg-gradient-to-r from-mustard-gold/20 to-mustard-gold/5 text-mustard-gold border border-mustard-gold/20'
+                                                            : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
+                                                            }`}
+                                                    >
+                                                        {item.icon}
+                                                        <span className="text-sm font-medium">{item.name}</span>
+                                                        <div className="ml-auto flex items-center gap-2">
+                                                            {item.name === 'Messages' && unreadCount > 0 && (
+                                                                <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center leading-none">
+                                                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                                                </span>
+                                                            )}
+                                                            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-mustard-gold" />}
+                                                        </div>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
                             </nav>
 
                             {/* Logout Button */}
