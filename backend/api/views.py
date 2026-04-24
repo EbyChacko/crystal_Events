@@ -2398,10 +2398,24 @@ class TipDistributionView(APIView):
 
         tip_entries = []
         for e in events_with_tips:
+            # Find the date of the most recent tip log entry in the audit log
+            tip_date = None
+            for log in reversed(e.audit_log or []):
+                if log.get('action') in ('tip_received', 'payment_received') and float(log.get('tip_received_now', 0)) > 0:
+                    ts = log.get('timestamp', '')
+                    if ts:
+                        try:
+                            from django.utils.dateparse import parse_datetime
+                            dt = parse_datetime(ts)
+                            if dt:
+                                tip_date = dt.strftime('%d %b %Y')
+                        except Exception:
+                            pass
+                    break
             tip_entries.append({
                 'event_id': e.id,
                 'event_name': e.event_name,
-                'event_date': e.event_date.strftime('%d %b %Y'),
+                'tip_date': tip_date or e.event_date.strftime('%d %b %Y'),
                 'tip_amount': float(e.tip_amount),
             })
 

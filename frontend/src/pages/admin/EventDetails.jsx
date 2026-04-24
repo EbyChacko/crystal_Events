@@ -1003,7 +1003,9 @@ const EventDetails = () => {
                                             className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min="0" />
                                     </div>
                                     <div>
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Amount Receiving Now (€) *</label>
+                                        <label className="block text-gray-400 text-sm font-medium mb-2">
+                                            Amount Receiving Now (€){(parseFloat(paymentData.tip) || 0) <= 0 ? ' *' : ''}
+                                        </label>
                                         <input type="number" value={paymentData.received}
                                             onChange={(e) => {
                                                 let rVal = e.target.value;
@@ -1022,7 +1024,8 @@ const EventDetails = () => {
                                                 }
                                                 setPaymentData({ ...paymentData, ...updates });
                                             }}
-                                            className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min="0" required />
+                                            className={selectClass.replace('cursor-pointer', '')} placeholder="0.00" step="0.01" min="0"
+                                            required={(parseFloat(paymentData.tip) || 0) <= 0} />
                                     </div>
 
                                     {Number((parseFloat(paymentData.received || 0) + parseFloat(paymentData.discount || 0)).toFixed(2)) > Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toFixed(2)) && (

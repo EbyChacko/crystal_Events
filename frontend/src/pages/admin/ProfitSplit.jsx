@@ -361,7 +361,7 @@ const ProfitSplit = () => {
                                 </div>
                                 <div className="col-span-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Event</div>
                                 <div className="col-span-3 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    <Calendar size={11} /> Date
+                                    <Calendar size={11} /> Tip Received
                                 </div>
                                 <div className={`${isSuperuser ? 'col-span-2' : 'col-span-4'} text-right text-xs font-semibold text-gray-500 uppercase tracking-wider`}>Amount</div>
                                 {isSuperuser && <div className="col-span-2" />}
@@ -381,7 +381,7 @@ const ProfitSplit = () => {
                                                 <p className="text-sm font-medium text-white truncate">{entry.event_name}</p>
                                             </div>
                                             <div className="col-span-3">
-                                                <p className="text-sm text-gray-400">{entry.event_date}</p>
+                                                <p className="text-sm text-gray-400">{entry.tip_date}</p>
                                             </div>
                                             <div className={`${isSuperuser ? 'col-span-2' : 'col-span-4'} text-right`}>
                                                 <span className="text-sm font-bold text-mustard-gold">{fmtEur(entry.tip_amount)}</span>
