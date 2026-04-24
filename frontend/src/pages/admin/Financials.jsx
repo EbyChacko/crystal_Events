@@ -98,7 +98,7 @@ const Financials = () => {
             const incomesData = incomesRes.status === 'fulfilled' ? (incomesRes.value.data.results || incomesRes.value.data) : [];
             const eventsData = eventsRes.status === 'fulfilled' ? (eventsRes.value.data.results || eventsRes.value.data) : [];
 
-            const expenseData = expensesData.map(e => ({
+            const expenseData = expensesData.filter(e => !['Tip Payout', 'Staff Party'].includes(e.category)).map(e => ({
                 id: `exp_${e.id}`,
                 originalId: e.id,
                 type: 'expense',
