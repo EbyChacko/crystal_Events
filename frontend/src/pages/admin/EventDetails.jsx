@@ -768,7 +768,7 @@ const EventDetails = () => {
             if (entry.action === 'payment_received') {
                 const currentDiscount = parseFloat(entry.discount || 0);
                 const discountDelta = currentDiscount - previousDiscount;
-                
+
                 if (discountDelta !== 0) {
                     currentBalance -= discountDelta;
                     nodes.push({
@@ -800,6 +800,22 @@ const EventDetails = () => {
                         timestamp: entry.timestamp,
                         icon: 'CheckCircle',
                         colorTheme: 'emerald'
+                    });
+                }
+            } else if (entry.action === 'tip_received') {
+                const tipNow = parseFloat(entry.tip_received_now || 0);
+                if (tipNow > 0) {
+                    nodes.push({
+                        id: `tip-${idx}`,
+                        type: 'tip',
+                        title: 'Tip Received',
+                        description: `by ${entry.user || 'System'}`,
+                        amount: tipNow,
+                        isIncrease: false,
+                        balance: currentBalance,
+                        timestamp: entry.timestamp,
+                        icon: 'PartyPopper',
+                        colorTheme: 'mustard-gold'
                     });
                 }
             } else if (entry.action === 'refund_made') {
@@ -1060,11 +1076,11 @@ const EventDetails = () => {
                                     <button type="submit"
                                         disabled={
                                             paymentSubmitting ||
-                                            ((parseFloat(paymentData.received) || 0) <= 0 && (parseFloat(paymentData.discount) || 0) <= 0) ||
+                                            ((parseFloat(paymentData.received) || 0) <= 0 && (parseFloat(paymentData.discount) || 0) <= 0 && (parseFloat(paymentData.tip) || 0) <= 0) ||
                                             Number((parseFloat(paymentData.received || 0) + parseFloat(paymentData.discount || 0)).toFixed(2)) > Number((parseFloat(event?.budget || eventQuote?.total || 0) - parseFloat(event?.received_amount || 0) - parseFloat(event?.payment_discount || 0)).toFixed(2))
                                         }
                                         className="w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-4 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                                        {paymentSubmitting ? 'Processing...' : paymentData.type === 'full' ? 'Receive Full Balance' : 'Receive Partial Payment'}
+                                        {paymentSubmitting ? 'Processing...' : (parseFloat(paymentData.received) || 0) <= 0 && (parseFloat(paymentData.discount) || 0) <= 0 && (parseFloat(paymentData.tip) || 0) > 0 ? 'Record Tip' : paymentData.type === 'full' ? 'Receive Full Balance' : 'Receive Partial Payment'}
                                     </button>
                                 </div>
                             </form>
@@ -2654,6 +2670,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
     const isCreated = entry.action === 'created';
     const isQuoteAction = entry.action === 'quote_created' || entry.action === 'quote_updated';
     const isPaymentAction = entry.action === 'payment_received';
+    const isTipAction = entry.action === 'tip_received';
     const isRefundAction = entry.action === 'refund_made';
     const isMenuAction = entry.action === 'menu_added' || entry.action === 'menu_updated';
 
@@ -2697,6 +2714,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
         if (entry.action === 'quote_created') return 'Quote Created';
         if (entry.action === 'quote_updated') return 'Quote Updated';
         if (entry.action === 'payment_received') return 'Payment Received';
+        if (entry.action === 'tip_received') return 'Tip Received';
         if (entry.action === 'refund_made') return 'Refund Made';
         if (entry.action === 'menu_added') return 'Food Menu Added';
         if (entry.action === 'menu_updated') return 'Food Menu Updated';
@@ -2707,6 +2725,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
         if (isCreated) return 'bg-emerald-400';
         if (isQuoteAction) return 'bg-pink-400';
         if (isPaymentAction) return 'bg-indigo-400';
+        if (isTipAction) return 'bg-mustard-gold';
         if (isRefundAction) return 'bg-rose-400';
         if (isMenuAction) return 'bg-orange-400';
         return 'bg-amber-400';
@@ -2716,6 +2735,7 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
         if (isCreated) return 'border-emerald-500/20 bg-emerald-500/5';
         if (isQuoteAction) return 'border-pink-500/20 bg-pink-500/5';
         if (isPaymentAction) return 'border-indigo-500/30 bg-indigo-500/10';
+        if (isTipAction) return 'border-mustard-gold/30 bg-mustard-gold/5';
         if (isRefundAction) return 'border-rose-500/30 bg-rose-500/10';
         if (isMenuAction) return 'border-orange-500/30 bg-orange-500/5';
         return 'border-white/10 bg-white/[0.02]';
@@ -2801,7 +2821,24 @@ const LogbookEntry = ({ entry, isFirst, isLast, eventId, logIdx, isSuperUser, on
                 {expanded && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
                         <div className="px-4 pb-4 border-t border-white/5">
-                            {isPaymentAction ? (
+                            {isTipAction ? (
+                                <div className="mt-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                                        <div className="flex items-center justify-between py-2 mt-1 bg-mustard-gold/5 border border-mustard-gold/20 rounded-xl px-3 md:col-span-2">
+                                            <span className="text-xs text-mustard-gold font-bold">Tip Received</span>
+                                            <span className="text-lg font-bold text-mustard-gold">+€{parseFloat(entry.tip_received_now || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between py-2 border-b border-mustard-gold/20">
+                                            <span className="text-xs text-mustard-gold/70">Total Tips So Far</span>
+                                            <span className="text-sm font-semibold text-white">€{parseFloat(entry.total_tip_amount || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between py-2 border-b border-mustard-gold/20">
+                                            <span className="text-xs text-mustard-gold/70">Remaining Balance</span>
+                                            <span className="text-sm font-semibold text-white">€{parseFloat(entry.remaining_balance || 0).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : isPaymentAction ? (
                                 <div className="mt-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
                                         <div className="flex items-center justify-between py-2 border-b border-indigo-500/20">

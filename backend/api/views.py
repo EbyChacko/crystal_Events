@@ -401,9 +401,10 @@ class EventViewSet(viewsets.ModelViewSet):
                         'quoted_amount': str(travel_cost)
                     })
 
+            tip_only = (amount_now == 0 and new_discount == old_discount and tip_now > 0)
             log_entry = {
                 'timestamp': __import__('django.utils.timezone', fromlist=['now']).now().isoformat(),
-                'action': 'payment_received',
+                'action': 'tip_received' if tip_only else 'payment_received',
                 'user': self._user_display(user),
                 'amount_received_now': str(amount_now),
                 'total_amount_received': str(new_received),
@@ -2383,30 +2384,69 @@ class SplitProfitView(APIView):
 
 
 class TipDistributionView(APIView):
-    """Returns total tips collected and equal per-staff share preview."""
+    """Returns tip entries per event, distribution history, balances, and staff list."""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         from decimal import Decimal
         from django.db.models import Sum
+        from .models import Expense
 
-        total_tips = Event.objects.aggregate(total=Sum('tip_amount'))['total'] or Decimal('0')
+        # Tip entries from events
+        events_with_tips = Event.objects.filter(tip_amount__gt=0).order_by('-event_date')
+        total_tips = events_with_tips.aggregate(total=Sum('tip_amount'))['total'] or Decimal('0')
 
+        tip_entries = []
+        for e in events_with_tips:
+            tip_entries.append({
+                'event_id': e.id,
+                'event_name': e.event_name,
+                'event_date': e.event_date.strftime('%d %b %Y'),
+                'tip_amount': float(e.tip_amount),
+            })
+
+        # Distribution history
+        tip_expenses = (
+            Expense.objects
+            .filter(category__in=['Tip Payout', 'Staff Party'])
+            .order_by('-date')
+            .select_related('paid_by')
+        )
+        distributed_total = tip_expenses.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        available_balance = total_tips - distributed_total
+
+        distribution_entries = []
+        for exp in tip_expenses:
+            distribution_entries.append({
+                'id': exp.id,
+                'date': exp.date.strftime('%d %b %Y'),
+                'reason': exp.reason,
+                'category': exp.category,
+                'amount': float(exp.amount),
+                'paid_to': (
+                    f"{exp.paid_by.first_name} {exp.paid_by.last_name}".strip() or exp.paid_by.username
+                ) if exp.paid_by else None,
+                'paid_back': exp.paid_back,
+            })
+
+        # Active staff for distribution modal
         staff = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
-        staff_count = staff.count()
-        staff_list = []
-        for u in staff:
-            share = (total_tips / staff_count).quantize(Decimal('0.01')) if staff_count > 0 else Decimal('0')
-            staff_list.append({
+        staff_list = [
+            {
                 'id': u.id,
                 'name': f"{u.first_name} {u.last_name}".strip() or u.username,
                 'username': u.username,
-                'share': float(share),
-            })
+            }
+            for u in staff
+        ]
 
         return Response({
             'total_tips': float(total_tips),
-            'staff_count': staff_count,
+            'distributed_total': float(distributed_total),
+            'available_balance': float(available_balance),
+            'tip_entries': tip_entries,
+            'distribution_entries': distribution_entries,
+            'staff_count': len(staff_list),
             'staff': staff_list,
         })
 
@@ -2454,10 +2494,14 @@ class SplitTipView(APIView):
             )
             created.append({'reason': exp.reason, 'amount': float(exp.amount)})
         else:
-            staff = User.objects.filter(is_active=True)
+            selected_staff_ids = request.data.get('selected_staff_ids')
+            if selected_staff_ids is not None:
+                staff = User.objects.filter(is_active=True, id__in=selected_staff_ids)
+            else:
+                staff = User.objects.filter(is_active=True)
             staff_count = staff.count()
             if staff_count == 0:
-                return Response({'error': 'No active staff found.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'No staff selected.'}, status=status.HTTP_400_BAD_REQUEST)
             share = (amount / staff_count).quantize(Decimal('0.01'))
             for u in staff:
                 exp = Expense.objects.create(
@@ -2477,6 +2521,46 @@ class SplitTipView(APIView):
                 })
 
         return Response({'created': created, 'total_split': float(amount), 'mode': mode}, status=status.HTTP_201_CREATED)
+
+
+class TipEventClearView(APIView):
+    """Zero out the tip_amount on a specific event. Superuser only."""
+    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
+
+    def delete(self, request, pk):
+        try:
+            event = Event.objects.get(pk=pk)
+        except Event.DoesNotExist:
+            return Response({'error': 'Event not found.'}, status=status.HTTP_404_NOT_FOUND)
+        event.tip_amount = 0
+        event.save(update_fields=['tip_amount'])
+        return Response({'ok': True}, status=status.HTTP_200_OK)
+
+
+class TipExpenseActionView(APIView):
+    """Delete or revert-paid on a tip expense (Tip Payout / Staff Party). Superuser only."""
+    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
+
+    def delete(self, request, pk):
+        from .models import Expense
+        try:
+            exp = Expense.objects.get(pk=pk, category__in=['Tip Payout', 'Staff Party'])
+        except Expense.DoesNotExist:
+            return Response({'error': 'Tip expense not found.'}, status=status.HTTP_404_NOT_FOUND)
+        exp.delete()
+        return Response({'ok': True}, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk):
+        """Revert paid_back to False."""
+        from .models import Expense
+        try:
+            exp = Expense.objects.get(pk=pk, category__in=['Tip Payout', 'Staff Party'])
+        except Expense.DoesNotExist:
+            return Response({'error': 'Tip expense not found.'}, status=status.HTTP_404_NOT_FOUND)
+        exp.paid_back = False
+        exp.paid_back_at = None
+        exp.save(update_fields=['paid_back', 'paid_back_at'])
+        return Response({'ok': True}, status=status.HTTP_200_OK)
 
 
 # ── Two-Factor Authentication Views ───────────────────────────────

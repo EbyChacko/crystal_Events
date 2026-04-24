@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Calendar, CalendarDays, DollarSign, FileText, Settings, LogOut, Mail, Users, User, Briefcase, UsersRound, Menu, X, Map, PieChart, Wallet, GitBranch } from 'lucide-react';
+import { LayoutDashboard, Calendar, CalendarDays, DollarSign, FileText, Settings, LogOut, Mail, Users, User, Briefcase, UsersRound, Menu, X, Map, PieChart, Wallet, PartyPopper } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
@@ -53,7 +53,7 @@ const AdminLayout = () => {
     navItems.push({ name: 'My Finance', path: '/admin/my-finance', icon: <Wallet size={20} /> });
     navItems.push({ name: 'Assets', path: '/admin/assets', icon: <PieChart size={20} /> });
     if (user?.is_superuser) {
-        navItems.push({ name: 'Profit & Tips', path: '/admin/profit-split', icon: <GitBranch size={20} /> });
+        navItems.push({ name: 'Tips', path: '/admin/profit-split', icon: <PartyPopper size={20} /> });
     }
 
     if (user?.is_superuser || user?.can_view_financials) {
