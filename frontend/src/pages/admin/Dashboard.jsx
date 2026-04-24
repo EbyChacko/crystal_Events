@@ -188,7 +188,8 @@ const Dashboard = () => {
     const totalRevenue = useMemo(() => fEvts.reduce((s, ev) => s + parseFloat(ev.received_amount || 0), 0), [fEvts]);
     const extraIncome = useMemo(() => fIncs.reduce((s, inc) => s + parseFloat(inc.amount || 0), 0), [fIncs]);
     const totalIncome = totalRevenue + extraIncome;
-    const totalExpenses = useMemo(() => fExps.reduce((s, ex) => s + parseFloat(ex.amount || 0), 0), [fExps]);
+    const TIP_CATEGORIES = ['Tip Payout', 'Staff Party'];
+    const totalExpenses = useMemo(() => fExps.filter(ex => !TIP_CATEGORIES.includes(ex.category)).reduce((s, ex) => s + parseFloat(ex.amount || 0), 0), [fExps]);
     const netProfit = totalIncome - totalExpenses;
     const profitMargin = totalIncome > 0 ? (netProfit / totalIncome) * 100 : 0;
 
@@ -210,10 +211,10 @@ const Dashboard = () => {
         }));
     }, [fEvts]);
 
-    // ── Expense by category ──────────────────────────────────────
+    // ── Expense by category (tip payouts excluded — tracked separately) ──
     const expenseCategoryData = useMemo(() => {
         const cats = {};
-        fExps.forEach(ex => { cats[ex.category] = (cats[ex.category] || 0) + parseFloat(ex.amount || 0); });
+        fExps.filter(ex => !TIP_CATEGORIES.includes(ex.category)).forEach(ex => { cats[ex.category] = (cats[ex.category] || 0) + parseFloat(ex.amount || 0); });
         return Object.entries(cats)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 8)
@@ -271,7 +272,7 @@ const Dashboard = () => {
                 agg[key].income += amt;
             }
         });
-        fExps.forEach(ex => {
+        fExps.filter(ex => !TIP_CATEGORIES.includes(ex.category)).forEach(ex => {
             const amt = parseFloat(ex.amount || 0);
             if (amt > 0) {
                 const { key, ts } = getKey(new Date(ex.date));

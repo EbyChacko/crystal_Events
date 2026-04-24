@@ -409,8 +409,9 @@ const Financials = () => {
     const { currentPage, setCurrentPage, totalPages, pagedItems: pagedTransactions } = usePagination(filteredTransactions);
 
     // Aggregations based on FILTERED results
+    const TIP_CATEGORIES = ['Tip Payout', 'Staff Party'];
     const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-    const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const totalExpense = filteredTransactions.filter(t => t.type === 'expense' && !TIP_CATEGORIES.includes(t.category)).reduce((sum, t) => sum + t.amount, 0);
     const netBalance = totalIncome - totalExpense;
 
     return (

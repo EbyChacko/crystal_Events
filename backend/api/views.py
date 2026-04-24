@@ -2288,7 +2288,7 @@ def _calculate_financials():
     manual_income = Income.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0')
     event_income = Event.objects.aggregate(total=Sum('received_amount'))['total'] or Decimal('0')
     total_income = manual_income + event_income
-    total_expense = Expense.objects.exclude(category__in=['Refund', 'Profit Payout']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    total_expense = Expense.objects.exclude(category__in=['Refund', 'Profit Payout', 'Tip Payout', 'Staff Party']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
     net_profit = total_income - total_expense
     return total_income, total_expense, net_profit
 
