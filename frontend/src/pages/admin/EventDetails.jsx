@@ -64,6 +64,7 @@ const EventDetails = () => {
     const [newChecklistItem, setNewChecklistItem] = useState('');
     const [checklistSaving, setChecklistSaving] = useState(false);
     const [expandedNoteId, setExpandedNoteId] = useState(null);
+    const [confirmDeleteChecklistId, setConfirmDeleteChecklistId] = useState(null);
 
     // Payment state
     const [paymentHistoryOpen, setPaymentHistoryOpen] = useState(false);
@@ -900,6 +901,7 @@ const EventDetails = () => {
     const handleDeleteChecklistItem = async (itemId) => {
         const updated = checklist.filter(item => item.id !== itemId);
         if (expandedNoteId === itemId) setExpandedNoteId(null);
+        setConfirmDeleteChecklistId(null);
         await saveChecklist(updated);
     };
 
@@ -2083,14 +2085,32 @@ const EventDetails = () => {
                                     </button>
                                     {/* Delete */}
                                     {!isLocked && (
-                                        <button
-                                            onClick={() => handleDeleteChecklistItem(item.id)}
-                                            disabled={checklistSaving}
-                                            className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
-                                            title="Remove item"
-                                        >
-                                            <Trash2 size={13} />
-                                        </button>
+                                        confirmDeleteChecklistId === item.id ? (
+                                            <span className="inline-flex items-center gap-1.5 flex-shrink-0">
+                                                <button
+                                                    onClick={() => setConfirmDeleteChecklistId(null)}
+                                                    className="text-xs px-2 py-1 rounded-lg border border-white/15 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteChecklistItem(item.id)}
+                                                    disabled={checklistSaving}
+                                                    className="text-xs px-2 py-1 rounded-lg font-semibold bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 transition-colors disabled:opacity-40"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </span>
+                                        ) : (
+                                            <button
+                                                onClick={() => setConfirmDeleteChecklistId(item.id)}
+                                                disabled={checklistSaving}
+                                                className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
+                                                title="Remove item"
+                                            >
+                                                <Trash2 size={13} />
+                                            </button>
+                                        )
                                     )}
                                 </div>
                                 {/* Per-item note */}
