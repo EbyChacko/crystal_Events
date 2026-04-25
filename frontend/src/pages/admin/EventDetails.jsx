@@ -58,6 +58,11 @@ const EventDetails = () => {
     const [eventFoodMenu, setEventFoodMenu] = useState(null);
     const [showFoodMenuForm, setShowFoodMenuForm] = useState(false);
 
+    // Venue setup checklist state
+    const [checklist, setChecklist] = useState([]);
+    const [newChecklistItem, setNewChecklistItem] = useState('');
+    const [checklistSaving, setChecklistSaving] = useState(false);
+
     // Payment state
     const [paymentHistoryOpen, setPaymentHistoryOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -100,6 +105,7 @@ const EventDetails = () => {
             const res = await api.get(`/events/${id}/`);
             const ev = res.data;
             setEvent(ev);
+            setChecklist(ev.setup_checklist || []);
             setFormData({
                 event_name: ev.event_name || '',
                 event_type: ev.event_type || 'other',
@@ -857,6 +863,40 @@ const EventDetails = () => {
 
     const handleDownloadFoodMenuPdf = (menuId) => {
         downloadPdf(`/food-menus/${menuId}/pdf/`).catch(() => addToast('Failed to download PDF', 'error'));
+    };
+
+    // ── Venue Checklist handlers ──────────────────────────────────────
+    const saveChecklist = async (updatedList) => {
+        setChecklistSaving(true);
+        try {
+            await api.patch(`/events/${id}/`, { setup_checklist: updatedList });
+            setChecklist(updatedList);
+        } catch {
+            addToast('Failed to save checklist.', 'error');
+        } finally {
+            setChecklistSaving(false);
+        }
+    };
+
+    const handleAddChecklistItem = async () => {
+        const text = newChecklistItem.trim();
+        if (!text) return;
+        const newItem = { id: Date.now().toString(), text, checked: false };
+        const updated = [...checklist, newItem];
+        setNewChecklistItem('');
+        await saveChecklist(updated);
+    };
+
+    const handleToggleChecklistItem = async (itemId) => {
+        const updated = checklist.map(item =>
+            item.id === itemId ? { ...item, checked: !item.checked } : item
+        );
+        await saveChecklist(updated);
+    };
+
+    const handleDeleteChecklistItem = async (itemId) => {
+        const updated = checklist.filter(item => item.id !== itemId);
+        await saveChecklist(updated);
     };
 
     if (loading) return <div className="p-4 sm:p-6 md:p-8 text-center text-gray-500">Loading event details...</div>;
@@ -1959,6 +1999,107 @@ const EventDetails = () => {
                     />
                 )}
             </AnimatePresence>
+
+            {/* ── Venue Setup Checklist ──────────────────────────────────── */}
+            <div className="bg-black/25 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8 mb-6">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                    <div>
+                        <h2 className="text-lg font-bold text-white flex items-center space-x-2">
+                            <CheckCircle size={20} className="text-mustard-gold" />
+                            <span>Venue Setup Checklist</span>
+                        </h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {checklist.length === 0
+                                ? 'No checklist items yet'
+                                : `${checklist.filter(i => i.checked).length} of ${checklist.length} completed`}
+                        </p>
+                    </div>
+                    {checklistSaving && (
+                        <span className="text-xs text-gray-500 flex items-center gap-1.5">
+                            <RefreshCw size={12} className="animate-spin" /> Saving...
+                        </span>
+                    )}
+                </div>
+
+                {/* Checklist Items */}
+                {checklist.length > 0 && (
+                    <div className="bg-white/[0.03] border border-white/5 rounded-xl divide-y divide-white/5 mb-4">
+                        {checklist.map((item) => (
+                            <div key={item.id} className="flex items-center gap-3 px-4 py-3 group">
+                                <button
+                                    onClick={() => handleToggleChecklistItem(item.id)}
+                                    disabled={checklistSaving}
+                                    className={`w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center transition-all disabled:opacity-50 ${
+                                        item.checked
+                                            ? 'bg-emerald-500 border-emerald-500'
+                                            : 'border-white/20 bg-black/20 hover:border-mustard-gold/50'
+                                    }`}
+                                >
+                                    {item.checked && <Check size={12} className="text-white" strokeWidth={3} />}
+                                </button>
+                                <span className={`flex-1 text-sm transition-colors ${item.checked ? 'line-through text-gray-500' : 'text-gray-200'}`}>
+                                    {item.text}
+                                </span>
+                                {!isLocked && (
+                                    <button
+                                        onClick={() => handleDeleteChecklistItem(item.id)}
+                                        disabled={checklistSaving}
+                                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
+                                        title="Remove item"
+                                    >
+                                        <Trash2 size={13} />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {checklist.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-10 text-center mb-4">
+                        <CheckCircle size={32} className="text-gray-700 mb-2" />
+                        <p className="text-gray-500 text-sm">No checklist items added yet</p>
+                        <p className="text-gray-600 text-xs mt-1">Add items below to track venue setup tasks</p>
+                    </div>
+                )}
+
+                {/* Add new item */}
+                {!isLocked && (
+                    <div className="flex items-center gap-2 mt-2">
+                        <input
+                            type="text"
+                            value={newChecklistItem}
+                            onChange={e => setNewChecklistItem(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleAddChecklistItem()}
+                            placeholder="Add a checklist item..."
+                            className="flex-1 bg-white/5 border border-white/10 text-white px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                        />
+                        <button
+                            onClick={handleAddChecklistItem}
+                            disabled={!newChecklistItem.trim() || checklistSaving}
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold text-sm hover:opacity-80 hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                        >
+                            <Plus size={16} /> Add
+                        </button>
+                    </div>
+                )}
+
+                {/* Progress bar */}
+                {checklist.length > 0 && (
+                    <div className="mt-5 pt-4 border-t border-white/10">
+                        <div className="flex justify-between text-xs text-gray-500 mb-1.5">
+                            <span>Setup progress</span>
+                            <span>{Math.round((checklist.filter(i => i.checked).length / checklist.length) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-white/5 rounded-full h-1.5">
+                            <div
+                                className="h-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
+                                style={{ width: `${(checklist.filter(i => i.checked).length / checklist.length) * 100}%` }}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
 
             {/* ── Right Sidebar Drawer ──────────────────────────────────── */}
             <AnimatePresence>
