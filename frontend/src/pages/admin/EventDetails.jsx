@@ -60,8 +60,10 @@ const EventDetails = () => {
 
     // Venue setup checklist state
     const [checklist, setChecklist] = useState([]);
+    const [checklistNote, setChecklistNote] = useState('');
     const [newChecklistItem, setNewChecklistItem] = useState('');
     const [checklistSaving, setChecklistSaving] = useState(false);
+    const [expandedNoteId, setExpandedNoteId] = useState(null);
 
     // Payment state
     const [paymentHistoryOpen, setPaymentHistoryOpen] = useState(false);
@@ -106,6 +108,7 @@ const EventDetails = () => {
             const ev = res.data;
             setEvent(ev);
             setChecklist(ev.setup_checklist || []);
+            setChecklistNote(ev.checklist_note || '');
             setFormData({
                 event_name: ev.event_name || '',
                 event_type: ev.event_type || 'other',
@@ -866,10 +869,10 @@ const EventDetails = () => {
     };
 
     // ── Venue Checklist handlers ──────────────────────────────────────
-    const saveChecklist = async (updatedList) => {
+    const saveChecklist = async (updatedList, extraFields = {}) => {
         setChecklistSaving(true);
         try {
-            await api.patch(`/events/${id}/`, { setup_checklist: updatedList });
+            await api.patch(`/events/${id}/`, { setup_checklist: updatedList, ...extraFields });
             setChecklist(updatedList);
         } catch {
             addToast('Failed to save checklist.', 'error');
@@ -881,7 +884,7 @@ const EventDetails = () => {
     const handleAddChecklistItem = async () => {
         const text = newChecklistItem.trim();
         if (!text) return;
-        const newItem = { id: Date.now().toString(), text, checked: false };
+        const newItem = { id: Date.now().toString(), text, checked: false, note: '' };
         const updated = [...checklist, newItem];
         setNewChecklistItem('');
         await saveChecklist(updated);
@@ -896,7 +899,26 @@ const EventDetails = () => {
 
     const handleDeleteChecklistItem = async (itemId) => {
         const updated = checklist.filter(item => item.id !== itemId);
+        if (expandedNoteId === itemId) setExpandedNoteId(null);
         await saveChecklist(updated);
+    };
+
+    const handleItemNoteBlur = async (itemId, noteValue) => {
+        const updated = checklist.map(item =>
+            item.id === itemId ? { ...item, note: noteValue } : item
+        );
+        await saveChecklist(updated);
+    };
+
+    const handleChecklistNoteBlur = async (value) => {
+        setChecklistSaving(true);
+        try {
+            await api.patch(`/events/${id}/`, { checklist_note: value });
+        } catch {
+            addToast('Failed to save note.', 'error');
+        } finally {
+            setChecklistSaving(false);
+        }
     };
 
     if (loading) return <div className="p-4 sm:p-6 md:p-8 text-center text-gray-500">Loading event details...</div>;
@@ -2024,31 +2046,69 @@ const EventDetails = () => {
                 {/* Checklist Items */}
                 {checklist.length > 0 && (
                     <div className="bg-white/[0.03] border border-white/5 rounded-xl divide-y divide-white/5 mb-4">
-                        {checklist.map((item) => (
-                            <div key={item.id} className="flex items-center gap-3 px-4 py-3 group">
-                                <button
-                                    onClick={() => handleToggleChecklistItem(item.id)}
-                                    disabled={checklistSaving}
-                                    className={`w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center transition-all disabled:opacity-50 ${
-                                        item.checked
-                                            ? 'bg-emerald-500 border-emerald-500'
-                                            : 'border-white/20 bg-black/20 hover:border-mustard-gold/50'
-                                    }`}
-                                >
-                                    {item.checked && <Check size={12} className="text-white" strokeWidth={3} />}
-                                </button>
-                                <span className={`flex-1 text-sm transition-colors ${item.checked ? 'line-through text-gray-500' : 'text-gray-200'}`}>
-                                    {item.text}
-                                </span>
-                                {!isLocked && (
+                        {checklist.map((item, idx) => (
+                            <div key={item.id} className="group">
+                                <div className="flex items-center gap-3 px-4 py-3">
+                                    {/* Number badge */}
+                                    <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-gray-500 bg-white/5 rounded-full border border-white/10">
+                                        {idx + 1}
+                                    </span>
+                                    {/* Checkbox */}
                                     <button
-                                        onClick={() => handleDeleteChecklistItem(item.id)}
+                                        onClick={() => handleToggleChecklistItem(item.id)}
                                         disabled={checklistSaving}
-                                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
-                                        title="Remove item"
+                                        className={`w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center transition-all disabled:opacity-50 ${
+                                            item.checked
+                                                ? 'bg-emerald-500 border-emerald-500'
+                                                : 'border-white/20 bg-black/20 hover:border-mustard-gold/50'
+                                        }`}
                                     >
-                                        <Trash2 size={13} />
+                                        {item.checked && <Check size={12} className="text-white" strokeWidth={3} />}
                                     </button>
+                                    {/* Item text */}
+                                    <span className={`flex-1 text-sm transition-colors ${item.checked ? 'line-through text-gray-500' : 'text-gray-200'}`}>
+                                        {item.text}
+                                    </span>
+                                    {/* Note toggle */}
+                                    <button
+                                        onClick={() => setExpandedNoteId(expandedNoteId === item.id ? null : item.id)}
+                                        className={`p-1 rounded-lg transition-colors ${
+                                            item.note
+                                                ? 'text-mustard-gold/70 hover:text-mustard-gold'
+                                                : 'opacity-0 group-hover:opacity-100 text-gray-600 hover:text-gray-400'
+                                        }`}
+                                        title={item.note ? 'View/edit note' : 'Add note'}
+                                    >
+                                        <BookOpen size={13} />
+                                    </button>
+                                    {/* Delete */}
+                                    {!isLocked && (
+                                        <button
+                                            onClick={() => handleDeleteChecklistItem(item.id)}
+                                            disabled={checklistSaving}
+                                            className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
+                                            title="Remove item"
+                                        >
+                                            <Trash2 size={13} />
+                                        </button>
+                                    )}
+                                </div>
+                                {/* Per-item note */}
+                                {expandedNoteId === item.id && (
+                                    <div className="px-4 pb-3 pl-16">
+                                        <textarea
+                                            defaultValue={item.note || ''}
+                                            onBlur={e => handleItemNoteBlur(item.id, e.target.value)}
+                                            placeholder="Add a note for this item..."
+                                            rows={2}
+                                            readOnly={isLocked}
+                                            className="w-full bg-white/5 border border-white/10 text-gray-300 text-xs px-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-mustard-gold/40 focus:border-mustard-gold/40 placeholder-gray-600 transition-all resize-none"
+                                        />
+                                    </div>
+                                )}
+                                {/* Show note preview if closed */}
+                                {expandedNoteId !== item.id && item.note && (
+                                    <p className="px-4 pb-2.5 pl-16 text-xs text-gray-500 italic">{item.note}</p>
                                 )}
                             </div>
                         ))}
@@ -2099,6 +2159,22 @@ const EventDetails = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Overall checklist note */}
+                <div className="mt-5 pt-4 border-t border-white/10">
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <BookOpen size={12} /> Overall Notes
+                    </label>
+                    <textarea
+                        value={checklistNote}
+                        onChange={e => setChecklistNote(e.target.value)}
+                        onBlur={e => handleChecklistNoteBlur(e.target.value)}
+                        placeholder="Add general notes about the venue setup..."
+                        rows={3}
+                        readOnly={isLocked}
+                        className="w-full bg-white/5 border border-white/10 text-gray-300 text-sm px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all resize-none"
+                    />
+                </div>
             </div>
 
             {/* ── Right Sidebar Drawer ──────────────────────────────────── */}

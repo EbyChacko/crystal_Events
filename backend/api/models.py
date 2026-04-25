@@ -85,8 +85,9 @@ class Event(models.Model):
     # Audit logbook — list of JSON snapshots
     audit_log = models.JSONField(default=list, blank=True)
 
-    # Venue setup checklist — list of {id, text, checked}
+    # Venue setup checklist — list of {id, text, checked, note}
     setup_checklist = models.JSONField(default=list, blank=True)
+    checklist_note = models.TextField(blank=True, default='')
 
     # Human-readable unique reference (e.g. CE-00001)
     event_uid = models.CharField(max_length=20, unique=True, blank=True)
