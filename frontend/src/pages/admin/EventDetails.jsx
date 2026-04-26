@@ -2105,7 +2105,7 @@ const EventDetails = () => {
                                             <button
                                                 onClick={() => setConfirmDeleteChecklistId(item.id)}
                                                 disabled={checklistSaving}
-                                                className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
+                                                className="p-1 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
                                                 title="Remove item"
                                             >
                                                 <Trash2 size={13} />
