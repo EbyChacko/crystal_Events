@@ -74,10 +74,10 @@ from .serializers import (
     QuoteSerializer, MessageSerializer, UserSerializer,
     CreateUserSerializer, UpdateProfileSerializer, AdminUpdateUserSerializer,
     EventImageSerializer, TeamMemberSerializer, TravelRateSerializer,
-    TwoFactorLoginSerializer, CustomTokenObtainPairSerializer
+    TwoFactorLoginSerializer, CustomTokenObtainPairSerializer,
+    AssetSerializer, FoodMenuSerializer
 )
-from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem, UserProfile
-from .serializers import FoodMenuSerializer
+from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem, UserProfile, Asset
 
 
 class HealthCheckView(APIView):
@@ -159,6 +159,16 @@ class IsStaffOrFinancials(permissions.BasePermission):
         if request.user.is_superuser or request.user.is_staff:
             return True
         return bool(getattr(getattr(request.user, 'profile', None), 'can_view_financials', False))
+
+
+class IsStaffOrAssets(permissions.BasePermission):
+    """Allows access to superusers or users with can_manage_assets."""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        return bool(getattr(getattr(request.user, 'profile', None), 'can_manage_assets', False))
 
 
 class ServiceViewSet(viewsets.ModelViewSet):
@@ -506,7 +516,6 @@ class EventViewSet(viewsets.ModelViewSet):
             approved_by=user,
             paid_back=True,
             paid_back_at=tz_now(),
-            is_asset=False,
         )
 
         # Serialize and return updated event
@@ -1450,6 +1459,18 @@ class ExpenseViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Invalid ID format.'}, status=400)
         Expense.objects.filter(id__in=safe_ids).update(paid_back=True, paid_back_at=timezone.now())
         return Response({'updated': len(safe_ids)})
+
+
+class AssetViewSet(viewsets.ModelViewSet):
+    serializer_class = AssetSerializer
+    permission_classes = [permissions.IsAuthenticated, IsStaffOrAssets]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_queryset(self):
+        return Asset.objects.select_related('added_by').all().order_by('-created_at')
+
+    def perform_create(self, serializer):
+        serializer.save(added_by=self.request.user)
 
 
 class EventImageViewSet(viewsets.ModelViewSet):

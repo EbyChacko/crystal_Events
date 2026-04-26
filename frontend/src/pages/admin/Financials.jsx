@@ -80,7 +80,7 @@ const Financials = () => {
     const [staffList, setStaffList] = useState([]);
 
     const initialFormData = {
-        date: '', amount: '', reason: '', category: '', payer_name: '', paid_by: '', receipt_image: null, receipt_image_url: '', is_asset: false
+        date: '', amount: '', reason: '', category: '', payer_name: '', paid_by: '', receipt_image: null, receipt_image_url: ''
     };
     const [formData, setFormData] = useState(initialFormData);
     const [receiptMode, setReceiptMode] = useState('file'); // 'file' | 'url'
@@ -109,9 +109,6 @@ const Financials = () => {
                 receipt_image: e.receipt_image,
                 receipt_image_url: e.receipt_image_url || '',
                 receipt_url: e.receipt_url || null,
-                is_asset: e.is_asset || false,
-                asset_current_value: e.asset_current_value ? parseFloat(e.asset_current_value) : parseFloat(e.amount),
-                is_active_asset: e.is_active_asset !== false,
                 paid_by: e.paid_by || null,
                 paid_by_name: e.paid_by_name || null,
                 paid_back: e.paid_back || false,
@@ -266,7 +263,6 @@ const Financials = () => {
             category: transaction.category,
             receipt_image: null,
             receipt_image_url: transaction.receipt_image_url || '',
-            is_asset: (transaction.is_asset && transaction.is_active_asset) || false
         });
         setReceiptMode(transaction.receipt_image_url ? 'url' : 'file');
         setEditingId(transaction.originalId);
@@ -294,10 +290,6 @@ const Financials = () => {
                 }
             } else if (formData.paid_by) {
                 data.append('paid_by', formData.paid_by);
-            }
-            if (formMode === 'expense') {
-                data.append('is_asset', formData.is_asset ? 'True' : 'False');
-                data.append('is_active_asset', formData.is_asset ? 'True' : 'False');
             }
             if (receiptMode === 'url') {
                 data.append('receipt_image_url', formData.receipt_image_url);
@@ -530,23 +522,11 @@ const Financials = () => {
                                         )}
                                     </AnimatePresence>
                                     {formMode === 'expense' && (
-                                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
-                                            <div>
-                                                <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
-                                                <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
-                                                    {EXPENSE_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
-                                                </select>
-                                            </div>
-                                            <div className="flex items-center md:pt-6">
-                                                <label className="flex items-center space-x-3 cursor-pointer group">
-                                                    <div className="relative flex items-center justify-center">
-                                                        <input type="checkbox" name="is_asset" checked={formData.is_asset} onChange={handleChange}
-                                                            className="w-5 h-5 rounded border border-white/20 bg-black/20 appearance-none cursor-pointer checked:bg-mustard-gold checked:border-mustard-gold transition-all" />
-                                                        <CheckCircle size={14} className={`absolute text-[#080c10] pointer-events-none transition-opacity ${formData.is_asset ? 'opacity-100' : 'opacity-0'}`} />
-                                                    </div>
-                                                    <span className="text-white font-medium group-hover:text-mustard-gold transition-colors">Add to Assets List?</span>
-                                                </label>
-                                            </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
+                                            <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
+                                                {EXPENSE_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
+                                            </select>
                                         </div>
                                     )}
                                     <div className="md:col-span-2">

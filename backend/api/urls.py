@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     ServiceViewSet, EventViewSet, ExpenseViewSet, IncomeViewSet, QuoteViewSet, MessageViewSet,
     CurrentUserView, UserListView, CreateUserView, UpdateProfileView, AdminUserDetailView,
-    EventImageViewSet, TeamMemberViewSet, TravelRateViewSet,
+    EventImageViewSet, TeamMemberViewSet, TravelRateViewSet, AssetViewSet,
     TwoFactorLoginView, TwoFactorSetupView, TwoFactorVerifySetupView, TwoFactorDisableView,
     FoodMenuViewSet, ProfitDistributionView, StaffPickerView, SplitProfitView,
     TipDistributionView, SplitTipView, TipEventClearView, TipExpenseActionView,
@@ -21,6 +21,7 @@ router.register(r'event-images', EventImageViewSet)
 router.register(r'team-members', TeamMemberViewSet)
 router.register(r'travel_rates', TravelRateViewSet)
 router.register(r'food-menus', FoodMenuViewSet)
+router.register(r'assets', AssetViewSet, basename='asset')
 
 urlpatterns = [
     path('', include(router.urls)),

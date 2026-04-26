@@ -44,8 +44,10 @@ const AdminLayout = () => {
     const financeItems = [
         { name: 'Financials', path: '/admin/financials', icon: <DollarSign size={20} /> },
         { name: 'My Finance', path: '/admin/my-finance', icon: <Wallet size={20} /> },
-        { name: 'Assets', path: '/admin/assets', icon: <PieChart size={20} /> },
     ];
+    if (user?.is_superuser || user?.can_manage_assets) {
+        financeItems.push({ name: 'Assets', path: '/admin/assets', icon: <PieChart size={20} /> });
+    }
     if (user?.is_superuser || user?.can_view_financials) {
         financeItems.push({ name: 'Staff Finance', path: '/admin/staff-finance', icon: <UsersRound size={20} /> });
     }

@@ -88,7 +88,11 @@ function App() {
               <Route path="profit-split" element={<ProfitSplit />} />
               <Route path="staff-finance" element={<StaffFinance />} />
               <Route path="my-finance" element={<MyFinance />} />
-              <Route path="assets" element={<Assets />} />
+              <Route path="assets" element={
+                <ProtectedRoute requireAssets>
+                  <Assets />
+                </ProtectedRoute>
+              } />
               <Route path="quotes" element={<Quotes />} />
               <Route path="services" element={
                 <ProtectedRoute requireSuperUser>

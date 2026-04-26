@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Forbidden from '../pages/errors/Forbidden';
 
-const ProtectedRoute = ({ children, requireSuperUser = false }) => {
+const ProtectedRoute = ({ children, requireSuperUser = false, requireAssets = false }) => {
     const { user, loading } = useAuth();
 
     if (loading) {
@@ -21,6 +21,10 @@ const ProtectedRoute = ({ children, requireSuperUser = false }) => {
     }
 
     if (requireSuperUser && !user.is_superuser) {
+        return <Forbidden />;
+    }
+
+    if (requireAssets && !user.is_superuser && !user.can_manage_assets) {
         return <Forbidden />;
     }
 

@@ -128,11 +128,6 @@ class Expense(models.Model):
     receipt_image_url = models.URLField(max_length=1000, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Asset Tracking Fields
-    is_asset = models.BooleanField(default=False)
-    asset_current_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    is_active_asset = models.BooleanField(default=True)
-
     def __str__(self):
         return f"{self.date} - {self.reason}"
 
@@ -152,6 +147,29 @@ class Income(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.reason}"
+
+class Asset(models.Model):
+    CONDITION_CHOICES = [
+        ('Excellent', 'Excellent'),
+        ('Good', 'Good'),
+        ('Fair', 'Fair'),
+        ('Poor', 'Poor'),
+    ]
+
+    name = models.CharField(max_length=255)
+    purchase_date = models.DateField()
+    quantity = models.PositiveIntegerField(default=1)
+    value = models.DecimalField(max_digits=10, decimal_places=2, help_text="Purchase value")
+    current_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Current estimated value")
+    depreciation_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Annual depreciation %")
+    condition = models.CharField(max_length=20, choices=CONDITION_CHOICES, default='Good')
+    notes = models.TextField(blank=True, default='')
+    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='added_assets')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.purchase_date})"
+
 
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='two_factor_auth')
@@ -262,6 +280,7 @@ class UserProfile(models.Model):
     address = models.TextField(blank=True, default='')
     designation = models.CharField(max_length=100, blank=True, default='')
     can_view_financials = models.BooleanField(default=False)
+    can_manage_assets = models.BooleanField(default=False, help_text="Allow user to manage the asset inventory")
     is_owner = models.BooleanField(default=False, db_index=True, help_text="Company owner — included in profit distribution")
     profit_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Percentage of net profit allocated to this owner")
     email_notifications = models.BooleanField(default=True, help_text="Receive email when a new contact message is received")

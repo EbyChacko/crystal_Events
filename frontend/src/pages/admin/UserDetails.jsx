@@ -32,6 +32,7 @@ const UserDetails = () => {
         is_staff: false,
         is_superuser: false,
         can_view_financials: false,
+        can_manage_assets: false,
         is_owner: false,
         profit_percentage: '',
     });
@@ -68,6 +69,7 @@ const UserDetails = () => {
                 is_staff: u.is_staff || false,
                 is_superuser: u.is_superuser || false,
                 can_view_financials: u.can_view_financials || false,
+                can_manage_assets: u.can_manage_assets || false,
                 is_owner: u.is_owner || false,
                 profit_percentage: u.profit_percentage ?? '',
             });
@@ -138,6 +140,7 @@ const UserDetails = () => {
                 is_staff: user.is_staff || false,
                 is_superuser: user.is_superuser || false,
                 can_view_financials: user.can_view_financials || false,
+                can_manage_assets: user.can_manage_assets || false,
                 is_owner: user.is_owner || false,
                 profit_percentage: user.profit_percentage ?? '',
             });
@@ -161,6 +164,7 @@ const UserDetails = () => {
             data.append('is_staff', formData.is_staff);
             data.append('is_superuser', formData.is_superuser);
             data.append('can_view_financials', formData.can_view_financials);
+            data.append('can_manage_assets', formData.can_manage_assets);
             data.append('is_owner', formData.is_owner);
             if (formData.is_owner && formData.profit_percentage !== '') {
                 data.append('profit_percentage', formData.profit_percentage);
@@ -357,6 +361,14 @@ const UserDetails = () => {
                                 <p className="text-emerald-400 text-base font-medium">Can View Financials</p>
                             </div>
                         )}
+                        {user.can_manage_assets && (
+                            <div>
+                                <label className="block text-gray-400 text-sm font-medium mb-1 flex items-center gap-1.5">
+                                    <CheckCircle size={14} className="text-amber-400" /> Access
+                                </label>
+                                <p className="text-amber-400 text-base font-medium">Can Manage Assets</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -497,6 +509,15 @@ const UserDetails = () => {
                                                 <div>
                                                     <p className="text-white font-medium text-emerald-400">Financials Access</p>
                                                     <p className="text-xs text-gray-500">Allow user to view the Income/Expenses system {formData.is_superuser ? '(Granted by Super Admin)' : ''}</p>
+                                                </div>
+                                            </label>
+                                            <label className={`flex items-center space-x-3 cursor-pointer`}>
+                                                <input type="checkbox" name="can_manage_assets" checked={formData.can_manage_assets} onChange={handleChange}
+                                                    disabled={formData.is_superuser}
+                                                    className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold disabled:opacity-50 disabled:cursor-not-allowed" />
+                                                <div>
+                                                    <p className="text-white font-medium text-amber-400">Asset Management Access</p>
+                                                    <p className="text-xs text-gray-500">Allow user to add and manage the asset inventory {formData.is_superuser ? '(Granted by Super Admin)' : ''}</p>
                                                 </div>
                                             </label>
                                             <label className={`flex items-center space-x-3 ${isEditingSelf ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>

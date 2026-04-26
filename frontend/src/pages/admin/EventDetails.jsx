@@ -70,7 +70,7 @@ const EventDetails = () => {
     const [paymentHistoryOpen, setPaymentHistoryOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showExpenseModal, setShowExpenseModal] = useState(false);
-    const expenseFormDefault = { date: new Date().toISOString().split('T')[0], amount: '', category: 'Catering', reason: '', paid_by: '', is_asset: false, receipt_image: null, receipt_image_url: '' };
+    const expenseFormDefault = { date: new Date().toISOString().split('T')[0], amount: '', category: 'Catering', reason: '', paid_by: '', receipt_image: null, receipt_image_url: '' };
     const [expenseFormData, setExpenseFormData] = useState(expenseFormDefault);
     const [expenseReceiptMode, setExpenseReceiptMode] = useState('file'); // 'file' | 'url'
     const [expenseSubmitting, setExpenseSubmitting] = useState(false);
@@ -203,8 +203,6 @@ const EventDetails = () => {
             data.append('category', expenseFormData.category);
             data.append('reason', expenseFormData.reason);
             data.append('event', parseInt(id));
-            data.append('is_asset', expenseFormData.is_asset ? 'True' : 'False');
-            data.append('is_active_asset', expenseFormData.is_asset ? 'True' : 'False');
             if (expenseFormData.paid_by) data.append('paid_by', expenseFormData.paid_by);
             if (expenseReceiptMode === 'url') {
                 data.append('receipt_image_url', expenseFormData.receipt_image_url);
@@ -241,8 +239,6 @@ const EventDetails = () => {
             data.append('reason', `Event pay: ${hours} hrs @ €${rate}/hr`);
             data.append('event', parseInt(id));
             data.append('paid_by', staffPayFormData.staff_id);
-            data.append('is_asset', 'False');
-            data.append('is_active_asset', 'False');
             await api.post('/expenses/', data, { headers: { 'Content-Type': 'multipart/form-data' } });
             addToast('Staff pay logged successfully!', 'success');
             setShowStaffPayModal(false);
@@ -2445,7 +2441,7 @@ const EventDetails = () => {
                                             className={`${selectClass.replace('cursor-pointer', '')} border-amber-500/30 focus:border-amber-500/50 focus:ring-amber-500/30`}
                                             placeholder="0.00" step="0.01" min="0.01" required />
                                     </div>
-                                    {/* Category + Asset checkbox */}
+                                    {/* Category */}
                                     <div>
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Category *</label>
                                         <select value={expenseFormData.category}
@@ -2455,17 +2451,6 @@ const EventDetails = () => {
                                                 <option key={c} value={c} className="bg-gray-900">{c}</option>
                                             ))}
                                         </select>
-                                    </div>
-                                    <div className="flex items-center md:pt-6">
-                                        <label className="flex items-center space-x-3 cursor-pointer group">
-                                            <div className="relative flex items-center justify-center">
-                                                <input type="checkbox" checked={expenseFormData.is_asset}
-                                                    onChange={(e) => setExpenseFormData(p => ({...p, is_asset: e.target.checked}))}
-                                                    className="w-5 h-5 rounded border border-white/20 bg-black/20 appearance-none cursor-pointer checked:bg-mustard-gold checked:border-mustard-gold transition-all" />
-                                                <CheckCircle size={14} className={`absolute text-[#080c10] pointer-events-none transition-opacity ${expenseFormData.is_asset ? 'opacity-100' : 'opacity-0'}`} />
-                                            </div>
-                                            <span className="text-white font-medium group-hover:text-mustard-gold transition-colors">Add to Assets List?</span>
-                                        </label>
                                     </div>
                                     {/* Description */}
                                     <div className="md:col-span-2">
