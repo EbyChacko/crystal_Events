@@ -33,6 +33,7 @@ const UserDetails = () => {
         is_superuser: false,
         can_view_financials: false,
         can_manage_assets: false,
+        can_add_asset: false,
         is_owner: false,
         profit_percentage: '',
     });
@@ -70,6 +71,7 @@ const UserDetails = () => {
                 is_superuser: u.is_superuser || false,
                 can_view_financials: u.can_view_financials || false,
                 can_manage_assets: u.can_manage_assets || false,
+                can_add_asset: u.can_add_asset || false,
                 is_owner: u.is_owner || false,
                 profit_percentage: u.profit_percentage ?? '',
             });
@@ -141,6 +143,7 @@ const UserDetails = () => {
                 is_superuser: user.is_superuser || false,
                 can_view_financials: user.can_view_financials || false,
                 can_manage_assets: user.can_manage_assets || false,
+                can_add_asset: user.can_add_asset || false,
                 is_owner: user.is_owner || false,
                 profit_percentage: user.profit_percentage ?? '',
             });
@@ -165,6 +168,7 @@ const UserDetails = () => {
             data.append('is_superuser', formData.is_superuser);
             data.append('can_view_financials', formData.can_view_financials);
             data.append('can_manage_assets', formData.can_manage_assets);
+            data.append('can_add_asset', formData.can_add_asset);
             data.append('is_owner', formData.is_owner);
             if (formData.is_owner && formData.profit_percentage !== '') {
                 data.append('profit_percentage', formData.profit_percentage);
@@ -366,7 +370,15 @@ const UserDetails = () => {
                                 <label className="block text-gray-400 text-sm font-medium mb-1 flex items-center gap-1.5">
                                     <CheckCircle size={14} className="text-amber-400" /> Access
                                 </label>
-                                <p className="text-amber-400 text-base font-medium">Can Manage Assets</p>
+                                <p className="text-amber-400 text-base font-medium">Can View Assets</p>
+                            </div>
+                        )}
+                        {user.can_add_asset && (
+                            <div>
+                                <label className="block text-gray-400 text-sm font-medium mb-1 flex items-center gap-1.5">
+                                    <CheckCircle size={14} className="text-orange-400" /> Access
+                                </label>
+                                <p className="text-orange-400 text-base font-medium">Can Add / Edit Assets</p>
                             </div>
                         )}
                     </div>
@@ -516,8 +528,17 @@ const UserDetails = () => {
                                                     disabled={formData.is_superuser}
                                                     className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold disabled:opacity-50 disabled:cursor-not-allowed" />
                                                 <div>
-                                                    <p className="text-white font-medium text-amber-400">Asset Management Access</p>
-                                                    <p className="text-xs text-gray-500">Allow user to add and manage the asset inventory {formData.is_superuser ? '(Granted by Super Admin)' : ''}</p>
+                                                    <p className="text-white font-medium text-amber-400">Asset View Access</p>
+                                                    <p className="text-xs text-gray-500">Allow user to view the asset inventory {formData.is_superuser ? '(Granted by Super Admin)' : ''}</p>
+                                                </div>
+                                            </label>
+                                            <label className={`flex items-center space-x-3 cursor-pointer`}>
+                                                <input type="checkbox" name="can_add_asset" checked={formData.can_add_asset} onChange={handleChange}
+                                                    disabled={formData.is_superuser}
+                                                    className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold disabled:opacity-50 disabled:cursor-not-allowed" />
+                                                <div>
+                                                    <p className="text-white font-medium text-orange-400">Asset Add / Edit Access</p>
+                                                    <p className="text-xs text-gray-500">Allow user to add, edit, and delete assets {formData.is_superuser ? '(Granted by Super Admin)' : ''}</p>
                                                 </div>
                                             </label>
                                             <label className={`flex items-center space-x-3 ${isEditingSelf ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>

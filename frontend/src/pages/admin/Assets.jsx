@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Package, Plus, Edit3, Trash2, X, Save, DollarSign, TrendingDown, Layers, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Pagination from '../../components/admin/Pagination';
 import usePagination from '../../hooks/usePagination';
@@ -50,7 +51,9 @@ const inputClass = "w-full bg-white/5 border border-white/10 text-white px-4 py-
 const selectClass = `${inputClass} appearance-none`;
 
 const Assets = () => {
+    const { user } = useAuth();
     const { addToast } = useToast();
+    const canWrite = user?.is_superuser || user?.can_add_asset;
     const [assets, setAssets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -178,13 +181,15 @@ const Assets = () => {
                         {isOverviewOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                         <span>{isOverviewOpen ? 'Hide Overview' : 'Show Overview'}</span>
                     </button>
-                    <button
-                        onClick={openAddModal}
-                        className="flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all"
-                    >
-                        <Plus size={18} />
-                        <span>Add Asset</span>
-                    </button>
+                    {canWrite && (
+                        <button
+                            onClick={openAddModal}
+                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all"
+                        >
+                            <Plus size={18} />
+                            <span>Add Asset</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -256,7 +261,7 @@ const Assets = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right whitespace-nowrap">
-                                                {confirmDeleteId === asset.id ? (
+                                                {canWrite && (confirmDeleteId === asset.id ? (
                                                     <div className="flex justify-end items-center space-x-2 border border-red-500/30 p-1.5 rounded-xl bg-red-500/5">
                                                         <span className="text-xs text-red-400 font-medium">Delete?</span>
                                                         <button onClick={() => handleDelete(asset.id)} className="px-3 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 font-bold">Yes</button>
@@ -267,7 +272,7 @@ const Assets = () => {
                                                         <button onClick={() => openEditModal(asset)} className="p-2 text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors" title="Edit"><Edit3 size={15} /></button>
                                                         <button onClick={() => setConfirmDeleteId(asset.id)} className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-colors" title="Delete"><Trash2 size={15} /></button>
                                                     </div>
-                                                )}
+                                                ))}
                                             </td>
                                         </tr>
                                     ))}
@@ -312,20 +317,22 @@ const Assets = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex justify-end items-center gap-2 pt-2 border-t border-white/5">
-                                        {confirmDeleteId === asset.id ? (
-                                            <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
-                                                <span className="text-xs text-red-400 font-medium px-1">Delete?</span>
-                                                <button onClick={() => handleDelete(asset.id)} className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Yes</button>
-                                                <button onClick={() => setConfirmDeleteId(null)} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08]">No</button>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <button onClick={() => openEditModal(asset)} className="p-2 text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
-                                                <button onClick={() => setConfirmDeleteId(asset.id)} className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
-                                            </>
-                                        )}
-                                    </div>
+                                    {canWrite && (
+                                        <div className="flex justify-end items-center gap-2 pt-2 border-t border-white/5">
+                                            {confirmDeleteId === asset.id ? (
+                                                <div className="flex items-center space-x-1 border border-red-500/30 p-1 rounded-lg">
+                                                    <span className="text-xs text-red-400 font-medium px-1">Delete?</span>
+                                                    <button onClick={() => handleDelete(asset.id)} className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Yes</button>
+                                                    <button onClick={() => setConfirmDeleteId(null)} className="px-2 py-1 text-xs bg-white/10 text-gray-400 rounded hover:bg-white/[0.08]">No</button>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <button onClick={() => openEditModal(asset)} className="p-2 text-gray-400 hover:text-mustard-gold bg-white/5 hover:bg-mustard-gold/10 rounded-lg transition-colors"><Edit3 size={14} /></button>
+                                                    <button onClick={() => setConfirmDeleteId(asset.id)} className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

@@ -162,13 +162,16 @@ class IsStaffOrFinancials(permissions.BasePermission):
 
 
 class IsStaffOrAssets(permissions.BasePermission):
-    """Allows access to superusers or users with can_manage_assets."""
+    """Allows access to superusers or users with can_manage_assets (view) or can_add_asset (write)."""
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
         if request.user.is_superuser:
             return True
-        return bool(getattr(getattr(request.user, 'profile', None), 'can_manage_assets', False))
+        profile = getattr(request.user, 'profile', None)
+        if request.method in ('GET', 'HEAD', 'OPTIONS'):
+            return bool(getattr(profile, 'can_manage_assets', False) or getattr(profile, 'can_add_asset', False))
+        return bool(getattr(profile, 'can_add_asset', False))
 
 
 class ServiceViewSet(viewsets.ModelViewSet):
