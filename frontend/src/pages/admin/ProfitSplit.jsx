@@ -74,11 +74,9 @@ const TipSplitModal = ({ tipData, onClose, onDone }) => {
     const perHead = selectedCount > 0 && amtVal > 0 ? (amtVal / selectedCount).toFixed(2) : '0.00';
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-            onClick={() => { if (!splitting) onClose(); }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                onClick={e => e.stopPropagation()}
                 className="bg-[#091818] border border-white/10 rounded-2xl w-full max-w-md shadow-[0_0_60px_rgba(0,160,150,0.12),0_25px_60px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto"
             >
                 <div className="flex items-center justify-between p-6 border-b border-white/10">

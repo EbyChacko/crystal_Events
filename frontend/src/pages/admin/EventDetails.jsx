@@ -1355,7 +1355,6 @@ const EventDetails = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={handleCancelEdit}
                         />
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}
@@ -1659,7 +1658,6 @@ const EventDetails = () => {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 className="fixed inset-0 bg-black/60 backdrop-blur-sm min-h-screen"
-                                onClick={() => setShowQuoteForm(false)}
                             />
 
                             {/* Centered Modal Content */}
