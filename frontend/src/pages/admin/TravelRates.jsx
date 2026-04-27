@@ -222,7 +222,6 @@ const TravelRates = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={handleCloseForm}
                         />
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}

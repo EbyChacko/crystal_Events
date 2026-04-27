@@ -185,7 +185,6 @@ const ServicesAdmin = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={() => setShowForm(false)}
                         />
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}
@@ -264,7 +263,6 @@ const ServicesAdmin = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-                            onClick={() => setViewingService(null)}
                         />
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}

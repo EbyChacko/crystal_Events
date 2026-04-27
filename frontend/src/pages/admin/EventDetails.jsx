@@ -989,8 +989,7 @@ const EventDetails = () => {
             {/* Receive Payment Modal */}
             <AnimatePresence>
                 {showPaymentModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentModal(false); }}>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative">
                             <button type="button" onClick={() => setShowPaymentModal(false)} title="Close" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
@@ -2347,8 +2346,7 @@ const EventDetails = () => {
             {/* ── Refund Modal ──────────────────────────────────────────── */}
             <AnimatePresence>
                 {showRefundModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowRefundModal(false); }}>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative">
                             <button type="button" onClick={() => setShowRefundModal(false)} title="Close" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
@@ -2406,8 +2404,7 @@ const EventDetails = () => {
             {/* ── Add Expense Modal ─────────────────────────────────────── */}
             <AnimatePresence>
                 {showExpenseModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowExpenseModal(false); }}>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-amber-500/20 rounded-2xl p-6 w-full max-w-lg shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative max-h-[90vh] overflow-y-auto">
                             <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-between">
@@ -2521,8 +2518,7 @@ const EventDetails = () => {
             {/* ── Staff Pay Modal ────────────────────────────────────────── */}
             <AnimatePresence>
                 {showStaffPayModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                         onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowStaffPayModal(false); setStaffPayFormData(staffPayFormDefault); } }}>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-blue-500/20 rounded-2xl p-6 w-full max-w-md shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative">
                             <h3 className="text-xl font-bold text-white mb-1 flex items-center justify-between">
@@ -2596,8 +2592,7 @@ const EventDetails = () => {
             {/* ── Payment History Modal ─────────────────────────────────── */}
             <AnimatePresence>
                 {showPaymentHistoryModal && (
-                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
-                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowPaymentHistoryModal(false); }}>
+                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto">
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-indigo-500/20 rounded-2xl p-6 w-full max-w-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
                             <button type="button" onClick={() => setShowPaymentHistoryModal(false)} title="Close" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
@@ -2704,8 +2699,7 @@ const EventDetails = () => {
             {/* ── Gallery Modal ─────────────────────────────────────────── */}
             <AnimatePresence>
                 {showGalleryModal && (
-                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
-                         onMouseDown={(e) => { if (e.target === e.currentTarget) { setShowGalleryModal(false); setShowImageForm(false); } }}>
+                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto">
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-purple-500/20 rounded-2xl p-6 w-full max-w-3xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
                             <button type="button" onClick={() => { setShowGalleryModal(false); setShowImageForm(false); }} title="Close" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
@@ -2839,8 +2833,7 @@ const EventDetails = () => {
             {/* ── Logbook Modal ─────────────────────────────────────────── */}
             <AnimatePresence>
                 {showLogbookModal && (
-                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto"
-                         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowLogbookModal(false); }}>
+                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 bg-black/60 backdrop-blur-sm overflow-y-auto">
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-[#080c10] border border-white/10 rounded-2xl p-6 w-full max-w-2xl shadow-[0_0_80px_rgba(0,160,150,0.14),0_25px_60px_rgba(0,0,0,0.85)] relative mb-8">
                             <button type="button" onClick={() => setShowLogbookModal(false)} title="Close logbook" className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">

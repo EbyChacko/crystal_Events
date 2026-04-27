@@ -81,7 +81,7 @@ const Assets = () => {
 
     const openAddModal = () => {
         setEditingAsset(null);
-        setFormData(emptyForm);
+        setFormData({ ...emptyForm, purchase_date: new Date().toISOString().split('T')[0] });
         setShowModal(true);
     };
 
@@ -350,7 +350,6 @@ const Assets = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={closeModal}
                         />
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}

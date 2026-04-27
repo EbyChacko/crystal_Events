@@ -80,7 +80,7 @@ const Financials = () => {
     const [staffList, setStaffList] = useState([]);
 
     const initialFormData = {
-        date: '', amount: '', reason: '', category: '', payer_name: '', paid_by: '', receipt_image: null, receipt_image_url: ''
+        date: new Date().toISOString().split('T')[0], amount: '', reason: '', category: '', payer_name: '', paid_by: '', receipt_image: null, receipt_image_url: ''
     };
     const [formData, setFormData] = useState(initialFormData);
     const [receiptMode, setReceiptMode] = useState('file'); // 'file' | 'url'
@@ -982,13 +982,11 @@ const Financials = () => {
             {/* Split Profit Modal */}
             <AnimatePresence>
                 {showSplitModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-                        onClick={() => { if (!splitting) { setShowSplitModal(false); setSplitAmount(''); setSplitMarkAsPaid(false); } }}>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            onClick={e => e.stopPropagation()}
                             className="bg-[#091818] border border-white/10 rounded-2xl w-full max-w-md shadow-[0_0_60px_rgba(0,160,150,0.12),0_25px_60px_rgba(0,0,0,0.8)]"
                         >
                             {/* Header */}
