@@ -216,7 +216,6 @@ const Assets = () => {
                     <div className="p-12 text-center">
                         <Package size={40} className="text-gray-700 mx-auto mb-3" />
                         <p className="text-gray-500 mb-1">No assets added yet.</p>
-                        <p className="text-gray-600 text-sm">Click "Add Asset" to get started.</p>
                     </div>
                 ) : (
                     <>
