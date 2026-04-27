@@ -89,7 +89,7 @@ function App() {
               <Route path="staff-finance" element={<StaffFinance />} />
               <Route path="my-finance" element={<MyFinance />} />
               <Route path="assets" element={
-                <ProtectedRoute requireAssets>
+                <ProtectedRoute>
                   <Assets />
                 </ProtectedRoute>
               } />

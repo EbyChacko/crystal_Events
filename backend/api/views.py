@@ -1478,8 +1478,12 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
 class AssetViewSet(viewsets.ModelViewSet):
     serializer_class = AssetSerializer
-    permission_classes = [permissions.IsAuthenticated, IsStaffOrAssets]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticated(), IsStaffOrAssets()]
 
     def get_queryset(self):
         return Asset.objects.select_related('added_by').all().order_by('-created_at')
