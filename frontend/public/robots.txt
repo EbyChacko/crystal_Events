@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Block admin panel from all crawlers
+Disallow: /admin/
+Disallow: /admin/*
+
+Sitemap: https://crystaleventsie.com/sitemap.xml
