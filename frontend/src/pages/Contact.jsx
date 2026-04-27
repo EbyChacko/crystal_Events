@@ -64,11 +64,11 @@ const Contact = () => {
     return (
         <>
         <Helmet>
-            <title>Contact Us | Crystal Events Ireland</title>
+            <title>Contact Crystal Events | Wedding & Event Enquiries Ireland</title>
             <meta name="description" content="Get in touch with Crystal Events to plan your dream wedding or event in Ireland. Call, email, or send a message — we'd love to hear from you." />
             <meta name="robots" content="index, follow" />
             <link rel="canonical" href="https://crystaleventsie.com/contact" />
-            <meta property="og:title" content="Contact Us | Crystal Events Ireland" />
+            <meta property="og:title" content="Contact Crystal Events | Wedding & Event Enquiries Ireland" />
             <meta property="og:description" content="Get in touch with Crystal Events to plan your dream wedding or event in Ireland. Call, email, or send a message — we'd love to hear from you." />
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://crystaleventsie.com/contact" />
@@ -82,9 +82,9 @@ const Contact = () => {
                     viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                    <h2 className="text-4xl md:text-5xl font-black mb-4">
+                    <h1 className="text-4xl md:text-5xl font-black mb-4">
                         Let's Create <span className="text-mustard-gold">Magic</span>
-                    </h2>
+                    </h1>
                     <p className="text-white/60 text-lg mb-8 leading-relaxed">
                         Ready to plan an unforgettable event? Reach out to us for a bespoke consultation.
                         We are here to turn your vision into reality.

@@ -127,11 +127,11 @@ const Gallery = () => {
     return (
         <>
         <Helmet>
-            <title>Event Gallery | Crystal Events Ireland</title>
+            <title>Event Gallery — Weddings, Parties & Celebrations | Crystal Events</title>
             <meta name="description" content="Browse Crystal Events' gallery of weddings, corporate galas, birthday celebrations, and more across Ireland and the UK." />
             <meta name="robots" content="index, follow" />
             <link rel="canonical" href="https://crystaleventsie.com/gallery" />
-            <meta property="og:title" content="Event Gallery | Crystal Events Ireland" />
+            <meta property="og:title" content="Event Gallery — Weddings, Parties & Celebrations | Crystal Events" />
             <meta property="og:description" content="Browse Crystal Events' gallery of weddings, corporate galas, birthday celebrations, and more across Ireland and the UK." />
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://crystaleventsie.com/gallery" />
@@ -146,7 +146,7 @@ const Gallery = () => {
                     <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/50 via-deep-teal/30 to-background-dark" />
                 </motion.div>
                 <div className="text-center space-y-6 px-6 md:px-12 lg:px-20 relative z-10 mt-16">
-                    <motion.h2
+                    <motion.h1
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.85, ease: 'easeOut' }}
@@ -154,7 +154,7 @@ const Gallery = () => {
                     >
                         Capturing Moments <br />
                         <span className="text-mustard-gold italic font-light lowercase font-serif">of</span> Brilliance
-                    </motion.h2>
+                    </motion.h1>
                     <div className="max-w-3xl mx-auto space-y-4">
                         <motion.p
                             initial={{ opacity: 0, y: 22 }}

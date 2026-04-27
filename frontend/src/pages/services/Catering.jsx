@@ -86,14 +86,14 @@ const Catering = () => {
     return (
         <>
             <Helmet>
-                <title>Catering Services | Crystal Events Ireland</title>
+                <title>Event Catering Services in Ireland | Crystal Events</title>
                 <meta
                     name="description"
                     content="Crystal Events offers premium catering services in Ireland — authentic Indian cuisine, multicultural menus, buffets, and bespoke dining experiences for weddings, corporate events, and private celebrations."
                 />
                 <meta name="robots" content="index, follow" />
                 <link rel="canonical" href="https://crystaleventsie.com/services/catering" />
-                <meta property="og:title" content="Catering Services | Crystal Events Ireland" />
+                <meta property="og:title" content="Event Catering Services in Ireland | Crystal Events" />
                 <meta property="og:description" content="Premium catering services in Ireland — authentic Indian cuisine, multicultural menus, and bespoke dining for every occasion." />
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://crystaleventsie.com/services/catering" />

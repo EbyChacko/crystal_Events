@@ -77,14 +77,14 @@ const WeddingPlanning = () => {
     return (
         <>
             <Helmet>
-                <title>Wedding Planners in Ireland | Crystal Events</title>
+                <title>Wedding Planning Services in Ireland | Crystal Events</title>
                 <meta
                     name="description"
                     content="Premium wedding planning services in Ireland. We provide complete solutions including decoration, catering, photography, and entertainment."
                 />
                 <meta name="robots" content="index, follow" />
                 <link rel="canonical" href="https://crystaleventsie.com/services/wedding-planning" />
-                <meta property="og:title" content="Wedding Planners in Ireland | Crystal Events" />
+                <meta property="og:title" content="Wedding Planning Services in Ireland | Crystal Events" />
                 <meta
                     property="og:description"
                     content="Premium wedding planning services in Ireland. We provide complete solutions including decoration, catering, photography, and entertainment."
