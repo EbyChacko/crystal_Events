@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -11,8 +12,7 @@ class PublicTokenRefreshView(TokenRefreshView):
     authentication_classes = []
 
 urlpatterns = [
-    # Django admin is disabled — all user management goes through the app's own UI.
-    # Re-enable only temporarily via a secure, non-guessable path if needed for DB emergencies.
+    path('admin/', admin.site.urls),
     path('api/health/', HealthCheckView.as_view(), name='health-check'),
     path('api/email-test/', EmailTestView.as_view(), name='email-test'),
     path('api/', include('api.urls')),
