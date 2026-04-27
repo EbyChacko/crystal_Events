@@ -54,6 +54,18 @@ class EventImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PublicEventSerializer(serializers.ModelSerializer):
+    """Minimal serializer for unauthenticated gallery access — no sensitive client data."""
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = ['id', 'event_name', 'event_type', 'venue', 'event_date', 'description', 'images']
+
+    def get_images(self, obj):
+        return EventImageSerializer(obj.images.all(), many=True, context=self.context).data
+
+
 class ExpenseSerializer(serializers.ModelSerializer):
     event_name = serializers.CharField(source='event.event_name', read_only=True, default=None)
     approved_by_name = serializers.SerializerMethodField()

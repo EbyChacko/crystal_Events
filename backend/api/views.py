@@ -75,7 +75,7 @@ from .serializers import (
     CreateUserSerializer, UpdateProfileSerializer, AdminUpdateUserSerializer,
     EventImageSerializer, TeamMemberSerializer, TravelRateSerializer,
     TwoFactorLoginSerializer, CustomTokenObtainPairSerializer,
-    AssetSerializer, FoodMenuSerializer
+    AssetSerializer, FoodMenuSerializer, PublicEventSerializer
 )
 from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem, UserProfile, Asset
 
@@ -178,9 +178,8 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            return [permissions.IsAuthenticated()]
+            return [permissions.AllowAny()]
         return [permissions.IsAuthenticated(), IsSuperUser()]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def _save_with_image(self, serializer, **kwargs):
         file = self.request.FILES.get('image')
@@ -254,13 +253,26 @@ class IncomeViewSet(viewsets.ModelViewSet):
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.select_related('assigned_to', 'created_by').prefetch_related('images').all()
     serializer_class = EventSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve'] and not self.request.user.is_authenticated:
+            return PublicEventSerializer
+        return EventSerializer
 
     def get_queryset(self):
         from django.utils import timezone
+        qs = super().get_queryset()
         # Auto-update status to in_progress if event_date has passed
         Event.objects.filter(status='confirmed', event_date__lte=timezone.now()).update(status='in_progress')
-        return super().get_queryset()
+        # Unauthenticated requests (public gallery) — only events that have images
+        if not self.request.user.is_authenticated:
+            qs = qs.filter(images__isnull=False).distinct()
+        return qs
 
     def _build_snapshot(self, event):
         """Build a dict snapshot of the current event state for the audit log."""
@@ -1505,7 +1517,7 @@ class TeamMemberViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            return [permissions.IsAuthenticated()]
+            return [permissions.AllowAny()]
         return [permissions.IsAuthenticated(), IsSuperUser()]
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated, IsSuperUser])
