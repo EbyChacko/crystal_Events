@@ -24,7 +24,7 @@ const ProtectedRoute = ({ children, requireSuperUser = false, requireAssets = fa
         return <Forbidden />;
     }
 
-    if (requireAssets && !user.is_superuser && !user.can_manage_assets) {
+    if (requireAssets && !user.is_superuser && !user.can_manage_assets && !user.can_add_asset) {
         return <Forbidden />;
     }
 
