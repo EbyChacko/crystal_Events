@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# Start the application server (migrations run during build)
+# Run migrations at startup (DB network not available at build time on Render)
+python manage.py migrate
+
+# Start the application server
 gunicorn crystal_events_backend.wsgi:application
