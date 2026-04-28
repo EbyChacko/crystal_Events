@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserPlus, Users as UsersIcon, Shield, ShieldCheck, AlertCircle, CheckCircle, Camera, X, Crown, MapPin } from 'lucide-react';
+import { UserPlus, Users as UsersIcon, Shield, ShieldCheck, Camera, X, Crown, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import api from '../../utils/api';
@@ -23,9 +23,13 @@ const Users = () => {
         address: '',
         password: '',
         confirmPassword: '',
-        role: 'staff',
         designation: '',
+        is_active: true,
+        is_staff: true,
+        is_superuser: false,
         can_view_financials: false,
+        can_manage_assets: false,
+        can_add_asset: false,
         is_owner: false,
         profit_percentage: '',
     });
@@ -116,10 +120,13 @@ const Users = () => {
             data.append('phone', formData.phone);
             data.append('address', formData.address);
             data.append('password', formData.password);
-            data.append('is_staff', formData.role === 'staff' || formData.role === 'admin' || formData.role === 'superadmin');
-            data.append('is_superuser', formData.role === 'superadmin');
             data.append('designation', formData.designation);
+            data.append('is_active', formData.is_active);
+            data.append('is_staff', formData.is_staff);
+            data.append('is_superuser', formData.is_superuser);
             data.append('can_view_financials', formData.can_view_financials);
+            data.append('can_manage_assets', formData.can_manage_assets);
+            data.append('can_add_asset', formData.can_add_asset);
             data.append('is_owner', formData.is_owner);
             if (formData.is_owner && formData.profit_percentage !== '') {
                 data.append('profit_percentage', formData.profit_percentage);
@@ -132,7 +139,7 @@ const Users = () => {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             addToast(`User "${formData.username}" created successfully!`, 'success');
-            setFormData({ first_name: '', last_name: '', username: '', email: '', phone: '', address: '', password: '', confirmPassword: '', role: 'staff', designation: '', can_view_financials: false, is_owner: false, profit_percentage: '' });
+            setFormData({ first_name: '', last_name: '', username: '', email: '', phone: '', address: '', password: '', confirmPassword: '', designation: '', is_active: true, is_staff: true, is_superuser: false, can_view_financials: false, can_manage_assets: false, can_add_asset: false, is_owner: false, profit_percentage: '' });
             clearImage();
             setShowForm(false);
             fetchUsers();
@@ -281,53 +288,83 @@ const Users = () => {
                                             className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
                                             placeholder="Optional address..." />
                                     </div>
-                                    <div className="md:col-span-2">
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">Role</label>
-                                        <select name="role" value={formData.role} onChange={handleChange}
-                                            className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 transition-all appearance-none cursor-pointer"
-                                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center' }}>
-                                            <option value="staff" className="bg-gray-900 text-white">Staff — Basic admin panel access</option>
-                                            <option value="admin" className="bg-gray-900 text-white">Admin — Full admin panel access</option>
-                                            <option value="superadmin" className="bg-gray-900 text-white">Super Admin — Full control over all users and settings</option>
-                                        </select>
-                                    </div>
-                                    <div className="md:col-span-2">
-                                        <label className={`flex items-center space-x-3 cursor-pointer`}>
-                                            <input type="checkbox" name="can_view_financials" checked={formData.role === 'superadmin' ? true : formData.can_view_financials} onChange={handleChange}
-                                                disabled={formData.role === 'superadmin'}
-                                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold disabled:opacity-50 disabled:cursor-not-allowed" />
+                                    <div className="md:col-span-2 mt-4 p-4 bg-black/20 rounded-xl space-y-4 border border-white/5">
+                                        <label className="flex items-center space-x-3 cursor-pointer">
+                                            <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange}
+                                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold" />
                                             <div>
-                                                <p className="text-white text-sm font-medium">Grant Financials Access</p>
-                                                <p className="text-xs text-gray-500">Allow this user to view and manage expenses/income {formData.role === 'superadmin' ? '(Always granted for Super Admins)' : ''}</p>
+                                                <p className="text-white font-medium">Account Active</p>
+                                                <p className="text-xs text-gray-500">Enable/Disable login access completely</p>
                                             </div>
                                         </label>
-                                    </div>
-                                    <div className="md:col-span-2">
-                                        <label className={`flex items-center space-x-3 cursor-pointer`}>
+                                        <label className="flex items-center space-x-3 cursor-pointer">
+                                            <input type="checkbox" name="is_staff" checked={formData.is_staff} onChange={handleChange}
+                                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold" />
+                                            <div>
+                                                <p className="text-white font-medium">Admin Panel Access (Staff)</p>
+                                                <p className="text-xs text-gray-500">Allow user to log in to the admin dashboard</p>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center space-x-3 cursor-pointer">
+                                            <input type="checkbox" name="can_view_financials" checked={formData.is_superuser ? true : formData.can_view_financials} onChange={handleChange}
+                                                disabled={formData.is_superuser}
+                                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold disabled:opacity-50 disabled:cursor-not-allowed" />
+                                            <div>
+                                                <p className="text-white font-medium text-emerald-400">Financials Access</p>
+                                                <p className="text-xs text-gray-500">Allow user to view the Income/Expenses system{formData.is_superuser ? ' (Granted by Super Admin)' : ''}</p>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center space-x-3 cursor-pointer">
+                                            <input type="checkbox" name="can_manage_assets" checked={formData.is_superuser ? true : formData.can_manage_assets} onChange={handleChange}
+                                                disabled={formData.is_superuser}
+                                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold disabled:opacity-50 disabled:cursor-not-allowed" />
+                                            <div>
+                                                <p className="text-white font-medium text-amber-400">Asset View Access</p>
+                                                <p className="text-xs text-gray-500">Allow user to view the asset inventory{formData.is_superuser ? ' (Granted by Super Admin)' : ''}</p>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center space-x-3 cursor-pointer">
+                                            <input type="checkbox" name="can_add_asset" checked={formData.is_superuser ? true : formData.can_add_asset} onChange={handleChange}
+                                                disabled={formData.is_superuser}
+                                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold disabled:opacity-50 disabled:cursor-not-allowed" />
+                                            <div>
+                                                <p className="text-white font-medium text-orange-400">Asset Add / Edit Access</p>
+                                                <p className="text-xs text-gray-500">Allow user to add, edit, and delete assets{formData.is_superuser ? ' (Granted by Super Admin)' : ''}</p>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center space-x-3 cursor-pointer">
+                                            <input type="checkbox" name="is_superuser" checked={formData.is_superuser} onChange={handleChange}
+                                                className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold" />
+                                            <div>
+                                                <p className="text-white font-medium text-purple-400">Super Admin Privileges</p>
+                                                <p className="text-xs text-gray-500">Full control over all users and settings</p>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center space-x-3 cursor-pointer">
                                             <input type="checkbox" name="is_owner" checked={formData.is_owner} onChange={handleChange}
                                                 className="w-5 h-5 rounded border-white/20 bg-white/5 text-mustard-gold focus:ring-mustard-gold" />
                                             <div>
-                                                <p className="text-white text-sm font-medium flex items-center gap-1.5"><Crown size={14} className="text-yellow-400" /> Company Owner</p>
+                                                <p className="text-white font-medium flex items-center gap-1.5"><Crown size={14} className="text-yellow-400" /> Company Owner</p>
                                                 <p className="text-xs text-gray-500">Include in profit distribution calculations</p>
                                             </div>
                                         </label>
+                                        <AnimatePresence>
+                                            {formData.is_owner && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <label className="block text-gray-400 text-sm font-medium mb-2">Profit Share (%)</label>
+                                                    <input type="number" name="profit_percentage" value={formData.profit_percentage} onChange={handleChange}
+                                                        className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
+                                                        placeholder="e.g. 50" min="0" max="100" step="0.01" />
+                                                    <p className="text-xs text-gray-500 mt-1">Percentage of net profit allocated to this owner</p>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
-                                    <AnimatePresence>
-                                        {formData.is_owner && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                className="md:col-span-2"
-                                            >
-                                                <label className="block text-gray-400 text-sm font-medium mb-2">Profit Share (%)</label>
-                                                <input type="number" name="profit_percentage" value={formData.profit_percentage} onChange={handleChange}
-                                                    className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mustard-gold/50 focus:border-mustard-gold/50 placeholder-gray-600 transition-all"
-                                                    placeholder="e.g. 50" min="0" max="100" step="0.01" />
-                                                <p className="text-xs text-gray-500 mt-1">Percentage of net profit allocated to this owner</p>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
                                     <div className="md:col-span-2">
                                         <button type="submit" disabled={submitting || (formData.confirmPassword && formData.password !== formData.confirmPassword)}
                                             className="w-full bg-gradient-to-r from-mustard-gold to-yellow-500 text-deep-teal font-bold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-mustard-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
