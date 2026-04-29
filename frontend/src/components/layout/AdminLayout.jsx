@@ -49,9 +49,7 @@ const AdminLayout = () => {
     if (user?.is_superuser || user?.can_view_financials) {
         financeItems.push({ name: 'Staff Finance', path: '/admin/staff-finance', icon: <UsersRound size={20} /> });
     }
-    if (user?.is_superuser || user?.can_view_financials) {
-        financeItems.push({ name: 'Tips', path: '/admin/profit-split', icon: <PartyPopper size={20} /> });
-    }
+    financeItems.push({ name: 'Tips', path: '/admin/profit-split', icon: <PartyPopper size={20} /> });
 
     const navGroups = [
         {

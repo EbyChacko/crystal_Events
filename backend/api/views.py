@@ -2425,7 +2425,7 @@ class SplitProfitView(APIView):
 
 class TipDistributionView(APIView):
     """Returns tip entries per event, distribution history, balances, and staff list."""
-    permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         from decimal import Decimal
@@ -2508,7 +2508,7 @@ class TipDistributionView(APIView):
 
 class SplitTipView(APIView):
     """Split collected tips equally among staff or as a single staff party expense."""
-    permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         from .models import Expense
@@ -2579,8 +2579,8 @@ class SplitTipView(APIView):
 
 
 class TipEventClearView(APIView):
-    """Zero out the tip_amount on a specific event. Financials/superuser only."""
-    permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
+    """Zero out the tip_amount on a specific event."""
+    permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, pk):
         try:
@@ -2593,8 +2593,8 @@ class TipEventClearView(APIView):
 
 
 class TipExpenseActionView(APIView):
-    """Delete or revert-paid on a tip expense (Tip Payout / Staff Party). Financials/superuser only."""
-    permission_classes = [permissions.IsAuthenticated, IsStaffOrFinancials]
+    """Delete or revert-paid on a tip expense (Tip Payout / Staff Party)."""
+    permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, pk):
         from .models import Expense
