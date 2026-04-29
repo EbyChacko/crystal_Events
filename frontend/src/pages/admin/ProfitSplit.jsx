@@ -479,8 +479,8 @@ const ProfitSplit = () => {
                                     <div className="col-span-2 flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         <Calendar size={11} /> Date
                                     </div>
-                                    <div className="col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</div>
-                                    <div className="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Paid To</div>
+                                    <div className={`${isSuperuser ? 'col-span-3' : 'col-span-4'} text-xs font-semibold text-gray-500 uppercase tracking-wider`}>Description</div>
+                                    <div className={`${isSuperuser ? 'col-span-2' : 'col-span-3'} text-xs font-semibold text-gray-500 uppercase tracking-wider`}>Paid To</div>
                                     <div className="col-span-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</div>
                                     <div className="col-span-1 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</div>
                                     {isSuperuser && <div className="col-span-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</div>}
@@ -497,7 +497,7 @@ const ProfitSplit = () => {
                                                 <div className="col-span-2">
                                                     <p className="text-sm text-gray-400">{entry.date}</p>
                                                 </div>
-                                                <div className="col-span-3">
+                                                <div className={`${isSuperuser ? 'col-span-3' : 'col-span-4'}`}>
                                                     <p className="text-sm font-medium text-white leading-tight">{entry.reason}</p>
                                                     <span className={`text-xs px-1.5 py-0.5 rounded-full mt-0.5 inline-block font-medium ${
                                                         entry.category === 'Tip Payout'
@@ -505,7 +505,7 @@ const ProfitSplit = () => {
                                                             : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
                                                     }`}>{entry.category}</span>
                                                 </div>
-                                                <div className="col-span-2">
+                                                <div className={`${isSuperuser ? 'col-span-2' : 'col-span-3'}`}>
                                                     <p className="text-sm text-gray-300 truncate">{entry.paid_to || '—'}</p>
                                                 </div>
                                                 <div className="col-span-2 text-right">
