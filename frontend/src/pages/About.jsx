@@ -380,17 +380,14 @@ const About = () => {
                             <AnimatedWords text="Meet Our Team" el="h2" className="text-4xl font-bold mb-2" />
                         </motion.div>
 
-                        <motion.div
-                            className="flex flex-wrap justify-center gap-8 lg:gap-10"
-                            variants={cardGrid}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={VP_CONTENT}
-                        >
+                        <div className="flex flex-wrap justify-center gap-8 lg:gap-10">
                             {teamMembers.map((member) => (
                                 <motion.div
                                     key={member.id}
                                     variants={cardItem}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true, amount: 0.1 }}
                                     className="group flex flex-col items-center text-center w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.5rem)] lg:w-[calc(25%-2rem)]"
                                 >
                                     <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mb-8 w-full shadow-2xl border border-white/5">
@@ -417,7 +414,7 @@ const About = () => {
                                     </p>
                                 </motion.div>
                             ))}
-                        </motion.div>
+                        </div>
                     </div>
                 </section>
             )}
