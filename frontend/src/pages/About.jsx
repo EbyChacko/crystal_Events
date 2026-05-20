@@ -395,7 +395,7 @@ const About = () => {
                                 >
                                     <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mb-8 w-full shadow-2xl border border-white/5">
                                         <img
-                                            className="w-full h-full object-cover transition-all duration-700 ease-out scale-105 group-hover:scale-100 grayscale group-hover:grayscale-0"
+                                            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out scale-105 group-hover:scale-100 grayscale group-hover:grayscale-0"
                                             src={member.user_details.profile_picture}
                                             alt={`Professional portrait of ${member.user_details.first_name}`}
                                         />
