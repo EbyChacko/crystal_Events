@@ -394,9 +394,8 @@ const About = () => {
                                     className="group flex flex-col items-center text-center w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.5rem)] lg:w-[calc(25%-2rem)]"
                                 >
                                     <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mb-8 w-full shadow-2xl border border-white/5">
-                                        <div className="absolute inset-0 bg-jungle-green mix-blend-color z-10 opacity-40 group-hover:opacity-0 transition-opacity duration-700 ease-out" />
                                         <img
-                                            className="w-full h-full object-cover transition-all duration-700 ease-out scale-105 group-hover:scale-100 filter contrast-125"
+                                            className="w-full h-full object-cover transition-all duration-700 ease-out scale-105 group-hover:scale-100 grayscale group-hover:grayscale-0"
                                             src={member.user_details.profile_picture}
                                             alt={`Professional portrait of ${member.user_details.first_name}`}
                                         />
