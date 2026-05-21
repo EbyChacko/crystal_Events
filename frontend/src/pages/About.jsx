@@ -374,7 +374,7 @@ const About = () => {
             {!loadingTeam && teamMembers.length > 0 && (
                 <section className="py-28 md:py-36 section-gradient">
                     <div className="px-6 lg:px-20 max-w-7xl mx-auto min-h-[500px]">
-                        <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-center mb-16">
+                        <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0 }} className="text-center mb-16">
                             <motion.span variants={blockReveal} className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold inline-block">The Visionaries</motion.span>
                             <motion.div variants={goldLine} className="h-0.5 w-16 bg-mustard-gold origin-left mt-4 mb-4 mx-auto" />
                             <AnimatedWords text="Meet Our Team" el="h2" className="text-4xl font-bold mb-2" />
@@ -391,7 +391,7 @@ const About = () => {
                                     className="group flex flex-col items-center text-center w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.5rem)] lg:w-[calc(25%-2rem)]"
                                 >
                                     <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mb-8 w-full shadow-2xl border border-white/5">
-                                        <div className="absolute inset-0 transition-all duration-700 ease-out [filter:grayscale(0.3)] group-hover:[filter:grayscale(0)]">
+                                        <div className="absolute inset-0 transition-all duration-700 ease-out [filter:grayscale(30%)] group-hover:[filter:grayscale(0%)]">
                                             <img
                                                 className="w-full h-full object-cover transition-transform duration-700 ease-out scale-105 group-hover:scale-100"
                                                 src={member.user_details.profile_picture}
