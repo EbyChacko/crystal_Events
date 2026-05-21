@@ -391,7 +391,7 @@ const About = () => {
                                     className="group flex flex-col items-center text-center w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.5rem)] lg:w-[calc(25%-2rem)]"
                                 >
                                     <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mb-8 w-full shadow-2xl border border-white/5">
-                                        <div className="absolute inset-0 transition-all duration-700 ease-out [filter:grayscale(1)] group-hover:[filter:grayscale(0)]">
+                                        <div className="absolute inset-0 transition-all duration-700 ease-out [filter:grayscale(0.3)] group-hover:[filter:grayscale(0)]">
                                             <img
                                                 className="w-full h-full object-cover transition-transform duration-700 ease-out scale-105 group-hover:scale-100"
                                                 src={member.user_details.profile_picture}
