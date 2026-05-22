@@ -357,13 +357,11 @@ const EventDetails = () => {
             else payload.guest_count = parseInt(payload.guest_count);
             if (!payload.budget) payload.budget = null;
 
-            // Append Z so Django always gets an unambiguous UTC datetime string.
-            // datetime-local inputs yield "YYYY-MM-DDTHH:mm" with no timezone info,
-            // which could be misinterpreted by Django if TIME_ZONE != 'UTC'.
-            const toUtc = (v) => v ? `${v}:00Z` : null;
-            payload.event_date = toUtc(payload.event_date);
-            payload.end_date = toUtc(payload.end_date);
-            payload.hall_available_from = toUtc(payload.hall_available_from);
+            // Send naive datetime (no Z) — backend TIME_ZONE=Europe/Dublin interprets as local time.
+            const toNaive = (v) => v ? `${v}:00` : null;
+            payload.event_date = toNaive(payload.event_date);
+            payload.end_date = toNaive(payload.end_date);
+            payload.hall_available_from = toNaive(payload.hall_available_from);
 
             if (payload.distance_from_ballinasloe === '') payload.distance_from_ballinasloe = null;
             else if (payload.distance_from_ballinasloe) payload.distance_from_ballinasloe = parseFloat(payload.distance_from_ballinasloe);
