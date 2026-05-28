@@ -402,7 +402,8 @@ const Financials = () => {
 
     // Aggregations based on FILTERED results
     const TIP_CATEGORIES = ['Tip Payout', 'Staff Party'];
-    const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const totalTips = filteredTransactions.filter(t => t.type === 'income' && t.category === 'Tip').reduce((sum, t) => sum + t.amount, 0);
+    const totalIncome = filteredTransactions.filter(t => t.type === 'income' && t.category !== 'Tip').reduce((sum, t) => sum + t.amount, 0);
     const totalExpense = filteredTransactions.filter(t => t.type === 'expense' && !TIP_CATEGORIES.includes(t.category)).reduce((sum, t) => sum + t.amount, 0);
     const netBalance = totalIncome - totalExpense;
 
@@ -456,11 +457,12 @@ const Financials = () => {
                 </div>
 
                 {/* Summary Cards */}
-                <div key="overview-cards" className={`grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 md:mt-8 ${isOverviewOpen ? 'grid' : 'hidden md:grid'}`}>
+                <div key="overview-cards" className={`grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 mb-8 md:mt-8 ${isOverviewOpen ? 'grid' : 'hidden md:grid'}`}>
                     <StatCard icon={<TrendingUp size={22} />} label="Net Balance" value={`€${netBalance.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={netBalance >= 0} delay={0} />
                     <StatCard icon={<DollarSign size={22} />} label="Total Income" value={`€${totalIncome.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={true} delay={0.1} />
                     <StatCard icon={<Receipt size={22} />} label="Total Expenses" value={`€${totalExpense.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={false} delay={0.2} />
                     <StatCard icon={<PieChart size={22} />} label="Profit Margin" value={`${totalIncome > 0 ? Math.round((netBalance / totalIncome) * 100) : 0}%`} isPositive={netBalance >= 0} delay={0.3} />
+                    <StatCard icon={<Crown size={22} />} label="Tips Received" value={`€${totalTips.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={true} delay={0.4} />
                 </div>
             </AnimatePresence>
 
@@ -516,41 +518,56 @@ const Financials = () => {
                                                     <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
                                                         {INCOME_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
                                                     </select>
+                                                    {formData.category === 'Tip' && (
+                                                        <p className="text-xs text-amber-400/80 mt-1.5">This amount will be added to the tips total, not company income.</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className="block text-gray-400 text-sm font-medium mb-2">Received From</label>
+                                                    <select name="paid_by" value={formData.paid_by} onChange={handleChange} className={selectClass}>
+                                                        <option value="" className="bg-gray-900">— Select —</option>
+                                                        {staffList.map((s, idx) => (
+                                                            <option key={s.id ?? `staff-${idx}`} value={s.id} className="bg-gray-900">
+                                                                {`${s.first_name} ${s.last_name}`.trim() || s.username}
+                                                            </option>
+                                                        ))}
+                                                        <option value="other" className="bg-gray-900">Other (enter name)</option>
+                                                    </select>
+                                                    {formData.paid_by === 'other' && (
+                                                        <input type="text" name="payer_name" value={formData.payer_name} onChange={handleChange}
+                                                            className={`${inputClass} mt-2`} placeholder="Enter payer name (e.g. John Doe, ABC Corp)" />
+                                                    )}
                                                 </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
                                     {formMode === 'expense' && (
-                                        <div className="md:col-span-2">
-                                            <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
-                                            <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
-                                                {EXPENSE_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
-                                            </select>
-                                        </div>
+                                        <>
+                                            <div className="md:col-span-2">
+                                                <label className="block text-gray-400 text-sm font-medium mb-2">Category</label>
+                                                <select name="category" value={formData.category} onChange={handleChange} className={selectClass}>
+                                                    {EXPENSE_CATEGORIES.map(c => <option key={c} value={c} className="bg-gray-900">{c}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="md:col-span-2">
+                                                <label className="block text-gray-400 text-sm font-medium mb-2">
+                                                    Paid By (Staff) <span className="text-gray-600 font-normal"> — leave blank if paid by company</span>
+                                                </label>
+                                                <select name="paid_by" value={formData.paid_by} onChange={handleChange} className={selectClass}>
+                                                    <option value="" className="bg-gray-900">— Company / Not applicable —</option>
+                                                    {staffList.map((s, idx) => (
+                                                        <option key={s.id ?? `staff-${idx}`} value={s.id} className="bg-gray-900">
+                                                            {`${s.first_name} ${s.last_name}`.trim() || s.username}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </>
                                     )}
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Reason / Description *</label>
                                         <input type="text" name="reason" value={formData.reason} onChange={handleChange}
                                             className={inputClass} placeholder="e.g. Flowers for Smith wedding" required />
-                                    </div>
-                                    <div className="md:col-span-2">
-                                        <label className="block text-gray-400 text-sm font-medium mb-2">
-                                            {formMode === 'income' ? 'Received From' : 'Paid By (Staff)'}
-                                            {formMode === 'expense' && <span className="text-gray-600 font-normal"> — leave blank if paid by company</span>}
-                                        </label>
-                                        <select name="paid_by" value={formData.paid_by} onChange={handleChange} className={selectClass}>
-                                            <option value="" className="bg-gray-900">{formMode === 'income' ? '— Select —' : '— Company / Not applicable —'}</option>
-                                            {staffList.map((s, idx) => (
-                                                <option key={s.id ?? `staff-${idx}`} value={s.id} className="bg-gray-900">
-                                                    {`${s.first_name} ${s.last_name}`.trim() || s.username}
-                                                </option>
-                                            ))}
-                                            {formMode === 'income' && <option value="other" className="bg-gray-900">Other (enter name)</option>}
-                                        </select>
-                                        {formMode === 'income' && formData.paid_by === 'other' && (
-                                            <input type="text" name="payer_name" value={formData.payer_name} onChange={handleChange}
-                                                className={`${inputClass} mt-2`} placeholder="Enter payer name (e.g. John Doe, ABC Corp)" />
-                                        )}
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-gray-400 text-sm font-medium mb-2">Receipt Image</label>

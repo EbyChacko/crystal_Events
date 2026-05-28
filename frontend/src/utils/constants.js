@@ -32,7 +32,7 @@ export const EXPENSE_CATEGORIES = [
 ];
 
 export const INCOME_CATEGORIES = [
-    'Investment', 'Sales', 'Other'
+    'Investment', 'Sales', 'Tip', 'Other'
 ];
 
 // ── Lookup helpers ──
