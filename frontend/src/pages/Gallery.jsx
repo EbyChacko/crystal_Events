@@ -235,9 +235,9 @@ const Gallery = () => {
                         </motion.div>
                     )}
 
-                    {/* Masonry Grid */}
+                    {/* Gallery Grid */}
                     {!loading && events.length > 0 && (
-                        <div className="masonry-grid">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                             {filteredEvents.map((event, idx) => {
                                 const coverImage = event.images[0].image || event.images[0].image_url;
                                 const category = EVENT_TYPES[event.event_type] || 'Event';
@@ -249,10 +249,10 @@ const Gallery = () => {
                                         viewport={{ once: true, amount: 0.08 }}
                                         transition={{ duration: 0.5, delay: (idx % 8) * 0.05, ease: [0.22, 1, 0.36, 1] }}
                                         onClick={() => openAlbum(event)}
-                                        className="masonry-item group relative overflow-hidden rounded-xl bg-[#1a3333] cursor-pointer"
+                                        className="aspect-[4/3] group relative overflow-hidden rounded-xl bg-[#1a3333] cursor-pointer"
                                     >
                                         <img
-                                            className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                                            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                                             src={coverImage}
                                             alt={event.event_name}
                                         />
