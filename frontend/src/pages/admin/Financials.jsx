@@ -78,6 +78,7 @@ const Financials = () => {
     }, [formMode]);
 
     const [staffList, setStaffList] = useState([]);
+    const [tipsPaidOut, setTipsPaidOut] = useState(0);
 
     const initialFormData = {
         date: new Date().toISOString().split('T')[0], amount: '', reason: '', category: '', payer_name: '', paid_by: '', receipt_image: null, receipt_image_url: ''
@@ -97,6 +98,8 @@ const Financials = () => {
             const expensesData = expensesRes.status === 'fulfilled' ? (expensesRes.value.data.results || expensesRes.value.data) : [];
             const incomesData = incomesRes.status === 'fulfilled' ? (incomesRes.value.data.results || incomesRes.value.data) : [];
             const eventsData = eventsRes.status === 'fulfilled' ? (eventsRes.value.data.results || eventsRes.value.data) : [];
+
+            setTipsPaidOut(expensesData.filter(e => e.category === 'Tip Payout').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0));
 
             const expenseData = expensesData.filter(e => !['Tip Payout', 'Staff Party'].includes(e.category)).map(e => ({
                 id: `exp_${e.id}`,
@@ -402,7 +405,8 @@ const Financials = () => {
 
     // Aggregations based on FILTERED results
     const TIP_CATEGORIES = ['Tip Payout', 'Staff Party'];
-    const totalTips = filteredTransactions.filter(t => t.type === 'income' && t.category === 'Tip').reduce((sum, t) => sum + t.amount, 0);
+    const allTimeTipIncome = transactions.filter(t => t.type === 'income' && t.category === 'Tip').reduce((sum, t) => sum + t.amount, 0);
+    const tipAvailable = allTimeTipIncome - tipsPaidOut;
     const totalIncome = filteredTransactions.filter(t => t.type === 'income' && t.category !== 'Tip').reduce((sum, t) => sum + t.amount, 0);
     const totalExpense = filteredTransactions.filter(t => t.type === 'expense' && !TIP_CATEGORIES.includes(t.category)).reduce((sum, t) => sum + t.amount, 0);
     const netBalance = totalIncome - totalExpense;
@@ -462,7 +466,7 @@ const Financials = () => {
                     <StatCard icon={<DollarSign size={22} />} label="Total Income" value={`€${totalIncome.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={true} delay={0.1} />
                     <StatCard icon={<Receipt size={22} />} label="Total Expenses" value={`€${totalExpense.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={false} delay={0.2} />
                     <StatCard icon={<PieChart size={22} />} label="Profit Margin" value={`${totalIncome > 0 ? Math.round((netBalance / totalIncome) * 100) : 0}%`} isPositive={netBalance >= 0} delay={0.3} />
-                    <StatCard icon={<Crown size={22} />} label="Tips Received" value={`€${totalTips.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={true} delay={0.4} />
+                    <StatCard icon={<Crown size={22} />} label="Tip Available" value={`€${tipAvailable.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} isPositive={tipAvailable >= 0} delay={0.4} />
                 </div>
             </AnimatePresence>
 
