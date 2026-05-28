@@ -215,10 +215,14 @@ const ProfitSplit = () => {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
-    const handleDeleteEventTip = async (eventId) => {
+    const handleDeleteEventTip = async (entry) => {
         setActionBusy(true);
         try {
-            await api.delete(`/financials/event-tip/${eventId}/clear/`);
+            if (entry.type === 'income') {
+                await api.delete(`/incomes/${entry.income_id}/`);
+            } else {
+                await api.delete(`/financials/event-tip/${entry.event_id}/clear/`);
+            }
             addToast('Tip entry removed.', 'success');
             setConfirm(null);
             fetchData();
@@ -382,9 +386,10 @@ const ProfitSplit = () => {
                                 </div>
                                 <div className="divide-y divide-white/5">
                                     {tipEntries.map((entry, idx) => {
-                                        const isConfirming = confirm?.id === entry.event_id && confirm?.action === 'delete-event';
+                                        const entryKey = entry.type === 'income' ? `inc_${entry.income_id}` : `ev_${entry.event_id}`;
+                                        const isConfirming = confirm?.id === entryKey && confirm?.action === 'delete-event';
                                         return (
-                                            <motion.div key={entry.event_id}
+                                            <motion.div key={entryKey}
                                                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }}
                                                 className="grid grid-cols-12 gap-3 px-5 py-4 hover:bg-white/[0.03] transition-colors items-center">
                                                 <div className="col-span-2">
@@ -402,9 +407,9 @@ const ProfitSplit = () => {
                                                 {isSuperuser && (
                                                     <div className="col-span-1 flex justify-end">
                                                         {isConfirming ? (
-                                                            <ConfirmButtons onConfirm={() => handleDeleteEventTip(entry.event_id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Remove" />
+                                                            <ConfirmButtons onConfirm={() => handleDeleteEventTip(entry)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Remove" />
                                                         ) : (
-                                                            <button onClick={() => setConfirm({ id: entry.event_id, action: 'delete-event' })}
+                                                            <button onClick={() => setConfirm({ id: entryKey, action: 'delete-event' })}
                                                                 className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Remove tip entry">
                                                                 <Trash2 size={14} />
                                                             </button>
@@ -420,9 +425,10 @@ const ProfitSplit = () => {
                             {/* Mobile cards */}
                             <div className="sm:hidden divide-y divide-white/5">
                                 {tipEntries.map((entry, idx) => {
-                                    const isConfirming = confirm?.id === entry.event_id && confirm?.action === 'delete-event';
+                                    const entryKey = entry.type === 'income' ? `inc_${entry.income_id}` : `ev_${entry.event_id}`;
+                                    const isConfirming = confirm?.id === entryKey && confirm?.action === 'delete-event';
                                     return (
-                                        <motion.div key={entry.event_id}
+                                        <motion.div key={entryKey}
                                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }}
                                             className="px-4 py-4 hover:bg-white/[0.03] transition-colors">
                                             <div className="flex items-start justify-between gap-3">
@@ -437,9 +443,9 @@ const ProfitSplit = () => {
                                                     <span className="text-base font-bold text-mustard-gold">{fmtEur(entry.tip_amount)}</span>
                                                     {isSuperuser && (
                                                         isConfirming ? (
-                                                            <ConfirmButtons onConfirm={() => handleDeleteEventTip(entry.event_id)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Remove" />
+                                                            <ConfirmButtons onConfirm={() => handleDeleteEventTip(entry)} onCancel={() => setConfirm(null)} busy={actionBusy} label="Remove" />
                                                         ) : (
-                                                            <button onClick={() => setConfirm({ id: entry.event_id, action: 'delete-event' })}
+                                                            <button onClick={() => setConfirm({ id: entryKey, action: 'delete-event' })}
                                                                 className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Remove tip entry">
                                                                 <Trash2 size={14} />
                                                             </button>

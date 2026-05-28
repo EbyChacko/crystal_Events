@@ -2430,11 +2430,11 @@ class TipDistributionView(APIView):
     def get(self, request):
         from decimal import Decimal
         from django.db.models import Sum
-        from .models import Expense
+        from .models import Expense, Income
 
         # Tip entries from events
         events_with_tips = Event.objects.filter(tip_amount__gt=0).order_by('-event_date')
-        total_tips = events_with_tips.aggregate(total=Sum('tip_amount'))['total'] or Decimal('0')
+        event_tips_total = events_with_tips.aggregate(total=Sum('tip_amount'))['total'] or Decimal('0')
 
         tip_entries = []
         for e in events_with_tips:
@@ -2453,12 +2453,29 @@ class TipDistributionView(APIView):
                             pass
                     break
             tip_entries.append({
+                'type': 'event',
                 'event_id': e.id,
                 'event_uid': e.event_uid or f'CE-{e.id:05d}',
                 'event_name': e.event_name,
                 'tip_date': tip_date or e.event_date.strftime('%d %b %Y'),
                 'tip_amount': float(e.tip_amount),
             })
+
+        # Standalone tip income records
+        standalone_tips = Income.objects.filter(category='Tip').order_by('-date')
+        standalone_tips_total = standalone_tips.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        for inc in standalone_tips:
+            tip_entries.append({
+                'type': 'income',
+                'income_id': inc.id,
+                'event_id': None,
+                'event_uid': 'Manual',
+                'event_name': inc.reason or 'Manual Tip',
+                'tip_date': inc.date.strftime('%d %b %Y'),
+                'tip_amount': float(inc.amount),
+            })
+
+        total_tips = event_tips_total + standalone_tips_total
 
         # Distribution history
         tip_expenses = (
@@ -2528,7 +2545,10 @@ class SplitTipView(APIView):
         if amount <= 0:
             return Response({'error': 'Amount must be greater than zero.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        total_tips = Event.objects.aggregate(total=Sum('tip_amount'))['total'] or Decimal('0')
+        from .models import Income as IncomeModel
+        event_tips = Event.objects.aggregate(total=Sum('tip_amount'))['total'] or Decimal('0')
+        standalone_tips = IncomeModel.objects.filter(category='Tip').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        total_tips = event_tips + standalone_tips
         if amount > total_tips:
             return Response({'error': f'Amount exceeds total tips of €{total_tips:.2f}.'}, status=status.HTTP_400_BAD_REQUEST)
 
