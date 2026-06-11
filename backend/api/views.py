@@ -3074,7 +3074,9 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAdminUser]
+
+    def get_permissions(self):
+        return [permissions.IsAuthenticated(), IsSuperUser()]
 
 
 class PublicReviewsView(APIView):
