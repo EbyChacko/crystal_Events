@@ -101,7 +101,11 @@ const Reviews = () => {
             closeForm();
             fetchReviews();
         } catch (err) {
-            addToast(err.response?.data?.detail || 'Failed to save review.', 'error');
+            const data = err.response?.data;
+            const msg = data?.detail
+                || (data && Object.entries(data).map(([k, v]) => `${k}: ${[].concat(v).join(', ')}`).join(' | '))
+                || 'Failed to save review.';
+            addToast(msg, 'error');
         } finally {
             setSubmitting(false);
         }

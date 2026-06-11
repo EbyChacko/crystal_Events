@@ -350,7 +350,7 @@ class FoodMenuItem(models.Model):
 
 class Review(models.Model):
     name = models.CharField(max_length=255)
-    place = models.CharField(max_length=255)
+    place = models.CharField(max_length=255, blank=True, default='')
     review = models.TextField()
     rating = models.PositiveSmallIntegerField(default=5)
     date = models.DateField()
