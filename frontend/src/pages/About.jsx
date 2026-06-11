@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import aboutHero from '../assets/images/aboutus_hero.webp';
 import aboutStory from '../assets/images/aboutus_second_image.webp';
 import {
@@ -77,6 +77,7 @@ const About = () => {
     const [loadingTeam, setLoadingTeam] = useState(true);
     const [reviews, setReviews] = useState([]);
     const [reviewIndex, setReviewIndex] = useState(0);
+    const [direction, setDirection] = useState(0);
 
     useEffect(() => {
         const fetchTeam = async () => {
@@ -107,8 +108,20 @@ const About = () => {
         return Array.from({ length: count }, (_, i) => reviews[(reviewIndex + i) % reviews.length]);
     }, [reviews, reviewIndex]);
 
-    const handlePrev = () => setReviewIndex(i => (i - 1 + reviews.length) % reviews.length);
-    const handleNext = () => setReviewIndex(i => (i + 1) % reviews.length);
+    const slideVariants = {
+        enter: (dir) => ({ x: dir >= 0 ? '100%' : '-100%', opacity: 0 }),
+        center: { x: 0, opacity: 1, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+        exit: (dir) => ({ x: dir >= 0 ? '-100%' : '100%', opacity: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }),
+    };
+
+    const handlePrev = () => {
+        setDirection(-1);
+        setReviewIndex(i => (i - 1 + reviews.length) % reviews.length);
+    };
+    const handleNext = () => {
+        setDirection(1);
+        setReviewIndex(i => (i + 1) % reviews.length);
+    };
 
     return (
         <>
@@ -460,33 +473,37 @@ const About = () => {
                         {reviews.length === 0 ? (
                             <div className="text-center py-12 text-white/40 text-sm">No reviews to display yet.</div>
                         ) : (
-                            <motion.div
-                                key={reviewIndex}
-                                className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-                                variants={cardGrid}
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={VP_CONTENT}
-                            >
-                                {visibleReviews().map((review, idx) => (
+                            <div className="overflow-hidden">
+                                <AnimatePresence mode="wait" custom={direction}>
                                     <motion.div
-                                        key={`${review.id}-${idx}`}
-                                        variants={cardItem}
-                                        className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
+                                        key={reviewIndex}
+                                        custom={direction}
+                                        variants={slideVariants}
+                                        initial="enter"
+                                        animate="center"
+                                        exit="exit"
+                                        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
                                     >
-                                        <div className="flex text-mustard-gold">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} className="w-5 h-5 fill-current" strokeWidth={0} />
-                                            ))}
-                                        </div>
-                                        <p className="text-lg italic text-white/90 leading-relaxed">&ldquo;{review.review}&rdquo;</p>
-                                        <div>
-                                            <p className="font-bold">{review.name}</p>
-                                            <p className="text-white/50 text-sm">{review.place}</p>
-                                        </div>
+                                        {visibleReviews().map((review) => (
+                                            <div
+                                                key={review.id}
+                                                className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
+                                            >
+                                                <div className="flex text-mustard-gold">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} className="w-5 h-5 fill-current" strokeWidth={0} />
+                                                    ))}
+                                                </div>
+                                                <p className="text-lg italic text-white/90 leading-relaxed">&ldquo;{review.review}&rdquo;</p>
+                                                <div>
+                                                    <p className="font-bold">{review.name}</p>
+                                                    <p className="text-white/50 text-sm">{review.place}</p>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </motion.div>
-                                ))}
-                            </motion.div>
+                                </AnimatePresence>
+                            </div>
                         )}
                     </div>
                 </section>
