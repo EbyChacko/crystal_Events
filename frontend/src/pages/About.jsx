@@ -108,10 +108,10 @@ const About = () => {
         return Array.from({ length: count }, (_, i) => reviews[(reviewIndex + i) % reviews.length]);
     }, [reviews, reviewIndex]);
 
-    const slideVariants = {
-        enter: (dir) => ({ x: dir >= 0 ? '100%' : '-100%', opacity: 0 }),
+    const cardSlideVariants = {
+        enter: (dir) => ({ x: dir > 0 ? '110%' : '-110%', opacity: 0 }),
         center: { x: 0, opacity: 1, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
-        exit: (dir) => ({ x: dir >= 0 ? '-100%' : '100%', opacity: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }),
+        exit: (dir) => ({ x: dir > 0 ? '-110%' : '110%', opacity: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } }),
     };
 
     const handlePrev = () => {
@@ -473,20 +473,19 @@ const About = () => {
                         {reviews.length === 0 ? (
                             <div className="text-center py-12 text-white/40 text-sm">No reviews to display yet.</div>
                         ) : (
-                            <div className="overflow-hidden">
-                                <AnimatePresence mode="wait" custom={direction}>
-                                    <motion.div
-                                        key={reviewIndex}
-                                        custom={direction}
-                                        variants={slideVariants}
-                                        initial="enter"
-                                        animate="center"
-                                        exit="exit"
-                                        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-                                    >
+                            <div className="relative overflow-hidden">
+                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    <AnimatePresence mode="popLayout" custom={direction}>
                                         {visibleReviews().map((review) => (
-                                            <div
+                                            <motion.div
                                                 key={review.id}
+                                                layout
+                                                custom={direction}
+                                                variants={cardSlideVariants}
+                                                initial="enter"
+                                                animate="center"
+                                                exit="exit"
+                                                transition={{ layout: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
                                                 className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
                                             >
                                                 <div className="flex text-mustard-gold">
@@ -499,10 +498,10 @@ const About = () => {
                                                     <p className="font-bold">{review.name}</p>
                                                     <p className="text-white/50 text-sm">{review.place}</p>
                                                 </div>
-                                            </div>
+                                            </motion.div>
                                         ))}
-                                    </motion.div>
-                                </AnimatePresence>
+                                    </AnimatePresence>
+                                </div>
                             </div>
                         )}
                     </div>
