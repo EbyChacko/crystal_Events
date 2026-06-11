@@ -1,6 +1,6 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, useMotionValue, animate, useScroll, useTransform } from 'framer-motion';
 import aboutHero from '../assets/images/aboutus_hero.webp';
 import aboutStory from '../assets/images/aboutus_second_image.webp';
 import {
@@ -102,25 +102,70 @@ const About = () => {
             .catch(() => {});
     }, []);
 
-    const visibleReviews = useCallback(() => {
-        if (reviews.length === 0) return [];
-        const count = Math.min(3, reviews.length);
-        return Array.from({ length: count }, (_, i) => reviews[(reviewIndex + i) % reviews.length]);
-    }, [reviews, reviewIndex]);
+    // ── Carousel ────────────────────────────────────────────────
+    const carouselRef = useRef(null);
+    const trackX = useMotionValue(0);
+    const [trackCards, setTrackCards] = useState([]);
+    const [isSliding, setIsSliding] = useState(false);
+    const [cardWidth, setCardWidth] = useState(0);
+    const CARD_GAP = 32; // gap-8 = 2 rem
 
-    const cardSlideVariants = {
-        enter: (dir) => ({ x: dir > 0 ? '110%' : '-110%', opacity: 0 }),
-        center: { x: 0, opacity: 1, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
-        exit: (dir) => ({ x: dir > 0 ? '-110%' : '110%', opacity: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } }),
+    const getColCount = (w) => (w >= 1024 ? 3 : w >= 768 ? 2 : 1);
+
+    useEffect(() => {
+        const measure = () => {
+            if (!carouselRef.current) return;
+            const w = carouselRef.current.offsetWidth;
+            const cols = getColCount(w);
+            setCardWidth((w - (cols - 1) * CARD_GAP) / cols);
+        };
+        measure();
+        const ro = new ResizeObserver(measure);
+        if (carouselRef.current) ro.observe(carouselRef.current);
+        return () => ro.disconnect();
+    }, []);
+
+    // Sync visible cards whenever index / reviews / cardWidth changes (and not mid-slide)
+    useEffect(() => {
+        if (isSliding || reviews.length === 0 || cardWidth === 0) return;
+        const cols = carouselRef.current ? getColCount(carouselRef.current.offsetWidth) : 3;
+        const count = Math.min(cols, reviews.length);
+        setTrackCards(Array.from({ length: count }, (_, i) => reviews[(reviewIndex + i) % reviews.length]));
+        trackX.set(0);
+    }, [reviews, reviewIndex, isSliding, cardWidth]);
+
+    const slideOffset = cardWidth + CARD_GAP;
+
+    const handleNext = () => {
+        if (isSliding || reviews.length <= trackCards.length || cardWidth === 0) return;
+        setIsSliding(true);
+        const newCard = reviews[(reviewIndex + trackCards.length) % reviews.length];
+        setTrackCards(prev => [...prev, newCard]);
+        animate(trackX, -slideOffset, {
+            duration: 0.5,
+            ease: [0.22, 1, 0.36, 1],
+            onComplete: () => {
+                setReviewIndex(i => (i + 1) % reviews.length);
+                setIsSliding(false);
+            },
+        });
     };
 
     const handlePrev = () => {
-        setDirection(-1);
-        setReviewIndex(i => (i - 1 + reviews.length) % reviews.length);
-    };
-    const handleNext = () => {
-        setDirection(1);
-        setReviewIndex(i => (i + 1) % reviews.length);
+        if (isSliding || reviews.length <= trackCards.length || cardWidth === 0) return;
+        setIsSliding(true);
+        const newIndex = (reviewIndex - 1 + reviews.length) % reviews.length;
+        const newCard = reviews[newIndex];
+        setTrackCards(prev => [newCard, ...prev]);
+        trackX.set(-slideOffset);
+        animate(trackX, 0, {
+            duration: 0.5,
+            ease: [0.22, 1, 0.36, 1],
+            onComplete: () => {
+                setReviewIndex(newIndex);
+                setIsSliding(false);
+            },
+        });
     };
 
     return (
@@ -458,7 +503,7 @@ const About = () => {
                                 <motion.div variants={goldLine} className="h-0.5 w-16 bg-mustard-gold origin-left mt-3 mb-5" />
                                 <AnimatedWords text="The Words of Those We've Celebrated With" el="h2" className="text-4xl font-bold" />
                             </motion.div>
-                            {reviews.length > 3 && (
+                            {reviews.length > trackCards.length && (
                                 <div className="flex gap-2">
                                     <button onClick={handlePrev} className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300">
                                         <ChevronLeft className="w-6 h-6" />
@@ -473,35 +518,27 @@ const About = () => {
                         {reviews.length === 0 ? (
                             <div className="text-center py-12 text-white/40 text-sm">No reviews to display yet.</div>
                         ) : (
-                            <div className="relative overflow-hidden">
-                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    <AnimatePresence mode="popLayout" custom={direction}>
-                                        {visibleReviews().map((review) => (
-                                            <motion.div
-                                                key={review.id}
-                                                layout
-                                                custom={direction}
-                                                variants={cardSlideVariants}
-                                                initial="enter"
-                                                animate="center"
-                                                exit="exit"
-                                                transition={{ layout: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
-                                                className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
-                                            >
-                                                <div className="flex text-mustard-gold">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star key={i} className="w-5 h-5 fill-current" strokeWidth={0} />
-                                                    ))}
-                                                </div>
-                                                <p className="text-lg italic text-white/90 leading-relaxed">&ldquo;{review.review}&rdquo;</p>
-                                                <div>
-                                                    <p className="font-bold">{review.name}</p>
-                                                    <p className="text-white/50 text-sm">{review.place}</p>
-                                                </div>
-                                            </motion.div>
-                                        ))}
-                                    </AnimatePresence>
-                                </div>
+                            <div ref={carouselRef} className="overflow-hidden">
+                                <motion.div className="flex gap-8" style={{ x: trackX }}>
+                                    {trackCards.map((review) => (
+                                        <div
+                                            key={review.id}
+                                            style={{ width: cardWidth || undefined, flexShrink: 0 }}
+                                            className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
+                                        >
+                                            <div className="flex text-mustard-gold">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star key={i} className="w-5 h-5 fill-current" strokeWidth={0} />
+                                                ))}
+                                            </div>
+                                            <p className="text-lg italic text-white/90 leading-relaxed">&ldquo;{review.review}&rdquo;</p>
+                                            <div>
+                                                <p className="font-bold">{review.name}</p>
+                                                <p className="text-white/50 text-sm">{review.place}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </motion.div>
                             </div>
                         )}
                     </div>
