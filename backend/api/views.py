@@ -75,9 +75,9 @@ from .serializers import (
     CreateUserSerializer, UpdateProfileSerializer, AdminUpdateUserSerializer,
     EventImageSerializer, TeamMemberSerializer, TravelRateSerializer,
     TwoFactorLoginSerializer, CustomTokenObtainPairSerializer,
-    AssetSerializer, FoodMenuSerializer, PublicEventSerializer
+    AssetSerializer, FoodMenuSerializer, PublicEventSerializer, ReviewSerializer
 )
-from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem, UserProfile, Asset
+from .models import Service, Event, Expense, Income, Quote, Message, EventImage, TeamMember, TravelRate, TwoFactorAuth, FoodMenu, FoodMenuItem, UserProfile, Asset, Review
 
 
 class HealthCheckView(APIView):
@@ -3069,3 +3069,18 @@ class FoodMenuViewSet(viewsets.ModelViewSet):
         filename = f"FoodMenu_{event.event_name.replace(' ', '_')}.pdf"
         response['Content-Disposition'] = f'inline; filename="{filename}"'
         return response
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+
+class PublicReviewsView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        reviews = Review.objects.filter(rating=5).order_by('-date')
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Calendar, CalendarDays, DollarSign, FileText, Settings, LogOut, Mail, Users, User, Briefcase, UsersRound, Menu, X, Map, PieChart, Wallet, PartyPopper } from 'lucide-react';
+import { LayoutDashboard, Calendar, CalendarDays, DollarSign, FileText, Settings, LogOut, Mail, Users, User, Briefcase, UsersRound, Menu, X, Map, PieChart, Wallet, PartyPopper, MessageSquareQuote } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
@@ -78,6 +78,7 @@ const AdminLayout = () => {
                 { name: 'Users', path: '/admin/users', icon: <Users size={20} /> },
                 { name: 'Team', path: '/admin/team', icon: <UsersRound size={20} /> },
                 { name: 'Travel Rates', path: '/admin/travel-rates', icon: <Map size={20} /> },
+                { name: 'Reviews', path: '/admin/reviews', icon: <MessageSquareQuote size={20} /> },
             ],
         }] : []),
         {

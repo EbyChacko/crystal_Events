@@ -42,6 +42,7 @@ import CalendarView from './pages/admin/CalendarView';
 import TeamAdmin from './pages/admin/TeamAdmin';
 import TravelRates from './pages/admin/TravelRates';
 import ProfitSplit from './pages/admin/ProfitSplit';
+import Reviews from './pages/admin/Reviews';
 
 function App() {
   return (
@@ -119,6 +120,11 @@ function App() {
               <Route path="travel-rates" element={
                 <ProtectedRoute requireSuperUser>
                   <TravelRates />
+                </ProtectedRoute>
+              } />
+              <Route path="reviews" element={
+                <ProtectedRoute requireSuperUser>
+                  <Reviews />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />

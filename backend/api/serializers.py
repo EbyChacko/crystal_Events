@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Service, Event, Expense, Income, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate, FoodMenu, FoodMenuItem, Asset
+from .models import Service, Event, Expense, Income, Quote, QuoteItem, Message, UserProfile, EventImage, TeamMember, TravelRate, FoodMenu, FoodMenuItem, Asset, Review
 
 
 def _get_profile_picture_url(profile, request=None):
@@ -544,3 +544,15 @@ class FoodMenuSerializer(serializers.ModelSerializer):
             for item_data in items_data:
                 FoodMenuItem.objects.create(menu=instance, **item_data)
         return instance
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'name', 'place', 'review', 'rating', 'date', 'created_at']
+        read_only_fields = ['created_at']
+
+    def validate_rating(self, value):
+        if not 1 <= value <= 5:
+            raise serializers.ValidationError("Rating must be between 1 and 5.")
+        return value

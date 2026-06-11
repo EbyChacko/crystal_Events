@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import aboutHero from '../assets/images/aboutus_hero.webp';
@@ -75,6 +75,8 @@ const About = () => {
 
     const [teamMembers, setTeamMembers] = useState([]);
     const [loadingTeam, setLoadingTeam] = useState(true);
+    const [reviews, setReviews] = useState([]);
+    const [reviewIndex, setReviewIndex] = useState(0);
 
     useEffect(() => {
         const fetchTeam = async () => {
@@ -92,6 +94,21 @@ const About = () => {
         };
         fetchTeam();
     }, []);
+
+    useEffect(() => {
+        api.get('/public/reviews/')
+            .then(res => setReviews(res.data))
+            .catch(() => {});
+    }, []);
+
+    const visibleReviews = useCallback(() => {
+        if (reviews.length === 0) return [];
+        const count = 3;
+        return Array.from({ length: count }, (_, i) => reviews[(reviewIndex + i) % reviews.length]);
+    }, [reviews, reviewIndex]);
+
+    const handlePrev = () => setReviewIndex(i => (i - 1 + reviews.length) % reviews.length);
+    const handleNext = () => setReviewIndex(i => (i + 1) % reviews.length);
 
     return (
         <>
@@ -428,58 +445,48 @@ const About = () => {
                                 <motion.div variants={goldLine} className="h-0.5 w-16 bg-mustard-gold origin-left mt-3 mb-5" />
                                 <AnimatedWords text="The Words of Those We've Celebrated With" el="h2" className="text-4xl font-bold" />
                             </motion.div>
-                            <div className="flex gap-2">
-                                <button className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300">
-                                    <ChevronLeft className="w-6 h-6" />
-                                </button>
-                                <button className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300">
-                                    <ChevronRight className="w-6 h-6" />
-                                </button>
-                            </div>
+                            {reviews.length > 3 && (
+                                <div className="flex gap-2">
+                                    <button onClick={handlePrev} className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300">
+                                        <ChevronLeft className="w-6 h-6" />
+                                    </button>
+                                    <button onClick={handleNext} className="size-12 rounded-full border border-mustard-gold/30 flex items-center justify-center hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300">
+                                        <ChevronRight className="w-6 h-6" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
-                        <motion.div
-                            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-                            variants={cardGrid}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={VP_CONTENT}
-                        >
-                            {[
-                                {
-                                    text: '"Crystal Events turned our vision for a 500-guest gala at the RDS into a seamless masterpiece. Their attention to detail in Dublin is unmatched."',
-                                    name: 'Aidan & Siobhan',
-                                    loc: 'Dublin, Ireland',
-                                },
-                                {
-                                    text: '"From the first consultation in London to the final toast in the Scottish Highlands, their team provided absolute excellence."',
-                                    name: 'Lord Harrington',
-                                    loc: 'London, UK',
-                                },
-                                {
-                                    text: '"Truly the architects of magic. Our corporate anniversary wasn\'t just an event; it was a sensory experience we will never forget."',
-                                    name: 'The CEO, Nexus Tech',
-                                    loc: 'Belfast, NI',
-                                },
-                            ].map((testimonial, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    variants={cardItem}
-                                    className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
-                                >
-                                    <div className="flex text-mustard-gold">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} className="w-5 h-5 fill-current" strokeWidth={0} />
-                                        ))}
-                                    </div>
-                                    <p className="text-lg italic text-white/90 leading-relaxed">{testimonial.text}</p>
-                                    <div>
-                                        <p className="font-bold">{testimonial.name}</p>
-                                        <p className="text-white/50 text-sm">{testimonial.loc}</p>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </motion.div>
+                        {reviews.length === 0 ? (
+                            <div className="text-center py-12 text-white/40 text-sm">No reviews to display yet.</div>
+                        ) : (
+                            <motion.div
+                                className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                                variants={cardGrid}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={VP_CONTENT}
+                            >
+                                {visibleReviews().map((review, idx) => (
+                                    <motion.div
+                                        key={`${review.id}-${idx}`}
+                                        variants={cardItem}
+                                        className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
+                                    >
+                                        <div className="flex text-mustard-gold">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} className="w-5 h-5 fill-current" strokeWidth={0} />
+                                            ))}
+                                        </div>
+                                        <p className="text-lg italic text-white/90 leading-relaxed">&ldquo;{review.review}&rdquo;</p>
+                                        <div>
+                                            <p className="font-bold">{review.name}</p>
+                                            <p className="text-white/50 text-sm">{review.place}</p>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        )}
                     </div>
                 </section>
 

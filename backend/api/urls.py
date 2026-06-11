@@ -8,6 +8,7 @@ from .views import (
     FoodMenuViewSet, ProfitDistributionView, StaffPickerView, SplitProfitView,
     TipDistributionView, SplitTipView, TipEventClearView, TipExpenseActionView,
     PasswordResetRequestView, PasswordResetConfirmView,
+    ReviewViewSet, PublicReviewsView,
 )
 
 router = DefaultRouter()
@@ -22,6 +23,7 @@ router.register(r'team-members', TeamMemberViewSet)
 router.register(r'travel_rates', TravelRateViewSet)
 router.register(r'food-menus', FoodMenuViewSet)
 router.register(r'assets', AssetViewSet, basename='asset')
+router.register(r'reviews', ReviewViewSet, basename='review')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -43,5 +45,6 @@ urlpatterns = [
     path('financials/tip-expense/<int:pk>/', TipExpenseActionView.as_view(), name='tip-expense-action'),
     path('auth/password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('auth/password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+    path('public/reviews/', PublicReviewsView.as_view(), name='public-reviews'),
 ]
 
