@@ -103,7 +103,7 @@ const About = () => {
 
     const visibleReviews = useCallback(() => {
         if (reviews.length === 0) return [];
-        const count = 3;
+        const count = Math.min(3, reviews.length);
         return Array.from({ length: count }, (_, i) => reviews[(reviewIndex + i) % reviews.length]);
     }, [reviews, reviewIndex]);
 
