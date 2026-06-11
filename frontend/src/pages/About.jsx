@@ -461,6 +461,7 @@ const About = () => {
                             <div className="text-center py-12 text-white/40 text-sm">No reviews to display yet.</div>
                         ) : (
                             <motion.div
+                                key={reviewIndex}
                                 className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
                                 variants={cardGrid}
                                 initial="hidden"
