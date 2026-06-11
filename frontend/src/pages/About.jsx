@@ -113,6 +113,7 @@ const About = () => {
     const getColCount = (w) => (w >= 1024 ? 3 : w >= 768 ? 2 : 1);
 
     useEffect(() => {
+        if (!carouselRef.current) return;
         const measure = () => {
             if (!carouselRef.current) return;
             const w = carouselRef.current.offsetWidth;
@@ -121,18 +122,22 @@ const About = () => {
         };
         measure();
         const ro = new ResizeObserver(measure);
-        if (carouselRef.current) ro.observe(carouselRef.current);
+        ro.observe(carouselRef.current);
         return () => ro.disconnect();
-    }, []);
+    }, [reviews.length]);
 
-    // Sync visible cards whenever index / reviews / cardWidth changes (and not mid-slide)
+    // Sync visible cards whenever index / reviews changes (and not mid-slide)
     useEffect(() => {
-        if (isSliding || reviews.length === 0 || cardWidth === 0) return;
-        const cols = carouselRef.current ? getColCount(carouselRef.current.offsetWidth) : 3;
+        if (isSliding || reviews.length === 0) return;
+        if (!carouselRef.current) return;
+        const w = carouselRef.current.offsetWidth;
+        const cols = getColCount(w);
+        const cw = (w - (cols - 1) * CARD_GAP) / cols;
+        setCardWidth(cw);
         const count = Math.min(cols, reviews.length);
         setTrackCards(Array.from({ length: count }, (_, i) => reviews[(reviewIndex + i) % reviews.length]));
         trackX.set(0);
-    }, [reviews, reviewIndex, isSliding, cardWidth]);
+    }, [reviews, reviewIndex, isSliding]);
 
     const slideOffset = cardWidth + CARD_GAP;
 
