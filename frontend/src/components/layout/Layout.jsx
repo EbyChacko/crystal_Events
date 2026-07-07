@@ -57,15 +57,8 @@ const Layout = () => {
         <div>
             <Navbar />
             <Outlet />
-            {!isLanding && !isServiceDetail && (
-                <div className="bg-background-dark">
-                    <CTAFooter />
-                </div>
-            )}
-            {!isLanding && isServiceDetail && (
-                <div className="bg-deep-teal">
-                    <CTAFooter cta={serviceCta} />
-                </div>
+            {!isLanding && (
+                <CTAFooter cta={isServiceDetail ? serviceCta : undefined} />
             )}
         </div>
     );

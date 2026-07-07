@@ -36,20 +36,20 @@ const Landing = () => {
             <meta property="og:url" content="https://crystaleventsie.com/" />
         </Helmet>
 
-        <div className="font-sans text-deep-teal bg-deep-teal">
+        <div className="font-sans text-deep-teal">
 
             {/* ── Hero ──────────────────────────────────────────────────── */}
             <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
                 <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${heroBg})` }} />
-                    <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/60 via-deep-teal/40 to-background-dark" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/60 via-deep-teal/40 to-[#050d0d]" />
                 </motion.div>
                 <div className="absolute inset-0 z-[5] pointer-events-none"
                     style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(1,20,20,0.82) 0%, rgba(1,20,20,0.45) 45%, transparent 72%)' }} />
 
                 <div className="relative z-10 text-center px-4 max-w-5xl mx-auto text-white mt-16">
 
-                    {/* ── Gold logo with real-gold sheen ── */}
+                    {/* Gold logo with real-gold sheen */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.6 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -88,11 +88,11 @@ const Landing = () => {
                         className="flex flex-col sm:flex-row items-center justify-center gap-6"
                     >
                         <Link to="/contact"
-                            className="w-full sm:w-auto min-w-[200px] flex items-center justify-center rounded-lg bg-mustard-gold px-8 py-4 text-base font-bold uppercase tracking-widest text-deep-teal hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.4)]">
+                            className="w-full sm:w-auto min-w-[200px] flex items-center justify-center rounded-full bg-mustard-gold px-8 py-4 text-base font-bold uppercase tracking-widest text-deep-teal hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.4)]">
                             Book Your Event
                         </Link>
                         <Link to="/gallery"
-                            className="w-full sm:w-auto min-w-[200px] flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-base font-bold uppercase tracking-widest text-white backdrop-blur-sm hover:bg-white/10 transition-all duration-300">
+                            className="w-full sm:w-auto min-w-[200px] flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 py-4 text-base font-bold uppercase tracking-widest text-white backdrop-blur-sm hover:bg-white/10 transition-all duration-300">
                             View Lookbook
                         </Link>
                     </motion.div>
@@ -108,11 +108,14 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* ── Services ──────────────────────────────────────────────── */}
-            <section className="py-28 md:py-36 px-6 md:px-16 section-gradient text-white" id="services">
-                <div className="mx-auto max-w-7xl">
+            {/* ── Services ── Dark with gold glow ─────────────────────── */}
+            <section className="relative py-28 md:py-36 px-6 md:px-16 section-gold-glow text-white overflow-hidden" id="services">
+                {/* Decorative orbs */}
+                <div className="orb orb-gold w-[400px] h-[400px] -top-20 -right-20" style={{ animationDelay: '0s' }} />
+                <div className="orb orb-teal w-[300px] h-[300px] bottom-0 -left-10" style={{ animationDelay: '7s' }} />
 
-                    {/* Header — cascade: eyebrow → line → body */}
+                <div className="mx-auto max-w-7xl relative z-10">
+
                     <motion.div className="mb-14" variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP}>
                         <motion.span variants={blockReveal} className="text-mustard-gold font-bold uppercase tracking-[0.3em] text-sm mb-3 block">
                             Our Expertise
@@ -125,7 +128,6 @@ const Landing = () => {
                         </motion.p>
                     </motion.div>
 
-                    {/* Cards — Apple icon stagger */}
                     <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                         variants={cardGrid} initial="hidden" whileInView="visible" viewport={VP}>
                         {[
@@ -138,8 +140,8 @@ const Landing = () => {
                         ].map((s, i) => (
                             <motion.div key={i} variants={cardItem}
                                 whileHover={{ y: -6, transition: { duration: 0.25 } }}
-                                className="group overflow-hidden rounded-xl border border-white/5 bg-white/5 p-6 md:p-7 hover:bg-white/10 transition-colors duration-300">
-                                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-mustard-gold/10 text-mustard-gold group-hover:scale-110 transition-transform duration-300">
+                                className="group overflow-hidden rounded-2xl glass-card p-6 md:p-7 transition-all duration-300">
+                                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-mustard-gold/10 text-mustard-gold group-hover:scale-110 transition-transform duration-300">
                                     <div className="[&>svg]:w-7 [&>svg]:h-7">{s.icon}</div>
                                 </div>
                                 <h3 className="mb-3 text-lg font-bold text-white group-hover:text-mustard-gold transition-colors">{s.title}</h3>
@@ -150,9 +152,13 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* ── About ─────────────────────────────────────────────────── */}
-            <section className="py-28 md:py-36 px-6 md:px-16 section-gradient text-white" id="about">
-                <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* ── About ── Cream / light section ─────────────────────── */}
+            <section className="relative py-28 md:py-36 px-6 md:px-16 section-cream overflow-hidden" id="about">
+                {/* Decorative gold accent */}
+                <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
+                <div className="absolute bottom-0 left-0 right-0 h-px gold-shimmer-line" />
+
+                <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
 
                     {/* Left */}
                     <div>
@@ -164,27 +170,27 @@ const Landing = () => {
                         </motion.div>
                         <motion.h2
                             variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT}
-                            className="text-4xl md:text-5xl font-extrabold text-white mb-6 font-sans leading-tight">
+                            className="text-4xl md:text-5xl font-extrabold text-deep-teal mb-6 font-sans leading-tight">
                             Crafting Unforgettable{' '}
                             <span className="text-mustard-gold">Experiences</span>
                         </motion.h2>
                         <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT}
-                            className="text-white/60 text-lg leading-relaxed mb-5">
+                            className="text-deep-teal/60 text-lg leading-relaxed mb-5">
                             At Crystal Events, we specialize in delivering exceptional event experiences tailored to your vision. Since 2021, we have been creating memorable celebrations, starting in the UK and now expanding across Ireland.
                         </motion.p>
                         <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT}
-                            className="text-white/60 text-lg leading-relaxed mb-8">
+                            className="text-deep-teal/60 text-lg leading-relaxed mb-8">
                             From elegant weddings to vibrant cultural events and professional corporate functions, we handle every detail with creativity and care.
                         </motion.p>
                         <motion.div variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT}>
                             <Link to="/about"
-                                className="inline-flex items-center gap-2 px-8 py-4 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 shadow-[0_0_20px_rgba(238,192,89,0.3)]">
+                                className="inline-flex items-center gap-2 px-8 py-4 bg-deep-teal text-mustard-gold font-bold uppercase tracking-widest rounded-full hover:bg-deep-teal/90 transition-all duration-300 shadow-lg">
                                 Learn More About Us
                             </Link>
                         </motion.div>
                     </div>
 
-                    {/* Right — stats, Apple icon stagger */}
+                    {/* Right — stats */}
                     <motion.div className="grid grid-cols-2 gap-6"
                         variants={cardGrid} initial="hidden" whileInView="visible" viewport={VP}>
                         {[
@@ -194,19 +200,21 @@ const Landing = () => {
                             { value: '100%', label: 'Satisfaction', sub: 'Client happiness' },
                         ].map((stat, i) => (
                             <motion.div key={i} variants={scaleIn}
-                                className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center hover:bg-white/10 transition-all duration-300">
-                                <p className="text-4xl font-black text-mustard-gold mb-1">{stat.value}</p>
-                                <p className="text-white font-semibold text-sm mb-1">{stat.label}</p>
-                                <p className="text-white/40 text-xs">{stat.sub}</p>
+                                className="rounded-2xl glass-card-light p-6 text-center transition-all duration-300">
+                                <p className="text-4xl font-black text-mustard-gold mb-1 font-serif">{stat.value}</p>
+                                <p className="text-deep-teal font-semibold text-sm mb-1">{stat.label}</p>
+                                <p className="text-deep-teal/40 text-xs">{stat.sub}</p>
                             </motion.div>
                         ))}
                     </motion.div>
                 </div>
             </section>
 
-            {/* ── Why Choose Us ────────────────────────────────────────── */}
-            <section className="py-28 md:py-36 px-6 md:px-16 section-gradient text-white" id="why-us">
-                <div className="mx-auto max-w-7xl">
+            {/* ── Why Choose Us ── Pattern background ────────────────── */}
+            <section className="relative py-28 md:py-36 px-6 md:px-16 section-pattern text-white overflow-hidden" id="why-us">
+                <div className="orb orb-emerald w-[500px] h-[500px] top-1/2 -translate-y-1/2 -right-40" style={{ animationDelay: '3s' }} />
+
+                <div className="mx-auto max-w-7xl relative z-10">
 
                     <motion.div className="text-center mb-14" variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP}>
                         <motion.span variants={blockReveal} className="text-mustard-gold font-bold uppercase tracking-[0.3em] text-sm mb-3 block">
@@ -229,7 +237,7 @@ const Landing = () => {
                         ].map((item, i) => (
                             <motion.div key={i} variants={cardItem}
                                 whileHover={{ y: -5, transition: { duration: 0.25 } }}
-                                className="group overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-7 hover:bg-white/10 hover:border-mustard-gold/20 transition-all duration-300">
+                                className="group overflow-hidden rounded-2xl card-gold-border p-7 transition-all duration-300">
                                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-mustard-gold/10 text-mustard-gold group-hover:bg-mustard-gold/20 transition-all duration-300">
                                     <div className="[&>svg]:w-6 [&>svg]:h-6">{item.icon}</div>
                                 </div>
@@ -241,9 +249,11 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* ── Service Area ──────────────────────────────────────────── */}
-            <section className="py-28 md:py-36 px-6 md:px-16 section-gradient text-white" id="service-area">
-                <div className="mx-auto max-w-7xl">
+            {/* ── Service Area ── Sage light background ─────────────── */}
+            <section className="relative py-28 md:py-36 px-6 md:px-16 section-sage overflow-hidden" id="service-area">
+                <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
+
+                <div className="mx-auto max-w-7xl relative z-10">
 
                     <motion.div className="text-center mb-16" variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP}>
                         <motion.span variants={blockReveal} className="text-mustard-gold font-bold uppercase tracking-[0.3em] text-sm mb-3 block">
@@ -251,15 +261,15 @@ const Landing = () => {
                         </motion.span>
                         <motion.div variants={goldLine} className="h-0.5 w-16 bg-mustard-gold origin-left mb-6 mx-auto" />
                         <AnimatedWords text="Our Service Area" el="h2"
-                            className="text-4xl md:text-5xl font-extrabold text-white font-sans mb-4" />
+                            className="text-4xl md:text-5xl font-extrabold text-deep-teal font-sans mb-4" />
                         <motion.p variants={blockReveal}
-                            className="text-white/60 text-lg max-w-2xl mx-auto leading-relaxed">
+                            className="text-deep-teal/60 text-lg max-w-2xl mx-auto leading-relaxed">
                             Based in Ballinasloe, Galway, Crystal Events brings world-class event planning and decoration to every corner of Ireland and the UK.
                         </motion.p>
                     </motion.div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                        {/* Locations — Apple icon stagger */}
+                        {/* Locations */}
                         <motion.div className="grid grid-cols-2 sm:grid-cols-3 gap-4"
                             variants={cardGrid} initial="hidden" whileInView="visible" viewport={VP}>
                             {[
@@ -274,12 +284,12 @@ const Landing = () => {
                                 { city: 'London, UK', note: 'Redhill base' },
                             ].map((loc, i) => (
                                 <motion.div key={i} variants={cardItem}
-                                    className="rounded-xl border border-white/10 bg-white/5 p-4 text-center hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300">
+                                    className="rounded-xl glass-card-light p-4 text-center transition-all duration-300 hover:border-mustard-gold/30">
                                     <div className="flex items-center justify-center gap-1.5 mb-1">
                                         <MapPin size={12} className="text-mustard-gold shrink-0" />
-                                        <p className="text-white font-bold text-sm">{loc.city}</p>
+                                        <p className="text-deep-teal font-bold text-sm">{loc.city}</p>
                                     </div>
-                                    <p className="text-white/40 text-xs">{loc.note}</p>
+                                    <p className="text-deep-teal/40 text-xs">{loc.note}</p>
                                 </motion.div>
                             ))}
                         </motion.div>
@@ -287,13 +297,13 @@ const Landing = () => {
                         {/* Text block */}
                         <motion.div variants={fromRight} initial="hidden" whileInView="visible" viewport={VP}>
                             <AnimatedWords text="Celebrations Across All of Ireland" el="h3"
-                                className="text-3xl md:text-4xl font-black mb-6 leading-tight text-white" />
+                                className="text-3xl md:text-4xl font-black mb-6 leading-tight text-deep-teal" />
                             <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT}
-                                className="text-white/60 text-lg leading-relaxed mb-6">
+                                className="text-deep-teal/60 text-lg leading-relaxed mb-6">
                                 No matter where you are in Ireland, our team travels to you. From intimate village gatherings to grand city celebrations, we bring the same premium experience everywhere we go.
                             </motion.p>
                             <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT}
-                                className="text-white/60 text-lg leading-relaxed">
+                                className="text-deep-teal/60 text-lg leading-relaxed">
                                 We also serve clients in the UK through our Redhill, London base — so wherever your celebration takes place, Crystal Events will be there.
                             </motion.p>
                         </motion.div>
@@ -301,7 +311,7 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* ── CTA + Footer ──────────────────────────────────────────── */}
+            {/* ── CTA + Footer ── */}
             <motion.div variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP}>
                 <CTAFooter />
             </motion.div>

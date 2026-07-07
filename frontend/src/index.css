@@ -14,17 +14,96 @@
   --color-midnight-teal: #0D1F23;
   --color-jungle-green: #012F2F;
 
+  /* ── New palette additions ── */
+  --color-cream: #FAF6EE;
+  --color-ivory: #F8F3E8;
+  --color-warm-white: #FFFDF7;
+  --color-sage: #E8F0EA;
+  --color-gold-light: #F5E6C4;
+  --color-charcoal: #1C1C1C;
+
   --font-sans: "Manrope", sans-serif;
-  --font-serif: "Times New Roman", Times, serif;
+  --font-serif: "Playfair Display", "Times New Roman", Times, serif;
 }
 
-/* ── Section gradient — light forest-green top → near-black bottom ─
-   Applied to every content section so each one feels visually distinct.
-   The dark bottom of one section contrasts with the light top of the
-   next, creating a clear visual break between sections.                */
+/* ═══════════════════════════════════════════════════════════════
+   BACKGROUND VARIANTS — diverse section styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. Original dark gradient (refined) */
 .section-gradient {
   background: linear-gradient(to bottom, #012424 0%, #011414 100%);
 }
+
+/* 2. Cream / ivory — light warm sections with dark text */
+.section-cream {
+  background: linear-gradient(165deg, #FAF6EE 0%, #F3EDE0 50%, #EDE5D5 100%);
+  color: #1a2e2e;
+  /* Darker gold so it's legible on the light background */
+  --color-mustard-gold: #B07D10;
+}
+
+/* Buttons/links inside light sections restore bright gold — they sit on dark green backgrounds */
+.section-cream :where(a, button),
+.section-sage :where(a, button) {
+  --color-mustard-gold: #EEC059;
+}
+
+/* 3. Rich dark with subtle gold radial glow */
+.section-gold-glow {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 80%, rgba(238,192,89,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(238,192,89,0.04) 0%, transparent 50%),
+    linear-gradient(to bottom, #0a1a18 0%, #060e0e 100%);
+}
+
+/* 4. Dark with subtle dot pattern overlay */
+.section-pattern {
+  background-color: #091616;
+  background-image:
+    radial-gradient(rgba(238,192,89,0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 5. Soft sage / light green */
+.section-sage {
+  background: linear-gradient(165deg, #EDF5F0 0%, #E3EDE7 50%, #DAE8DF 100%);
+  color: #1a2e2e;
+  /* Darker gold so it's legible on the light background */
+  --color-mustard-gold: #B07D10;
+}
+
+/* 6. Deep emerald with mesh-like gradient */
+.section-emerald {
+  background:
+    radial-gradient(ellipse 50% 50% at 10% 90%, rgba(16,185,129,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 90% 10%, rgba(0,193,193,0.05) 0%, transparent 50%),
+    linear-gradient(160deg, #011e1e 0%, #01181a 40%, #010e10 100%);
+}
+
+/* 7. Warm dark with diagonal gold line accents */
+.section-diagonal {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent,
+      transparent 80px,
+      rgba(238,192,89,0.02) 80px,
+      rgba(238,192,89,0.02) 81px
+    ),
+    linear-gradient(to bottom, #0c1e1c 0%, #081414 100%);
+}
+
+/* 8. Very dark near-black with green edge glow */
+.section-noir {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(1,45,45,0.3) 0%, transparent 70%),
+    linear-gradient(to bottom, #050d0d 0%, #030808 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL
+   ═══════════════════════════════════════════════════════════════ */
 
 html, body {
   overflow-x: hidden;
@@ -37,6 +116,96 @@ body {
   font-family: var(--font-sans);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   GLASS CARD VARIANTS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Dark glass card */
+.glass-card {
+  background: rgba(1,45,45,0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.glass-card:hover {
+  background: rgba(1,45,45,0.5);
+  border-color: rgba(238,192,89,0.15);
+}
+
+/* Light glass card (for cream/sage sections) */
+.glass-card-light {
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(1,45,45,0.08);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+}
+
+.glass-card-light:hover {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(238,192,89,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+
+/* Gold-bordered card */
+.card-gold-border {
+  background: rgba(1,45,45,0.2);
+  border: 1px solid rgba(238,192,89,0.15);
+  transition: all 0.4s ease;
+}
+
+.card-gold-border:hover {
+  border-color: rgba(238,192,89,0.4);
+  box-shadow: 0 0 30px rgba(238,192,89,0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DECORATIVE ELEMENTS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Subtle noise texture overlay */
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Gold shimmer line */
+.gold-shimmer-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(238,192,89,0.5) 50%, transparent 100%);
+}
+
+/* Section divider — diamond ornament */
+.section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  height: 1px;
+  width: 4rem;
+  background: linear-gradient(90deg, transparent, rgba(238,192,89,0.4));
+}
+
+.section-divider::after {
+  background: linear-gradient(90deg, rgba(238,192,89,0.4), transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MASONRY GRID
+   ═══════════════════════════════════════════════════════════════ */
 
 .masonry-grid {
   columns: 1;
@@ -60,13 +229,14 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* ── Crystal Events Logo — Real Gold Sheen ──────────────────── */
-/* Multi-stop gradient mimics real gold: warm amber shoulders,
-   bright near-white highlight at the peak, long pause between sweeps */
+/* ═══════════════════════════════════════════════════════════════
+   CRYSTAL EVENTS LOGO — GOLD SHEEN
+   ═══════════════════════════════════════════════════════════════ */
+
 @keyframes logo-gold-sheen {
   0%        { background-position: -320% center; }
   42%       { background-position: 160% center; }
-  100%      { background-position: 160% center; } /* long pause */
+  100%      { background-position: 160% center; }
 }
 
 .logo-metal-wrapper {
@@ -76,12 +246,10 @@ body {
   justify-content: center;
 }
 
-/* No glow on the img itself — clean look */
 .logo-metal-img {
   display: block;
 }
 
-/* Masked shine — clipped to logo's own alpha channel */
 .logo-metal-shine {
   position: absolute;
   inset: 0;
@@ -110,3 +278,54 @@ body {
   mask-position: center;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   FLOATING ORB ANIMATION (decorative background element)
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes float-orb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(30px, -20px) scale(1.05); }
+  66%      { transform: translate(-20px, 15px) scale(0.95); }
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: float-orb 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.orb-gold {
+  background: radial-gradient(circle, rgba(238,192,89,0.6) 0%, transparent 70%);
+}
+
+.orb-teal {
+  background: radial-gradient(circle, rgba(0,193,193,0.4) 0%, transparent 70%);
+}
+
+.orb-emerald {
+  background: radial-gradient(circle, rgba(16,185,129,0.4) 0%, transparent 70%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM SCROLLBAR
+   ═══════════════════════════════════════════════════════════════ */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(238,192,89,0.3);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(238,192,89,0.5);
+}

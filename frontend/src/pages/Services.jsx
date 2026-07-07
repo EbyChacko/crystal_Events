@@ -11,7 +11,6 @@ import {
     fromLeft, fromRight, cardGrid, cardItem
 } from '../utils/animations';
 
-// Static flagship services shown at the top
 const STATIC_SERVICES = [
     {
         icon: <Calendar strokeWidth={1} />,
@@ -97,12 +96,12 @@ const Services = () => {
                 <meta property="og:url" content="https://crystaleventsie.com/services" />
             </Helmet>
 
-            <div className="font-sans text-white bg-background-dark">
+            <div className="font-sans text-white">
 
-                {/* ── Hero ──────────────────────────────────────────────── */}
-                <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+                {/* ── Hero ── Noir dark ─────────────────────────────────── */}
+                <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden section-noir">
                     <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
-                        <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/80 via-deep-teal/60 to-background-dark z-10" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#050d0d]/80 via-[#050d0d]/60 to-[#050d0d] z-10" />
                         <img src={servicesBg} alt="Wedding decoration setup" className="w-full h-full object-cover" />
                     </motion.div>
                     <div className="relative z-20 text-center px-4 max-w-4xl pt-20">
@@ -129,30 +128,31 @@ const Services = () => {
                             initial={{ opacity: 0, y: 14 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.85, delay: 0.4, ease: 'easeOut' }}
-                            className="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
+                            className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
                         >
                             Elevating your celebrations with elegance and precision. Experience the curated art of event design where every detail whispers luxury.
                         </motion.p>
                     </div>
                 </section>
 
-                {/* ── Flagship Services ─────────────────────────────────── */}
-                <section className="px-6 md:px-16 lg:px-40 pt-28 pb-20 section-gradient">
-                    <div className="max-w-[1200px] mx-auto">
+                {/* ── Flagship Services ── Cream light ────────────────── */}
+                <section className="px-6 md:px-16 lg:px-40 pt-28 pb-20 section-cream relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
+
+                    <div className="max-w-[1200px] mx-auto relative z-10">
 
                         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                             <motion.div variants={fromLeft} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="max-w-xl">
-                                <h2 className="text-white text-3xl md:text-4xl font-bold mb-3">Our Signature Services</h2>
+                                <h2 className="text-deep-teal text-3xl md:text-4xl font-bold mb-3">Our Signature Services</h2>
                                 <motion.div variants={goldLine} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="h-1 w-20 bg-mustard-gold origin-left mb-6" />
-                                <p className="text-slate-400">Handcrafted experiences built around your vision. Explore each service and discover how we bring it to life.</p>
+                                <p className="text-deep-teal/60">Handcrafted experiences built around your vision. Explore each service and discover how we bring it to life.</p>
                             </motion.div>
                             <motion.div variants={fromRight} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="flex gap-4">
-                                <div className="p-3 border border-deep-teal/30 rounded-lg text-mustard-gold"><Star strokeWidth={1} /></div>
-                                <div className="p-3 border border-deep-teal/30 rounded-lg text-mustard-gold"><BadgeCheck strokeWidth={1} /></div>
+                                <div className="p-3 border border-mustard-gold/30 rounded-xl text-mustard-gold bg-white/50"><Star strokeWidth={1} /></div>
+                                <div className="p-3 border border-mustard-gold/30 rounded-xl text-mustard-gold bg-white/50"><BadgeCheck strokeWidth={1} /></div>
                             </motion.div>
                         </div>
 
-                        {/* Static service cards */}
                         <motion.div
                             className="grid grid-cols-1 md:grid-cols-2 gap-8"
                             variants={cardGrid}
@@ -164,19 +164,19 @@ const Services = () => {
                                 <motion.div
                                     key={service.slug}
                                     variants={cardItem}
-                                    className="group relative bg-deep-teal/20 border border-mustard-gold/30 rounded-xl overflow-hidden hover:border-mustard-gold/60 hover:shadow-[0_0_25px_rgba(197,160,89,0.2)] transition-all duration-500 ease-out flex flex-col"
+                                    className="group relative glass-card-light rounded-2xl overflow-hidden hover:shadow-[0_0_25px_rgba(197,160,89,0.12)] transition-all duration-500 ease-out flex flex-col"
                                 >
                                     <div className="p-8 flex flex-col flex-1">
-                                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-mustard-gold/10 text-mustard-gold mb-6 transition-transform duration-300 ease-out group-hover:scale-110 [&>svg]:w-7 [&>svg]:h-7">
+                                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-mustard-gold/10 text-mustard-gold mb-6 transition-transform duration-300 ease-out group-hover:scale-110 [&>svg]:w-7 [&>svg]:h-7">
                                             {service.icon}
                                         </div>
-                                        <h3 className="text-white text-xl font-bold mb-3 group-hover:text-mustard-gold transition-colors duration-300">
+                                        <h3 className="text-deep-teal text-xl font-bold mb-3 group-hover:text-mustard-gold transition-colors duration-300">
                                             {service.title}
                                         </h3>
-                                        <p className="text-slate-400 text-sm leading-relaxed mb-5">{service.description}</p>
+                                        <p className="text-deep-teal/60 text-sm leading-relaxed mb-5">{service.description}</p>
                                         <ul className="space-y-2 mb-8 flex-1">
                                             {service.features.map((f, fi) => (
-                                                <li key={fi} className="flex items-center gap-2 text-white/60 text-sm">
+                                                <li key={fi} className="flex items-center gap-2 text-deep-teal/50 text-sm">
                                                     <span className="w-1 h-1 rounded-full bg-mustard-gold shrink-0" />
                                                     {f}
                                                 </li>
@@ -184,7 +184,7 @@ const Services = () => {
                                         </ul>
                                         <Link
                                             to={`/services/${service.slug}`}
-                                            className="inline-flex items-center gap-2 self-start px-6 py-2.5 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 text-xs shadow-[0_0_15px_rgba(238,192,89,0.2)]"
+                                            className="inline-flex items-center gap-2 self-start px-6 py-2.5 bg-deep-teal text-mustard-gold font-bold uppercase tracking-widest rounded-full hover:bg-deep-teal/90 transition-all duration-300 text-xs shadow-lg"
                                         >
                                             Learn More <ArrowRight size={14} />
                                         </Link>
@@ -193,17 +193,17 @@ const Services = () => {
                             ))}
                         </motion.div>
 
-                        {/* ── More Services ── dynamic from API */}
+                        {/* ── More Services ── */}
                         <div className="mt-24">
                             <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT}>
-                                <motion.h2 variants={blockReveal} className="text-white text-2xl md:text-3xl font-bold mb-3">More Services From Us</motion.h2>
+                                <motion.h2 variants={blockReveal} className="text-deep-teal text-2xl md:text-3xl font-bold mb-3">More Services From Us</motion.h2>
                                 <motion.div variants={goldLine} className="h-1 w-16 bg-mustard-gold origin-left mb-10" />
                             </motion.div>
 
                             {(() => {
                                 const visible = services.filter(s => s.show_on_website);
-                                if (loading) return <div className="text-center text-slate-400 py-12">Loading services...</div>;
-                                if (visible.length === 0) return <div className="text-center text-slate-400 py-12">No additional services available at the moment.</div>;
+                                if (loading) return <div className="text-center text-deep-teal/50 py-12">Loading services...</div>;
+                                if (visible.length === 0) return <div className="text-center text-deep-teal/50 py-12">No additional services available at the moment.</div>;
                                 return (
                                     <motion.div
                                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -216,7 +216,7 @@ const Services = () => {
                                             <motion.div
                                                 key={service.id}
                                                 variants={cardItem}
-                                                className="group relative bg-deep-teal/20 border border-mustard-gold/30 rounded-xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-2 hover:border-mustard-gold/50 hover:shadow-[0_0_15px_rgba(197,160,89,0.3)] flex flex-col"
+                                                className="group relative glass-card-light rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-2 flex flex-col"
                                             >
                                                 <div className="h-48 overflow-hidden relative shrink-0">
                                                     <img
@@ -224,15 +224,15 @@ const Services = () => {
                                                         alt={service.name}
                                                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                                                     />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-deep-teal to-transparent opacity-80" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-cream to-transparent opacity-60" />
                                                 </div>
                                                 <div className="p-6 flex flex-col flex-1">
-                                                    <h3 className="text-white text-lg font-bold mb-2 group-hover:text-mustard-gold transition-colors duration-300">{service.name}</h3>
-                                                    <p className="text-slate-400 text-sm leading-relaxed flex-1">{service.description}</p>
+                                                    <h3 className="text-deep-teal text-lg font-bold mb-2 group-hover:text-mustard-gold transition-colors duration-300">{service.name}</h3>
+                                                    <p className="text-deep-teal/60 text-sm leading-relaxed flex-1">{service.description}</p>
                                                     <div className="mt-5 pt-4 border-t border-mustard-gold/10">
                                                         <Link
                                                             to="/contact"
-                                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-mustard-gold/10 border border-mustard-gold/30 text-mustard-gold text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300"
+                                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-deep-teal/10 border border-deep-teal/20 text-deep-teal text-xs font-bold uppercase tracking-widest rounded-full hover:bg-deep-teal hover:text-mustard-gold transition-all duration-300"
                                                         >
                                                             <Mail size={13} />
                                                             Get More Details

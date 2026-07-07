@@ -99,10 +99,10 @@ const Catering = () => {
                 <meta property="og:url" content="https://crystaleventsie.com/services/catering" />
             </Helmet>
 
-            <div className="font-sans text-white bg-[#011414]">
+            <div className="font-sans text-white">
 
                 {/* ── Hero ── */}
-                <section ref={heroRef} className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+                <section ref={heroRef} className="section-noir relative min-h-[70vh] flex items-center justify-center overflow-hidden">
                     <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
                         <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/80 via-deep-teal/60 to-background-dark z-10" />
                         <img
@@ -144,7 +144,7 @@ const Catering = () => {
                         >
                             <Link
                                 to="/contact"
-                                className="inline-flex items-center gap-2 px-8 py-3.5 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 text-sm shadow-[0_0_20px_rgba(238,192,89,0.3)]"
+                                className="inline-flex items-center gap-2 px-8 py-3.5 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-full hover:brightness-110 transition-all duration-300 text-sm shadow-[0_0_20px_rgba(238,192,89,0.3)]"
                             >
                                 Get a Catering Quote <ArrowRight size={16} />
                             </Link>
@@ -152,154 +152,154 @@ const Catering = () => {
                     </div>
                 </section>
 
-                {/* ── Content Sections ── */}
-                <section className="section-gradient px-6 md:px-16 lg:px-40">
-
                 {/* ── What We Offer ── */}
-                <div className="py-24">
-                    <div className="max-w-[1200px] mx-auto">
-                        <div className="mb-14">
-                            <h2 className="text-white text-3xl md:text-4xl font-bold mb-4">What We Offer</h2>
-                            <div className="h-1 w-20 bg-mustard-gold mb-6" />
-                            <p className="text-slate-400 max-w-2xl">
-                                From intimate gatherings to grand celebrations, our catering team delivers exceptional food and service tailored to your event and cultural preferences.
-                            </p>
-                        </div>
+                <section className="section-cream overflow-hidden relative px-6 md:px-16 lg:px-40">
+                    <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
 
-                        <motion.div
-                            className="grid grid-cols-1 md:grid-cols-2 gap-8"
-                            variants={cardContainer}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
-                        >
-                            {cateringServices.map((service) => (
-                                <motion.div
-                                    key={service.title}
-                                    variants={cardItem}
-                                    className="group bg-deep-teal/20 border border-mustard-gold/30 rounded-xl p-8 hover:border-mustard-gold/60 hover:shadow-[0_0_25px_rgba(197,160,89,0.2)] transition-all duration-500 ease-out"
-                                >
-                                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-mustard-gold/10 text-mustard-gold mb-5 transition-transform duration-300 ease-out group-hover:scale-110 [&>svg]:w-6 [&>svg]:h-6">
-                                        {service.icon}
-                                    </div>
-                                    <h3 className="text-white text-xl font-bold mb-4 group-hover:text-mustard-gold transition-colors duration-300">
-                                        {service.title}
-                                    </h3>
-                                    <ul className="space-y-2.5">
-                                        {service.items.map((item, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-400 text-sm">
-                                                <CheckCircle2 size={15} className="text-mustard-gold mt-0.5 shrink-0" />
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </motion.div>
-                            ))}
-                        </motion.div>
-                    </div>
-                </div>
-
-                <div className="h-px bg-white/10 max-w-[1200px] mx-auto" />
-
-                {/* ── Perfect For ── */}
-                <div className="py-20">
-                    <div className="max-w-[1200px] mx-auto">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                            <div>
-                                <h2 className="text-white text-3xl md:text-4xl font-bold mb-4">Perfect for Every Occasion</h2>
+                    <div className="py-24">
+                        <div className="max-w-[1200px] mx-auto">
+                            <div className="mb-14">
+                                <h2 className="text-deep-teal text-3xl md:text-4xl font-bold mb-4">What We Offer</h2>
                                 <div className="h-1 w-20 bg-mustard-gold mb-6" />
-                                <p className="text-slate-400 leading-relaxed mb-8">
-                                    Whether you're hosting an intimate family gathering or a grand multicultural wedding, our catering team brings the same dedication, quality, and passion to every event across Ireland.
+                                <p className="text-deep-teal/60 max-w-2xl">
+                                    From intimate gatherings to grand celebrations, our catering team delivers exceptional food and service tailored to your event and cultural preferences.
                                 </p>
-                                <motion.div
-                                    className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-                                    variants={cardContainer}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
-                                >
-                                    {perfectFor.map((item) => (
-                                        <motion.div key={item.title} variants={cardItem}>
-                                            {item.link ? (
-                                                <Link
-                                                    to={item.link}
-                                                    className="flex items-center gap-3 p-3.5 bg-deep-teal/20 border border-mustard-gold/20 rounded-lg hover:border-mustard-gold/50 hover:bg-deep-teal/30 transition-all duration-300 group"
-                                                >
-                                                    <Star size={14} className="text-mustard-gold shrink-0" />
-                                                    <span className="text-white text-sm font-medium group-hover:text-mustard-gold transition-colors duration-300">{item.title}</span>
-                                                    <ArrowRight size={13} className="text-mustard-gold ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                                </Link>
-                                            ) : (
-                                                <div className="flex items-center gap-3 p-3.5 bg-deep-teal/20 border border-mustard-gold/20 rounded-lg">
-                                                    <Star size={14} className="text-mustard-gold shrink-0" />
-                                                    <span className="text-white text-sm font-medium">{item.title}</span>
-                                                </div>
-                                            )}
-                                        </motion.div>
-                                    ))}
-                                </motion.div>
                             </div>
 
                             <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true, amount: 0.25, margin: '0px 0px -80px 0px' }}
-                                transition={{ duration: 0.6, ease: 'easeOut' }}
-                                className="bg-deep-teal/20 border border-mustard-gold/30 rounded-2xl p-8"
+                                className="grid grid-cols-1 md:grid-cols-2 gap-8"
+                                variants={cardContainer}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
                             >
-                                <h3 className="text-mustard-gold text-sm font-bold uppercase tracking-widest mb-2">Our Speciality</h3>
-                                <h4 className="text-white text-2xl font-bold mb-4">Authentic Indian & Multicultural Cuisine</h4>
-                                <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                                    We take great pride in bringing the rich flavours of Indian cuisine to Ireland. From fragrant biryanis and creamy curries to traditional sweets, our chefs use authentic recipes and premium ingredients to create a dining experience your guests will remember.
-                                </p>
-                                <p className="text-slate-400 text-sm leading-relaxed mb-8">
-                                    We also cater to Irish tastes and diverse multicultural preferences, offering fusion menus and globally inspired dishes that bring your community together at the table.
-                                </p>
-                                <Link
-                                    to="/contact"
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 text-xs"
-                                >
-                                    Discuss Your Menu <ArrowRight size={14} />
-                                </Link>
+                                {cateringServices.map((service) => (
+                                    <motion.div
+                                        key={service.title}
+                                        variants={cardItem}
+                                        className="group glass-card-light rounded-xl p-8 hover:border-mustard-gold/60 hover:shadow-[0_0_25px_rgba(197,160,89,0.2)] transition-all duration-500 ease-out"
+                                    >
+                                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-mustard-gold/10 text-mustard-gold mb-5 transition-transform duration-300 ease-out group-hover:scale-110 [&>svg]:w-6 [&>svg]:h-6">
+                                            {service.icon}
+                                        </div>
+                                        <h3 className="text-deep-teal text-xl font-bold mb-4 group-hover:text-mustard-gold transition-colors duration-300">
+                                            {service.title}
+                                        </h3>
+                                        <ul className="space-y-2.5">
+                                            {service.items.map((item, i) => (
+                                                <li key={i} className="flex items-start gap-3 text-deep-teal/60 text-sm">
+                                                    <CheckCircle2 size={15} className="text-mustard-gold mt-0.5 shrink-0" />
+                                                    {item}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </motion.div>
+                                ))}
                             </motion.div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div className="h-px bg-white/10 max-w-[1200px] mx-auto" />
+                {/* ── Perfect For ── */}
+                <section className="section-gold-glow overflow-hidden relative px-6 md:px-16 lg:px-40">
+                    <div className="py-20">
+                        <div className="max-w-[1200px] mx-auto">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                                <div>
+                                    <h2 className="text-white text-3xl md:text-4xl font-bold mb-4">Perfect for Every Occasion</h2>
+                                    <div className="h-1 w-20 bg-mustard-gold mb-6" />
+                                    <p className="text-slate-400 leading-relaxed mb-8">
+                                        Whether you're hosting an intimate family gathering or a grand multicultural wedding, our catering team brings the same dedication, quality, and passion to every event across Ireland.
+                                    </p>
+                                    <motion.div
+                                        className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                                        variants={cardContainer}
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
+                                    >
+                                        {perfectFor.map((item) => (
+                                            <motion.div key={item.title} variants={cardItem}>
+                                                {item.link ? (
+                                                    <Link
+                                                        to={item.link}
+                                                        className="flex items-center gap-3 p-3.5 bg-deep-teal/20 border border-mustard-gold/20 rounded-lg hover:border-mustard-gold/50 hover:bg-deep-teal/30 transition-all duration-300 group"
+                                                    >
+                                                        <Star size={14} className="text-mustard-gold shrink-0" />
+                                                        <span className="text-white text-sm font-medium group-hover:text-mustard-gold transition-colors duration-300">{item.title}</span>
+                                                        <ArrowRight size={13} className="text-mustard-gold ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                                    </Link>
+                                                ) : (
+                                                    <div className="flex items-center gap-3 p-3.5 bg-deep-teal/20 border border-mustard-gold/20 rounded-lg">
+                                                        <Star size={14} className="text-mustard-gold shrink-0" />
+                                                        <span className="text-white text-sm font-medium">{item.title}</span>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        ))}
+                                    </motion.div>
+                                </div>
+
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true, amount: 0.25, margin: '0px 0px -80px 0px' }}
+                                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                                    className="bg-deep-teal/20 border border-mustard-gold/30 rounded-2xl p-8"
+                                >
+                                    <h3 className="text-mustard-gold text-sm font-bold uppercase tracking-widest mb-2">Our Speciality</h3>
+                                    <h4 className="text-white text-2xl font-bold mb-4">Authentic Indian & Multicultural Cuisine</h4>
+                                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                                        We take great pride in bringing the rich flavours of Indian cuisine to Ireland. From fragrant biryanis and creamy curries to traditional sweets, our chefs use authentic recipes and premium ingredients to create a dining experience your guests will remember.
+                                    </p>
+                                    <p className="text-slate-400 text-sm leading-relaxed mb-8">
+                                        We also cater to Irish tastes and diverse multicultural preferences, offering fusion menus and globally inspired dishes that bring your community together at the table.
+                                    </p>
+                                    <Link
+                                        to="/contact"
+                                        className="inline-flex items-center gap-2 px-6 py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-full hover:brightness-110 transition-all duration-300 text-xs"
+                                    >
+                                        Discuss Your Menu <ArrowRight size={14} />
+                                    </Link>
+                                </motion.div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
                 {/* ── Why Choose Us ── */}
-                <div className="py-24">
-                    <div className="max-w-[1200px] mx-auto">
-                        <div className="text-center mb-14">
-                            <h2 className="text-white text-3xl md:text-4xl font-bold mb-4">Why Choose Crystal Events Catering?</h2>
-                            <div className="h-1 w-20 bg-mustard-gold mx-auto mb-6" />
-                            <p className="text-slate-400 max-w-2xl mx-auto">
-                                We don't just serve food — we create a dining experience that complements your event and delights every guest.
-                            </p>
+                <section className="section-sage overflow-hidden relative px-6 md:px-16 lg:px-40">
+                    <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
+                    <div className="py-24">
+                        <div className="max-w-[1200px] mx-auto">
+                            <div className="text-center mb-14">
+                                <h2 className="text-deep-teal text-3xl md:text-4xl font-bold mb-4">Why Choose Crystal Events Catering?</h2>
+                                <div className="h-1 w-20 bg-mustard-gold mx-auto mb-6" />
+                                <p className="text-deep-teal/60 max-w-2xl mx-auto">
+                                    We don't just serve food — we create a dining experience that complements your event and delights every guest.
+                                </p>
+                            </div>
+
+                            <motion.div
+                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                                variants={cardContainer}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
+                            >
+                                {whyUs.map((point, i) => (
+                                    <motion.div
+                                        key={i}
+                                        variants={cardItem}
+                                        className="flex items-start gap-4 glass-card-light rounded-xl p-5 hover:border-mustard-gold/30 transition-all duration-300"
+                                    >
+                                        <CheckCircle2 size={18} className="text-mustard-gold shrink-0 mt-0.5" />
+                                        <span className="text-deep-teal/70 text-sm leading-relaxed">{point}</span>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
                         </div>
-
-                        <motion.div
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
-                            variants={cardContainer}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.18, margin: '0px 0px -80px 0px' }}
-                        >
-                            {whyUs.map((point, i) => (
-                                <motion.div
-                                    key={i}
-                                    variants={cardItem}
-                                    className="flex items-start gap-4 bg-deep-teal/20 border border-mustard-gold/20 rounded-xl p-5 hover:border-mustard-gold/40 transition-all duration-300"
-                                >
-                                    <CheckCircle2 size={18} className="text-mustard-gold shrink-0 mt-0.5" />
-                                    <span className="text-white text-sm leading-relaxed">{point}</span>
-                                </motion.div>
-                            ))}
-                        </motion.div>
                     </div>
-                </div>
-
                 </section>
 
             </div>

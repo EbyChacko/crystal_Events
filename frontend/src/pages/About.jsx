@@ -108,7 +108,7 @@ const About = () => {
     const [trackCards, setTrackCards] = useState([]);
     const [isSliding, setIsSliding] = useState(false);
     const [cardWidth, setCardWidth] = useState(0);
-    const CARD_GAP = 32; // gap-8 = 2 rem
+    const CARD_GAP = 32;
 
     const getColCount = (w) => (w >= 1024 ? 3 : w >= 768 ? 2 : 1);
 
@@ -126,7 +126,6 @@ const About = () => {
         return () => ro.disconnect();
     }, [reviews.length]);
 
-    // Sync visible cards whenever index / reviews changes (and not mid-slide)
     useEffect(() => {
         if (isSliding || reviews.length === 0) return;
         if (!carouselRef.current) return;
@@ -185,12 +184,12 @@ const About = () => {
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://crystaleventsie.com/about" />
             </Helmet>
-            <div className="font-sans text-white bg-background-dark">
+            <div className="font-sans text-white">
 
-                {/* ── Hero ──────────────────────────────────────────────────── */}
-                <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+                {/* ── Hero ── Dark noir ──────────────────────────────────── */}
+                <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden section-noir">
                     <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
-                        <div className="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-background-dark/60 to-background-dark z-10" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#050d0d]/80 via-[#050d0d]/60 to-[#050d0d] z-10" />
                         <img src={aboutHero} alt="Crystal Events Ireland" className="w-full h-full object-cover" />
                     </motion.div>
                     <div className="relative z-20 text-center px-6 md:px-12 lg:px-20 max-w-4xl">
@@ -224,8 +223,9 @@ const About = () => {
                     </div>
                 </section>
 
-                {/* ── Our Story ─────────────────────────────────────────────── */}
-                <section className="py-28 md:py-36 section-gradient">
+                {/* ── Our Story ── Cream light section ──────────────────── */}
+                <section className="relative py-28 md:py-36 section-cream overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
                     <div className="px-6 lg:px-20 max-w-7xl mx-auto">
                         <div className="grid lg:grid-cols-2 gap-16 items-center">
                             <motion.div variants={fromLeft} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="space-y-8">
@@ -239,18 +239,18 @@ const About = () => {
                                         initial="hidden"
                                         whileInView="visible"
                                         viewport={VP_CONTENT}
-                                        className="text-4xl font-bold mb-6 leading-tight"
+                                        className="text-4xl font-bold mb-6 leading-tight text-deep-teal"
                                     >
                                         From the UK to Ireland —{' '}
                                         <span className="text-mustard-gold">Built on Passion</span>
                                     </motion.h2>
-                                    <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-white/70 leading-relaxed text-lg mb-4">
+                                    <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-deep-teal/70 leading-relaxed text-lg mb-4">
                                         Crystal Events was founded in 2021 with a passion for creating memorable experiences and beautifully crafted events. Starting our journey in the UK, we built a reputation for delivering high-quality, customised event solutions.
                                     </motion.p>
-                                    <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-white/70 leading-relaxed text-lg mb-4">
+                                    <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-deep-teal/70 leading-relaxed text-lg mb-4">
                                         Today, we are proud to bring our expertise to Ireland, offering premium event management services tailored to diverse cultures, styles, and celebrations.
                                     </motion.p>
-                                    <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-white/70 leading-relaxed text-lg">
+                                    <motion.p variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-deep-teal/70 leading-relaxed text-lg">
                                         Our mission is simple — to turn your vision into reality and create moments that last a lifetime.
                                     </motion.p>
                                 </div>
@@ -268,17 +268,17 @@ const About = () => {
                                         { value: '100%', label: 'Satisfaction' },
                                     ].map((stat, i) => (
                                         <motion.div key={i} variants={scaleIn}>
-                                            <div className="text-3xl font-black text-mustard-gold mb-1">{stat.value}</div>
-                                            <div className="text-white/50 text-xs uppercase tracking-widest">{stat.label}</div>
+                                            <div className="text-3xl font-black text-mustard-gold mb-1 font-serif">{stat.value}</div>
+                                            <div className="text-deep-teal/50 text-xs uppercase tracking-widest">{stat.label}</div>
                                         </motion.div>
                                     ))}
                                 </motion.div>
                             </motion.div>
 
                             <motion.div variants={fromRight} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="relative mt-8 lg:mt-0">
-                                <div className="absolute -top-6 -left-6 w-32 h-32 border-t-2 border-l-2 border-mustard-gold/40 z-0" />
-                                <div className="absolute -bottom-6 -right-6 w-32 h-32 border-b-2 border-r-2 border-mustard-gold/40 z-0" />
-                                <div className="relative z-10 rounded-lg overflow-hidden aspect-[4/5] shadow-2xl">
+                                <div className="absolute -top-6 -left-6 w-32 h-32 border-t-2 border-l-2 border-mustard-gold/40 z-0 rounded-tl-2xl" />
+                                <div className="absolute -bottom-6 -right-6 w-32 h-32 border-b-2 border-r-2 border-mustard-gold/40 z-0 rounded-br-2xl" />
+                                <div className="relative z-10 rounded-2xl overflow-hidden aspect-[4/5] shadow-2xl">
                                     <img className="w-full h-full object-cover" src={aboutStory} alt="Event management company Ireland" />
                                 </div>
                             </motion.div>
@@ -286,9 +286,11 @@ const About = () => {
                     </div>
                 </section>
 
-                {/* ── What We Do & Vision ───────────────────────────────────── */}
-                <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-gradient">
-                    <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-start">
+                {/* ── What We Do & Vision ── Gold glow dark ───────────── */}
+                <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-gold-glow relative overflow-hidden">
+                    <div className="orb orb-gold w-[400px] h-[400px] -bottom-20 right-0" style={{ animationDelay: '5s' }} />
+
+                    <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-start relative z-10">
 
                         {/* What We Do */}
                         <motion.div variants={fromLeft} initial="hidden" whileInView="visible" viewport={VP_CONTENT}>
@@ -327,13 +329,13 @@ const About = () => {
 
                         {/* Our Vision & Mission */}
                         <motion.div variants={fromRight} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="space-y-10">
-                            <motion.div variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                            <motion.div variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="glass-card rounded-2xl p-8">
                                 <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-3 block">Our Vision</span>
                                 <p className="text-white/80 text-lg leading-relaxed">
                                     To become one of the most trusted and recognised event management companies in Ireland, known for creativity, quality, and customer satisfaction.
                                 </p>
                             </motion.div>
-                            <motion.div variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                            <motion.div variants={blockReveal} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="glass-card rounded-2xl p-8">
                                 <span className="text-mustard-gold uppercase tracking-[0.3em] text-xs font-bold mb-4 block">Our Mission</span>
                                 <ul className="space-y-3">
                                     {missionPoints.map((point, i) => (
@@ -348,13 +350,15 @@ const About = () => {
                     </div>
                 </section>
 
-                {/* ── What Makes Us Different ───────────────────────────────── */}
-                <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-gradient">
-                    <div className="max-w-7xl mx-auto">
+                {/* ── What Makes Us Different ── Sage light section ────── */}
+                <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-sage relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
+
+                    <div className="max-w-7xl mx-auto relative z-10">
                         <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="text-center mb-16">
                             <motion.span variants={blockReveal} className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold mb-3 inline-block">The Crystal Difference</motion.span>
                             <motion.div variants={goldLine} className="h-0.5 w-16 bg-mustard-gold origin-left mb-6 mx-auto" />
-                            <motion.h2 variants={blockReveal} className="text-4xl md:text-5xl font-bold leading-tight">
+                            <motion.h2 variants={blockReveal} className="text-4xl md:text-5xl font-bold leading-tight text-deep-teal">
                                 What Makes Us <span className="text-mustard-gold">Different</span>
                             </motion.h2>
                         </motion.div>
@@ -370,22 +374,24 @@ const About = () => {
                                 <motion.div
                                     key={i}
                                     variants={cardItem}
-                                    className="bg-white/5 border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300 group text-center"
+                                    className="glass-card-light rounded-2xl p-7 transition-all duration-300 group text-center"
                                 >
                                     <div className="text-mustard-gold mb-5 [&>svg]:w-8 [&>svg]:h-8 transition-transform duration-300 ease-out group-hover:scale-110 inline-block">
                                         {item.icon}
                                     </div>
-                                    <h3 className="text-white font-bold text-base mb-3 group-hover:text-mustard-gold transition-colors duration-300">{item.title}</h3>
-                                    <p className="text-white/50 text-sm leading-relaxed">{item.desc}</p>
+                                    <h3 className="text-deep-teal font-bold text-base mb-3 group-hover:text-mustard-gold transition-colors duration-300">{item.title}</h3>
+                                    <p className="text-deep-teal/50 text-sm leading-relaxed">{item.desc}</p>
                                 </motion.div>
                             ))}
                         </motion.div>
                     </div>
                 </section>
 
-                {/* ── Who We Serve & Where We Work ─────────────────────────── */}
-                <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-gradient">
-                    <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+                {/* ── Who We Serve & Where We Work ── Pattern dark ────── */}
+                <section className="py-28 md:py-36 px-6 md:px-12 lg:px-20 section-pattern relative overflow-hidden">
+                    <div className="orb orb-teal w-[350px] h-[350px] top-20 -left-20" style={{ animationDelay: '4s' }} />
+
+                    <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
                         <motion.div variants={fromLeft} initial="hidden" whileInView="visible" viewport={VP_CONTENT}>
                             <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT}>
                                 <motion.span variants={blockReveal} className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold mb-3 inline-block">Who We Serve</motion.span>
@@ -412,7 +418,7 @@ const About = () => {
                                     <motion.div
                                         key={i}
                                         variants={cardItem}
-                                        className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-mustard-gold/30 transition-all duration-300"
+                                        className="card-gold-border rounded-xl p-5 transition-all duration-300"
                                     >
                                         <p className="text-white font-bold text-sm mb-1">{item.label}</p>
                                         <p className="text-white/40 text-xs">{item.sub}</p>
@@ -435,13 +441,13 @@ const About = () => {
                                     Based in Ballinasloe, Galway, Crystal Events provides services across all of Ireland — and beyond through our UK base in Redhill, London.
                                 </p>
                             </div>
-                            <div className="bg-white/5 border border-mustard-gold/20 rounded-2xl p-7">
+                            <div className="glass-card rounded-2xl p-7">
                                 <p className="text-white/60 text-sm leading-relaxed mb-6">
                                     Browse our gallery to see real events we've delivered — from wedding stages to corporate setups and birthday celebrations.
                                 </p>
                                 <Link
                                     to="/gallery"
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg hover:brightness-110 transition-all duration-300 text-xs shadow-[0_0_15px_rgba(238,192,89,0.25)]"
+                                    className="inline-flex items-center gap-2 px-6 py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-full hover:brightness-110 transition-all duration-300 text-xs shadow-[0_0_15px_rgba(238,192,89,0.25)]"
                                 >
                                     View Our Work <ArrowRight size={13} />
                                 </Link>
@@ -450,14 +456,15 @@ const About = () => {
                     </div>
                 </section>
 
-                {/* ── Team ──────────────────────────────────────────────────── */}
+                {/* ── Team ── Cream light section ──────────────────────── */}
                 {!loadingTeam && teamMembers.length > 0 && (
-                    <section className="py-28 md:py-36 section-gradient">
-                        <div className="px-6 lg:px-20 max-w-7xl mx-auto min-h-[500px]">
+                    <section className="py-28 md:py-36 section-cream relative overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
+                        <div className="px-6 lg:px-20 max-w-7xl mx-auto min-h-[500px] relative z-10">
                             <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0 }} className="text-center mb-16">
                                 <motion.span variants={blockReveal} className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold inline-block">The Visionaries</motion.span>
                                 <motion.div variants={goldLine} className="h-0.5 w-16 bg-mustard-gold origin-left mt-4 mb-4 mx-auto" />
-                                <AnimatedWords text="Meet Our Team" el="h2" className="text-4xl font-bold mb-2" />
+                                <AnimatedWords text="Meet Our Team" el="h2" className="text-4xl font-bold mb-2 text-deep-teal" />
                             </motion.div>
 
                             <div className="flex flex-wrap justify-center gap-8 lg:gap-10">
@@ -486,7 +493,7 @@ const About = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        <h3 className="text-2xl font-black tracking-wide text-white mb-1">
+                                        <h3 className="text-2xl font-black tracking-wide text-deep-teal mb-1">
                                             {member.user_details.first_name} {member.user_details.last_name}
                                         </h3>
                                         <p className="text-mustard-gold text-xs uppercase tracking-[0.2em] font-bold">
@@ -499,9 +506,12 @@ const About = () => {
                     </section>
                 )}
 
-                {/* ── Testimonials ──────────────────────────────────────────── */}
-                <section className="py-28 md:py-36 px-6 lg:px-20 section-gradient border-y border-mustard-gold/10">
-                    <div className="max-w-7xl mx-auto">
+                {/* ── Testimonials ── Emerald mesh dark ─────────────────── */}
+                <section className="py-28 md:py-36 px-6 lg:px-20 section-emerald relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
+                    <div className="orb orb-gold w-[300px] h-[300px] bottom-10 right-10" style={{ animationDelay: '8s' }} />
+
+                    <div className="max-w-7xl mx-auto relative z-10">
                         <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-6">
                             <motion.div variants={cascadeContainer} initial="hidden" whileInView="visible" viewport={VP_CONTENT} className="max-w-xl">
                                 <motion.span variants={blockReveal} className="text-mustard-gold uppercase tracking-[0.3em] text-sm font-bold inline-block">Client Voices</motion.span>
@@ -529,7 +539,7 @@ const About = () => {
                                         <div
                                             key={review.id}
                                             style={{ width: cardWidth || undefined, flexShrink: 0 }}
-                                            className="bg-[rgba(1,45,45,0.4)] backdrop-blur-md border border-[rgba(197,160,89,0.2)] p-6 md:p-8 rounded-xl space-y-6"
+                                            className="glass-card p-6 md:p-8 rounded-2xl space-y-6"
                                         >
                                             <div className="flex text-mustard-gold">
                                                 {[...Array(5)].map((_, i) => (

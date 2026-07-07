@@ -32,7 +32,6 @@ const Gallery = () => {
     const [filter, setFilter] = useState('All');
     const [loading, setLoading] = useState(true);
 
-    // Modal & Lightbox state
     const [searchParams, setSearchParams] = useSearchParams();
     const albumQueryId = searchParams.get('album');
 
@@ -137,13 +136,13 @@ const Gallery = () => {
             <meta property="og:url" content="https://crystaleventsie.com/gallery" />
         </Helmet>
 
-        <div className="bg-background-dark text-white font-sans">
+        <div className="text-white font-sans">
 
-            {/* ── Hero ──────────────────────────────────────────────────── */}
-            <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+            {/* ── Hero ── Noir ──────────────────────────────────────── */}
+            <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden section-noir">
                 <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${heroBg})` }} />
-                    <div className="absolute inset-0 bg-gradient-to-b from-deep-teal/50 via-deep-teal/30 to-background-dark" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#050d0d]/50 via-[#050d0d]/30 to-[#050d0d]" />
                 </motion.div>
                 <div className="text-center space-y-6 px-6 md:px-12 lg:px-20 relative z-10 mt-16">
                     <motion.h1
@@ -179,9 +178,11 @@ const Gallery = () => {
                 </div>
             </section>
 
-            {/* ── Gallery Grid ───────────────────────────────────────────── */}
-            <section className="section-gradient relative z-10">
-                {/* Separator rule */}
+            {/* ── Gallery Grid ── Cream light ─────────────────────── */}
+            <section className="section-cream relative z-10 overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
+
+                {/* Separator */}
                 <div className="flex items-center justify-center pt-10 pb-2">
                     <div className="h-px w-24 bg-mustard-gold/40" />
                     <div className="mx-4 w-1.5 h-1.5 rounded-full bg-mustard-gold/60" />
@@ -204,8 +205,8 @@ const Gallery = () => {
                                     variants={cardItem}
                                     onClick={() => setFilter(cat)}
                                     className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${filter === cat
-                                        ? 'bg-mustard-gold text-deep-teal shadow-lg shadow-mustard-gold/20 font-bold'
-                                        : 'border border-white/10 hover:border-mustard-gold hover:text-mustard-gold'
+                                        ? 'bg-deep-teal text-mustard-gold shadow-lg font-bold'
+                                        : 'border border-deep-teal/15 text-deep-teal/60 hover:border-mustard-gold hover:text-mustard-gold'
                                     }`}
                                 >
                                     {cat}
@@ -228,7 +229,7 @@ const Gallery = () => {
                             initial="hidden"
                             whileInView="visible"
                             viewport={VP_CONTENT}
-                            className="text-center py-20 text-white/50"
+                            className="text-center py-20 text-deep-teal/50"
                         >
                             <Grid size={48} className="mx-auto mb-4 opacity-20" />
                             <p className="text-xl">No gallery images available yet.</p>
@@ -249,7 +250,7 @@ const Gallery = () => {
                                         viewport={{ once: true, amount: 0.08 }}
                                         transition={{ duration: 0.5, delay: (idx % 8) * 0.05, ease: [0.22, 1, 0.36, 1] }}
                                         onClick={() => openAlbum(event)}
-                                        className="aspect-[4/3] group relative overflow-hidden rounded-xl bg-[#1a3333] cursor-pointer"
+                                        className="aspect-[4/3] group relative overflow-hidden rounded-2xl bg-deep-teal/10 cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300"
                                     >
                                         <img
                                             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,18 +6,37 @@ import logo from '../../assets/images/logo.png';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [visible, setVisible] = useState(true);
     const [scrolled, setScrolled] = useState(false);
+    const lastScrollY = useRef(0);
     const location = useLocation();
 
     useEffect(() => {
         const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
+            const currentY = window.scrollY;
+            const prev = lastScrollY.current;
+
+            setScrolled(currentY > 10);
+
+            if (currentY < 60) {
+                // Always show near the top
+                setVisible(true);
+            } else if (currentY > prev + 6) {
+                // Scrolling down — hide
+                setVisible(false);
+                setIsOpen(false);
+            } else if (prev > currentY + 4) {
+                // Scrolling up — show
+                setVisible(true);
+            }
+
+            lastScrollY.current = currentY;
         };
-        window.addEventListener('scroll', handleScroll);
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Close mobile menu on route change
     useEffect(() => {
         setIsOpen(false);
     }, [location]);
@@ -29,119 +48,133 @@ const Navbar = () => {
         { name: 'About Us', path: '/about' },
     ];
 
-    return (
-        <nav
-            className={`fixed w-full z-50 transition-all duration-300 border-b border-white/10 ${scrolled ? 'bg-background-dark/95 backdrop-blur-md shadow-lg py-3' : 'bg-background-dark/80 backdrop-blur-md py-4'
-                }`}
-        >
-            <div className="w-full px-6 md:px-8 lg:px-16 flex justify-between items-center max-w-[1440px] mx-auto">
-                {/* Logo */}
-                <Link to="/" className="flex items-center gap-3">
-                    <img src={logo} alt="Crystal Events Logo" className="h-12 w-auto" />
-                    <div className="text-xl text-white font-serif tracking-tight uppercase">
-                        <span className="font-bold">Crystal</span> <span className="text-mustard-gold font-normal tracking-tighter">Events</span>
-                    </div>
-                </Link>
+    const isActive = (path) => location.pathname === path;
 
-                {/* Desktop Menu */}
-                <div className="hidden lg:flex items-center space-x-10">
-                    {navLinks.map((link) => (
-                        link.path.startsWith('/#') ? (
-                            <a
-                                key={link.name}
-                                href={link.path}
-                                className="text-white/80 hover:text-mustard-gold transition-colors duration-300 text-sm font-semibold uppercase tracking-widest"
-                            >
-                                {link.name}
-                            </a>
-                        ) : (
+    return (
+        <motion.div
+            className="fixed top-4 left-0 right-0 z-50 px-4 md:px-8"
+            initial={{ y: '-120%' }}
+            animate={{ y: visible ? 0 : '-120%' }}
+            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+            {/* ── Floating pill navbar — always glass ── */}
+            <nav
+                className="max-w-6xl mx-auto rounded-full border border-white/10 backdrop-blur-xl px-5 py-2.5"
+                style={{
+                    backgroundColor: scrolled ? 'rgba(1, 45, 45, 0.60)' : 'rgba(1, 45, 45, 0.22)',
+                    boxShadow: '0 4px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
+                    transition: 'background-color 0.35s ease',
+                }}
+            >
+                <div className="flex justify-between items-center">
+
+                    {/* Logo */}
+                    <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+                        <img
+                            src={logo}
+                            alt="Crystal Events Logo"
+                            className="h-9 w-auto transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="text-base text-white font-serif tracking-tight uppercase leading-none">
+                            <span className="font-bold">Crystal</span>{' '}
+                            <span className="text-mustard-gold font-normal tracking-tighter">Events</span>
+                        </div>
+                    </Link>
+
+                    {/* Desktop Nav Links */}
+                    <div className="hidden lg:flex items-center gap-8">
+                        {navLinks.map((link) => (
                             <Link
                                 key={link.name}
                                 to={link.path}
-                                className="text-white/80 hover:text-mustard-gold transition-colors duration-300 text-sm font-semibold uppercase tracking-widest"
+                                className={`relative text-xs uppercase tracking-widest transition-colors duration-300 ${
+                                    isActive(link.path)
+                                        ? 'text-mustard-gold font-bold'
+                                        : 'text-white/70 font-normal hover:text-white'
+                                }`}
                             >
                                 {link.name}
+                                {isActive(link.path) && (
+                                    <motion.div
+                                        layoutId="nav-indicator"
+                                        className="absolute -bottom-1 left-0 right-0 h-0.5 bg-mustard-gold rounded-full"
+                                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                    />
+                                )}
                             </Link>
-                        )
-                    ))}
+                        ))}
+                    </div>
 
-                    <div className="flex items-center ml-4 space-x-4">
+                    {/* Desktop CTAs */}
+                    <div className="hidden lg:flex items-center gap-3">
                         <Link
                             to="/contact"
-                            className="inline-flex items-center justify-center rounded-lg border-2 border-mustard-gold px-6 py-2 text-sm font-bold uppercase tracking-widest text-mustard-gold hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300"
+                            className="inline-flex items-center justify-center rounded-full border border-mustard-gold px-5 py-2 text-xs font-bold uppercase tracking-widest text-mustard-gold hover:bg-mustard-gold hover:text-deep-teal transition-all duration-300"
                         >
                             Get a Quote
                         </Link>
                         <Link
                             to="/admin/login"
-                            className="flex items-center space-x-2 text-mustard-gold hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5"
+                            className="flex items-center gap-1.5 text-white/40 hover:text-mustard-gold transition-colors px-2.5 py-2 rounded-full hover:bg-white/5"
                             title="Staff Login"
                         >
-                            <User size={20} />
-                            <span className="text-sm font-semibold uppercase tracking-widest hidden lg:block">Staff Login</span>
-                            <span className="text-sm font-semibold uppercase tracking-widest lg:hidden">Login</span>
+                            <User size={16} />
+                            <span className="text-xs font-medium uppercase tracking-widest">Staff</span>
                         </Link>
                     </div>
-                </div>
 
-                {/* Mobile Menu Button */}
-                <div className="lg:hidden flex items-center">
-                    <button
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="text-white focus:outline-none p-2"
-                        aria-label="Toggle menu"
-                    >
-                        {isOpen ? <X size={28} /> : <Menu size={28} />}
-                    </button>
+                    {/* Mobile Menu Button */}
+                    <div className="lg:hidden">
+                        <button
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="text-white focus:outline-none p-1.5 rounded-full hover:bg-white/10 transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {isOpen ? <X size={22} /> : <Menu size={22} />}
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </nav>
 
-            {/* Mobile Menu Overlay */}
+            {/* Mobile Dropdown */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="lg:hidden bg-background-dark border-t border-white/10 overflow-hidden"
+                        initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                        transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        className="max-w-6xl mx-auto mt-2 rounded-3xl border border-white/10 backdrop-blur-xl overflow-hidden"
+                        style={{ backgroundColor: 'rgba(1, 45, 45, 0.88)' }}
                     >
-                        <div className="flex flex-col items-center py-8 space-y-6">
+                        <div className="flex flex-col items-center py-7 space-y-5">
                             {navLinks.map((link) => (
-                                link.path.startsWith('/#') ? (
-                                    <a
-                                        key={link.name}
-                                        href={link.path}
-                                        onClick={() => setIsOpen(false)}
-                                        className="text-white text-lg font-medium hover:text-mustard-gold transition-colors duration-300 uppercase tracking-widest"
-                                    >
-                                        {link.name}
-                                    </a>
-                                ) : (
-                                    <Link
-                                        key={link.name}
-                                        to={link.path}
-                                        className="text-white text-lg font-medium hover:text-mustard-gold transition-colors duration-300 uppercase tracking-widest"
-                                    >
-                                        {link.name}
-                                    </Link>
-                                )
+                                <Link
+                                    key={link.name}
+                                    to={link.path}
+                                    className={`text-base uppercase tracking-widest transition-colors duration-300 ${
+                                        isActive(link.path)
+                                            ? 'text-mustard-gold font-bold'
+                                            : 'text-white/70 font-normal hover:text-white'
+                                    }`}
+                                >
+                                    {link.name}
+                                </Link>
                             ))}
-                            <div className="flex flex-col items-center justify-center space-y-4 mt-4 w-full px-6">
+                            <div className="flex flex-col items-center gap-3 w-full px-6 pt-2">
                                 <Link
                                     to="/contact"
                                     onClick={() => setIsOpen(false)}
-                                    className="w-full text-center py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-lg"
+                                    className="w-full text-center py-3 bg-mustard-gold text-deep-teal font-bold uppercase tracking-widest rounded-full shadow-[0_0_20px_rgba(238,192,89,0.25)]"
                                 >
                                     Get a Quote
                                 </Link>
                                 <Link
                                     to="/admin/login"
                                     onClick={() => setIsOpen(false)}
-                                    className="w-full justify-center flex items-center space-x-2 py-3 bg-white/5 border border-white/10 rounded-lg text-mustard-gold hover:bg-white/10 transition-colors"
-                                    title="Staff Login"
+                                    className="w-full justify-center flex items-center gap-2 py-3 bg-white/5 border border-white/10 rounded-full text-mustard-gold hover:bg-white/10 transition-colors"
                                 >
-                                    <User size={20} />
+                                    <User size={18} />
                                     <span className="font-bold uppercase tracking-widest text-sm">Staff Login</span>
                                 </Link>
                             </div>
@@ -149,7 +182,8 @@ const Navbar = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </nav>
+        </motion.div>
     );
 };
+
 export default Navbar;
