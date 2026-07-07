@@ -8,6 +8,7 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [visible, setVisible] = useState(true);
     const [scrolled, setScrolled] = useState(false);
+    const [hovered, setHovered] = useState(false);
     const lastScrollY = useRef(0);
     const location = useLocation();
 
@@ -60,8 +61,10 @@ const Navbar = () => {
             {/* ── Floating pill navbar — always glass ── */}
             <nav
                 className="max-w-6xl mx-auto rounded-full border border-white/10 backdrop-blur-xl px-5 py-2.5"
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
                 style={{
-                    backgroundColor: scrolled ? 'rgba(1, 45, 45, 0.60)' : 'rgba(1, 45, 45, 0.22)',
+                    backgroundColor: hovered ? 'rgba(1, 45, 45, 0.80)' : scrolled ? 'rgba(1, 45, 45, 0.60)' : 'rgba(1, 45, 45, 0.22)',
                     boxShadow: '0 4px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
                     transition: 'background-color 0.35s ease',
                 }}
