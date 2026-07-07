@@ -268,7 +268,7 @@ const About = () => {
                                         { value: '100%', label: 'Satisfaction' },
                                     ].map((stat, i) => (
                                         <motion.div key={i} variants={scaleIn}>
-                                            <div className="text-3xl font-black text-mustard-gold mb-1 font-serif">{stat.value}</div>
+                                            <div className="text-3xl font-black text-mustard-gold mb-1 font-sans">{stat.value}</div>
                                             <div className="text-deep-teal/50 text-xs uppercase tracking-widest">{stat.label}</div>
                                         </motion.div>
                                     ))}

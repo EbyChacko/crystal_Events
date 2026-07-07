@@ -201,7 +201,7 @@ const Landing = () => {
                         ].map((stat, i) => (
                             <motion.div key={i} variants={scaleIn}
                                 className="rounded-2xl glass-card-light p-6 text-center transition-all duration-300">
-                                <p className="text-4xl font-black text-mustard-gold mb-1 font-serif">{stat.value}</p>
+                                <p className="text-4xl font-black text-mustard-gold mb-1 font-sans">{stat.value}</p>
                                 <p className="text-deep-teal font-semibold text-sm mb-1">{stat.label}</p>
                                 <p className="text-deep-teal/40 text-xs">{stat.sub}</p>
                             </motion.div>
