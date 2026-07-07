@@ -21,8 +21,8 @@ const CTAFooter = ({ cta }) => {
     return (
         <div className="font-sans">
 
-            {/* ── CTA Section — Cream/ivory ── */}
-            <div className="section-cream relative overflow-hidden">
+            {/* ── CTA Section — Light gold ── */}
+            <div className="section-gold-light relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
 
                 {/* Decorative orb */}
@@ -41,7 +41,7 @@ const CTAFooter = ({ cta }) => {
                     <div className="flex items-center justify-center">
                         <Link
                             to={buttonLink}
-                            className="px-8 py-3.5 bg-deep-teal text-mustard-gold font-bold uppercase tracking-widest rounded-full hover:bg-deep-teal/90 transition-all duration-300 shadow-lg text-sm"
+                            className="px-8 py-3.5 bg-deep-teal text-mustard-gold font-bold uppercase tracking-widest rounded-full hover:bg-deep-teal/90 hover:text-white transition-all duration-300 shadow-lg text-sm"
                         >
                             {buttonText}
                         </Link>

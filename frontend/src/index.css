@@ -45,7 +45,8 @@
 
 /* Buttons/links inside light sections restore bright gold — they sit on dark green backgrounds */
 .section-cream :where(a, button),
-.section-sage :where(a, button) {
+.section-sage :where(a, button),
+.section-gold-light :where(a, button) {
   --color-mustard-gold: #EEC059;
 }
 
@@ -63,6 +64,13 @@
   background-image:
     radial-gradient(rgba(238,192,89,0.07) 1px, transparent 1px);
   background-size: 24px 24px;
+}
+
+/* 5a. Brand gold — solid mustard gold (#EEC059) CTA background */
+.section-gold-light {
+  background: linear-gradient(165deg, #F5CA6A 0%, #EEC059 55%, #E8B548 100%);
+  color: #012d2d;
+  --color-mustard-gold: #6B4200;
 }
 
 /* 5. Soft sage / light green */

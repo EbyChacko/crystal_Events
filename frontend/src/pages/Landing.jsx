@@ -250,7 +250,7 @@ const Landing = () => {
             </section>
 
             {/* ── Service Area ── Sage light background ─────────────── */}
-            <section className="relative py-28 md:py-36 px-6 md:px-16 section-sage overflow-hidden" id="service-area">
+            <section className="relative py-28 md:py-36 px-6 md:px-16 section-cream overflow-hidden" id="service-area">
                 <div className="absolute top-0 left-0 right-0 h-px gold-shimmer-line" />
 
                 <div className="mx-auto max-w-7xl relative z-10">
