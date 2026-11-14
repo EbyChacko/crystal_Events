@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.views import APIView
 from rest_framework.throttling import ScopedRateThrottle
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, send_mail
+from django.utils.html import escape
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -2068,17 +2069,22 @@ class MessageViewSet(viewsets.ModelViewSet):
                 f"Service: {message.service.name if message.service else 'N/A'}\n\n"
                 f"Message:\n{message.message}"
             )
-            recipients = [settings.NOTIFY_EMAIL]
+            # Keep team addresses out of visible headers and reply-all lists.
+            bcc_recipients = []
+            seen = {settings.NOTIFY_EMAIL.casefold()}
             for profile in UserProfile.objects.select_related('user').filter(email_notifications=True, user__is_active=True):
-                if profile.user.email and profile.user.email not in recipients:
-                    recipients.append(profile.user.email)
-            send_mail(
-                f'You have an enquiry from {message.name}',
-                staff_body,
-                settings.DEFAULT_FROM_EMAIL,
-                recipients,
-                fail_silently=True,
+                address = profile.user.email.strip()
+                if address and address.casefold() not in seen:
+                    bcc_recipients.append(address)
+                    seen.add(address.casefold())
+            notification = EmailMessage(
+                subject=f'You have an enquiry from {message.name}',
+                body=staff_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[settings.NOTIFY_EMAIL],
+                bcc=bcc_recipients,
             )
+            notification.send(fail_silently=True)
             logger.info('[EMAIL] Staff notification sent.')
         except Exception as e:
             logger.error('[EMAIL ERROR] Staff notification failed: %s', e)
@@ -2124,13 +2130,13 @@ class MessageViewSet(viewsets.ModelViewSet):
         <!-- Body -->
         <tr>
           <td style="padding:32px;">
-            <p style="margin:0 0 8px;color:#555;font-size:14px;">Dear <strong>{message.name}</strong>,</p>
+            <p style="margin:0 0 8px;color:#555;font-size:14px;">Dear <strong>{escape(message.name)}</strong>,</p>
             <div style="margin:24px 0;padding:20px 24px;background:#f9f9f9;border-left:4px solid #c9a84c;border-radius:4px;">
-              <p style="margin:0;color:#222;font-size:15px;line-height:1.7;white-space:pre-wrap;">{reply_content}</p>
+              <p style="margin:0;color:#222;font-size:15px;line-height:1.7;white-space:pre-wrap;">{escape(reply_content)}</p>
             </div>
             <p style="margin:24px 0 0;color:#999;font-size:12px;">
               Sent on {sent_at_str}<br>
-              In reply to: <em style="color:#bbb;">"{message.message[:120]}{'...' if len(message.message) > 120 else ''}"</em>
+              In reply to: <em style="color:#bbb;">"{escape(message.message[:120])}{'...' if len(message.message) > 120 else ''}"</em>
             </p>
           </td>
         </tr>
